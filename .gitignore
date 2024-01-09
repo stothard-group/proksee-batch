@@ -10,3 +10,8 @@
 __pycache__/
 project-docs
 prompt
+.gpteng
+command
+requirements.txt
+run.sh
+.pytest_cache
