@@ -6,6 +6,7 @@ import click
 @click.version_option()
 def main() -> None:
     """Proksee Batch."""
+    print("Hi, I'm Proksee Batch.")
 
 
 if __name__ == "__main__":

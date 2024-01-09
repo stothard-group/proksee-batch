@@ -2,7 +2,7 @@
 name = "proksee-batch"
 version = "0.0.0"
 description = "Proksee Batch"
-authors = ["Lael D. Barlow <lael@ualberta.ca>"]
+authors = ["Lael D. Barlow"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/laelbarlow/proksee-batch"
