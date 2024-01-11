@@ -15,3 +15,5 @@ command
 requirements.txt
 run.sh
 .pytest_cache
+tests/temp_output
+*.DS_Store
