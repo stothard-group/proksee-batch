@@ -1,5 +1,6 @@
 from Bio import SeqIO
 
+
 def get_stats_from_genbank(genbank_file: str) -> tuple:
     """
     Get basic stats from a GenBank file.
@@ -18,8 +19,8 @@ def get_stats_from_genbank(genbank_file: str) -> tuple:
         # Process each record (contig) in the file
         total_size += len(record.seq)
         number_of_contigs += 1
-        gc_content += record.seq.count('G')
-        gc_content += record.seq.count('C')
+        gc_content += record.seq.count("G")
+        gc_content += record.seq.count("C")
 
     gc_content = round(gc_content / total_size, 2)
 

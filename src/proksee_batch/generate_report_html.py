@@ -1,13 +1,17 @@
 import os
 
-def generate_report_html(js_files: list, svg_files: list, genome_files: dict, output_file: str) -> None:
+
+def generate_report_html(
+    js_files: list, svg_files: list, genome_files: dict, output_file: str
+) -> None:
     """
     Generates an HTML report file with a table containing links to Proksee
     projects and images for each sample.
     """
-    with open(output_file, 'w') as file:
+    with open(output_file, "w") as file:
         # Write the DOCTYPE, html, and head sections with CSS
-        file.write('''<!DOCTYPE html>
+        file.write(
+            """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -78,10 +82,12 @@ def generate_report_html(js_files: list, svg_files: list, genome_files: dict, ou
         }
     </style>
 </head>
-''')
+"""
+        )
 
         # Write the body section with a dynamic table
-        file.write('''
+        file.write(
+            """
     <body>
         <h1>Proksee Batch results</h1>
         <table id="resultsTable">
@@ -97,18 +103,20 @@ def generate_report_html(js_files: list, svg_files: list, genome_files: dict, ou
                 </tr>
             </thead>
             <tbody>
-                ''')
+                """
+        )
 
         # Create table rows based on the js and svg files
         for js_file, svg_file in zip(js_files, svg_files):
-            sample_id = os.path.basename(js_file).rsplit('.',1)[0]
+            sample_id = os.path.basename(js_file).rsplit(".", 1)[0]
 
             description = genome_files[sample_id]["Description"]
             total_size = str(genome_files[sample_id]["Total size"])
             number_of_contigs = str(genome_files[sample_id]["Number of contigs"])
             gc_content = str(genome_files[sample_id]["GC content"])
 
-            file.write(f'''
+            file.write(
+                f"""
         <tr>
             <td class="dropdown-arrow">&#9660;</td>
             <td>{sample_id}</td>
@@ -123,10 +131,12 @@ def generate_report_html(js_files: list, svg_files: list, genome_files: dict, ou
                 <img src="images/{sample_id}.svg" alt="Sample Image">
             </td>
         </tr>
-''')
+"""
+            )
 
         # Write the script section
-        file.write('''
+        file.write(
+            """
     </table>
 
     <script>
@@ -229,5 +239,5 @@ def generate_report_html(js_files: list, svg_files: list, genome_files: dict, ou
     </script>
 </body>
 </html>
-''')
-
+"""
+        )

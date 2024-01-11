@@ -1,10 +1,12 @@
-import os
 import glob
+import os
 import time
+
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.options import Options
+
 
 def setup_browser(download_dir: str) -> webdriver.Chrome:
     """
@@ -29,6 +31,7 @@ def setup_browser(download_dir: str) -> webdriver.Chrome:
 
     service = Service(ChromeDriverManager().install())
     return webdriver.Chrome(service=service, options=chrome_options)
+
 
 def download_data(browser: webdriver.Chrome, url: str) -> None:
     """
@@ -57,12 +60,13 @@ def scrape_proksee_image(proksee_link_file: str, output_file: str) -> None:
     """
     # Define a temporary directory
     download_dir = os.path.join(
-        os.path.dirname(output_file), "temporary_" + proksee_link_file.rsplit("/", 1)[-1]
+        os.path.dirname(output_file),
+        "temporary_" + proksee_link_file.rsplit("/", 1)[-1],
     )
 
     # Extract link from file.
     proksee_link = None
-    with open(proksee_link_file, "r") as file:
+    with open(proksee_link_file) as file:
         proksee_link = file.read().strip()
 
     # Set up the browser and download the data.

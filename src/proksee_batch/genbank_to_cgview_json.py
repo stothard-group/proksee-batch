@@ -1,42 +1,43 @@
+import datetime
 import json
 import os
-from Bio import SeqIO
-from Bio.SeqRecord import SeqRecord
-import datetime
-from typing import List, Any, Dict
 import random
 import string
+from typing import Any
+from typing import Dict
+from typing import List
+
+from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
+
 
 # Global variables (which should later be defined in a config file).
 genetic_code: str = "11"
 orientation: str = "+"
+
 
 def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
     genbank_records: List[SeqRecord] = list(SeqIO.parse(genbank_file, "genbank"))
 
     now: datetime.datetime = datetime.datetime.now()
 
-    map_id: str = ''.join(random.choices(string.ascii_lowercase + string.digits, k=40))
+    map_id: str = "".join(random.choices(string.ascii_lowercase + string.digits, k=40))
 
     json_data: Dict[str, Any] = {
         "cgview": {
             "version": "1.0",
             "created": now.strftime("%Y-%m-%d %H:%M:%S"),
             "id": map_id,
-            "name": os.path.basename(genbank_file.rsplit('.', 1)[0]),
+            "name": os.path.basename(genbank_file.rsplit(".", 1)[0]),
             "geneticCode": genetic_code,
             "settings": {},
             "backbone": {},
             "ruler": {},
             "dividers": {},
             "annotation": {},
-            "sequence": {
-                "contigs": []
-            },
+            "sequence": {"contigs": []},
             "captions": [],
-            "legend": {
-                "items": []
-            },
+            "legend": {"items": []},
             "features": [],
             "tracks": [
                 {
@@ -45,9 +46,9 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
                     "position": "both",
                     "dataType": "feature",
                     "dataMethod": "source",
-                    "dataKeys": "genbank-features"
+                    "dataKeys": "genbank-features",
                 }
-            ]
+            ],
         }
     }
 
@@ -57,7 +58,6 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
             "orientation": orientation,
             "length": len(record.seq),
             "seq": str(record.seq),
-
         }
         json_data["cgview"]["sequence"]["contigs"].append(contig_data)
 
@@ -71,9 +71,9 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
                     "strand": feature.location.strand,
                     "source": "genbank-features",
                     "contig": record.name,
-                    "legend": feature.type
+                    "legend": feature.type,
                 }
                 json_data["cgview"]["features"].append(feature_data)
 
-    with open(json_file, 'w') as outfile:
+    with open(json_file, "w") as outfile:
         json.dump(json_data, outfile, indent=4)
