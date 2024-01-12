@@ -1861,6 +1861,17 @@ doc = ["Sphinx (>=7)", "packaging", "sphinx-autodoc-typehints (>=1.2.0)"]
 test = ["coverage[toml] (>=7)", "mypy (>=1.2.0)", "pytest (>=7)"]
 
 [[package]]
+name = "types-selenium"
+version = "3.141.9"
+description = "Typing stubs for selenium"
+optional = false
+python-versions = "*"
+files = [
+    {file = "types-selenium-3.141.9.tar.gz", hash = "sha256:0817ad9914f5d4c5b064ca2fbf694a1b4c668465a502bd3d1248d82e098132ce"},
+    {file = "types_selenium-3.141.9-py3-none-any.whl", hash = "sha256:83606e061154bc2241d6eba964263f9cf1dcaa6c7dfff0bb10d3abcfbdaefdc7"},
+]
+
+[[package]]
 name = "typing-extensions"
 version = "4.9.0"
 description = "Backported and Experimental Type Hints for Python 3.8+"
@@ -1970,4 +1981,4 @@ tests-strict = ["pytest (==4.6.0)", "pytest (==4.6.0)", "pytest (==6.2.5)", "pyt
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "65015aa3682e77fae6b2616d9173a7d14eec9be98cdf171196bad292206ac6d7"
+content-hash = "e5d8d174b358c8d536eb944f49cd885542d28d9d1d33b26dcf67226296c58c0a"

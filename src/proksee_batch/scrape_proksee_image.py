@@ -30,7 +30,7 @@ def setup_browser(download_dir: str) -> webdriver.Chrome:
     )
 
     service = Service(ChromeDriverManager().install())
-    return webdriver.Chrome(service=service, options=chrome_options)
+    return webdriver.Chrome(service=service, options=chrome_options)  # type: ignore
 
 
 def download_data(browser: webdriver.Chrome, url: str) -> None:

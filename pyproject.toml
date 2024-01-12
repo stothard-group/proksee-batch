@@ -22,6 +22,7 @@ biopython = ">=1.83"
 requests = "^2.31.0"
 selenium = "^4.16.0"
 webdriver-manager = "^4.0.1"
+types-selenium = "^3.141.9"
 
 [tool.poetry.dev-dependencies]
 Pygments = ">=2.10.0"
