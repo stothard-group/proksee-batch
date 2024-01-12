@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 import sys
+from importlib import resources
 from importlib.metadata import version
 from typing import Any
 from typing import Dict
@@ -94,10 +95,15 @@ def main(
             sys.exit(1)
 
     # Set template to the path to a default Proksee configuration file if no template was provided.
+    # else:
+    #    template = os.path.join(
+    #        os.path.dirname(__file__), "data", "default_proksee_template.json"
+    #    )
     else:
-        template = os.path.join(
-            os.path.dirname(__file__), "data", "default_proksee_template.json"
-        )
+        with resources.path(
+            "proksee_batch.data", "default_proksee_template.json"
+        ) as template_path:
+            template = str(template_path)
 
     # Define path to a temporary output directory within the output directory.
     temp_output = os.path.join(output, "temp")
