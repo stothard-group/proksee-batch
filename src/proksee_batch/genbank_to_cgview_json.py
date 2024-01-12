@@ -19,7 +19,7 @@ orientation: str = "+"
 
 
 def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
-    genbank_records: List[SeqRecord] = list(SeqIO.parse(genbank_file, "genbank"))
+    genbank_records: List[SeqRecord] = list(SeqIO.parse(genbank_file, "genbank"))  # type: ignore
 
     now: datetime.datetime = datetime.datetime.now()
 

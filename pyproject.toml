@@ -24,6 +24,7 @@ selenium = "^4.16.0"
 webdriver-manager = "^4.0.1"
 types-selenium = "^3.141.9"
 types-requests = "^2.31.0.20240106"
+poetry-plugin-export = "^1.6.0"
 
 [tool.poetry.dev-dependencies]
 Pygments = ">=2.10.0"
