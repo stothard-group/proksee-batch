@@ -8,6 +8,7 @@ from typing import Dict
 from typing import Optional
 
 import click
+import toml
 
 from .genbank_to_cgview_json import genbank_to_cgview_json
 from .generate_proksee_link import generate_proksee_link
@@ -17,7 +18,18 @@ from .merge_cgview_json_with_template import merge_cgview_json_with_template
 from .scrape_proksee_image import scrape_proksee_image
 
 
+def get_version_from_pyproject():
+    """Read version from pyproject.toml."""
+    pyproject_path = os.path.join(
+        os.path.dirname(__file__), "..", "..", "pyproject.toml"
+    )
+    with open(pyproject_path) as pyproject_file:
+        pyproject_data = toml.load(pyproject_file)
+    return pyproject_data["tool"]["poetry"]["version"]
+
+
 @click.command()
+@click.version_option(version=get_version_from_pyproject(), prog_name="Proksee Batch")
 @click.option(
     "--genomes",
     required=True,
