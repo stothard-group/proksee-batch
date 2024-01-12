@@ -1,18 +1,20 @@
+from typing import Tuple
+
 from Bio import SeqIO
 
 
-def get_stats_from_genbank(genbank_file: str) -> tuple:
+def get_stats_from_genbank(genbank_file: str) -> Tuple[str, int, int, float]:
     """
     Get basic stats from a GenBank file.
     """
-    description = None
+    description = ""
     total_size = 0
     number_of_contigs = 0
     gc_content = 0.0
 
     for record in SeqIO.parse(genbank_file, "genbank"):
         # Use the description from the first record (contig) in the file.
-        description = record.description
+        description = str(record.description)
         break
 
     for record in SeqIO.parse(genbank_file, "genbank"):
@@ -24,4 +26,4 @@ def get_stats_from_genbank(genbank_file: str) -> tuple:
 
     gc_content = round(gc_content / total_size, 2)
 
-    return description, total_size, number_of_contigs, gc_content
+    return (description, total_size, number_of_contigs, gc_content)

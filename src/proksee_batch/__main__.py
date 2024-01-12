@@ -3,6 +3,8 @@ import json
 import os
 import shutil
 import sys
+from typing import Any
+from typing import Dict
 from typing import Optional
 
 import click
@@ -70,7 +72,7 @@ def main(genomes: str, output: str, template: Optional[str]) -> None:
     os.mkdir(temp_output)
 
     # Initiate a dictionary to store file paths for each genome.
-    genome_files = {}
+    genome_files: Dict[str, Any] = {}
 
     # Iterate over the .gbk files in the genomes directory, and process each one to create a .json file in the output directory.
     for genome in os.listdir(genomes):

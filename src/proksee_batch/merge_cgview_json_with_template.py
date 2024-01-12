@@ -1,4 +1,6 @@
 import json
+from typing import Any
+from typing import Dict
 
 
 def merge_cgview_json_with_template(
@@ -32,7 +34,7 @@ def merge_cgview_json_with_template(
     data_keys = ["name", "sequence", "features", "plots", "bookmarks", "tracks"]
 
     # Create a new JSON structure
-    merged_data = {"cgview": {}}
+    merged_data: Dict[str, Any] = {"cgview": {}}
 
     # Add formatting components
     for key in formatting_keys:

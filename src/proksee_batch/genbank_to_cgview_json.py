@@ -8,6 +8,8 @@ from typing import Dict
 from typing import List
 
 from Bio import SeqIO
+from Bio.SeqFeature import CompoundLocation
+from Bio.SeqFeature import FeatureLocation
 from Bio.SeqRecord import SeqRecord
 
 
@@ -61,19 +63,51 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
         }
         json_data["cgview"]["sequence"]["contigs"].append(contig_data)
 
+        # for feature in record.features:
+        #    if feature.type == "CDS":
+        #        if feature.location.start is None or feature.location.end is None or feature.location.strand is None:
+        #            continue
+        #        feature_data: Dict[str, Any] = {
+        #            "type": feature.type,
+        #            "name": feature.qualifiers["locus_tag"][0],
+        #            "start": int(feature.location.start) + 1,
+        #            "stop": int(feature.location.end),
+        #            "strand": feature.location.strand,
+        #            "source": "genbank-features",
+        #            "contig": record.name,
+        #            "legend": feature.type,
+        #        }
+        #        json_data["cgview"]["features"].append(feature_data)
+
         for feature in record.features:
             if feature.type == "CDS":
+                # Check if location is None
+                if feature.location is None:
+                    raise ValueError("Location is None")
+
+                # Handle CompoundLocation
+                if isinstance(feature.location, CompoundLocation):
+                    # Example handling: use the start of the first part and the end of the last part
+                    start = int(feature.location.parts[0].start) + 1
+                    end = int(feature.location.parts[-1].end)
+                    strand = feature.location.parts[0].strand
+                elif isinstance(feature.location, FeatureLocation):
+                    # Handle SimpleLocation
+                    start = int(feature.location.start) + 1
+                    end = int(feature.location.end)
+                    strand = feature.location.strand
+
                 feature_data: Dict[str, Any] = {
                     "type": feature.type,
-                    "name": feature.qualifiers["locus_tag"][0],
-                    "start": int(feature.location.start) + 1,
-                    "stop": int(feature.location.end),
-                    "strand": feature.location.strand,
+                    "name": feature.qualifiers.get("locus_tag", [""])[0],
+                    "start": start,
+                    "stop": end,
+                    "strand": strand,
                     "source": "genbank-features",
                     "contig": record.name,
                     "legend": feature.type,
                 }
-                json_data["cgview"]["features"].append(feature_data)
+            json_data["cgview"]["features"].append(feature_data)
 
     with open(json_file, "w") as outfile:
         json.dump(json_data, outfile, indent=4)
