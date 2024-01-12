@@ -23,18 +23,34 @@
 
 ## Features
 
-- TODO
-
-## Requirements
-
-- TODO
+_Proksee Batch_ is a command-line tool for visualizing multiple prokaryotic
+genomes via the [Proksee] web application.
 
 ## Installation
 
-You can install _Proksee Batch_ via [pip] from [PyPI]:
+You can simply install _Proksee Batch_ via [pip] from [PyPI]:
 
 ```console
 $ pip install proksee-batch
+```
+
+Or, better yet, use [pipx] to install _Proksee Batch_ from [PyPI] in an isolated environment:
+
+```console
+$ pipx install proksee-batch
+```
+
+To install _Proksee Batch_ in a [conda] environment, use a YAML file like this:
+
+```yaml
+name: proksee-batch
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - pip:
+      - proksee-batch
 ```
 
 ## Usage
@@ -43,7 +59,7 @@ Please see the [Command-line Reference] for details.
 
 ## Contributing
 
-Contributions are very welcome.
+Contributions are welcome.
 To learn more, see the [Contributor Guide].
 
 ## License
@@ -58,13 +74,16 @@ please [file an issue] along with a detailed description.
 
 ## Credits
 
-This project was generated from [@cjolowicz]'s [Hypermodern Python Cookiecutter] template.
+This project was initially generated using [@cjolowicz]'s [Hypermodern Python Cookiecutter] template.
 
 [@cjolowicz]: https://github.com/cjolowicz
 [pypi]: https://pypi.org/
 [hypermodern python cookiecutter]: https://github.com/cjolowicz/cookiecutter-hypermodern-python
 [file an issue]: https://github.com/laelbarlow/proksee-batch/issues
 [pip]: https://pip.pypa.io/
+[pipx]: https://pipx.pypa.io/stable/
+[conda]: https://docs.conda.io/en/latest/
+[proksee]: https://proksee.ca
 
 <!-- github-only -->
 
