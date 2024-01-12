@@ -107,7 +107,7 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
                     "contig": record.name,
                     "legend": feature.type,
                 }
-            json_data["cgview"]["features"].append(feature_data)
+                json_data["cgview"]["features"].append(feature_data)
 
     with open(json_file, "w") as outfile:
         json.dump(json_data, outfile, indent=4)

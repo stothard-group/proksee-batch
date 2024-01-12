@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 import sys
+from importlib.metadata import version
 from typing import Any
 from typing import Dict
 from typing import Optional
@@ -10,6 +11,7 @@ from typing import Optional
 import click
 import toml
 
+from .download_example_genbank_files import download_example_genbank_files
 from .genbank_to_cgview_json import genbank_to_cgview_json
 from .generate_proksee_link import generate_proksee_link
 from .generate_report_html import generate_report_html
@@ -18,27 +20,15 @@ from .merge_cgview_json_with_template import merge_cgview_json_with_template
 from .scrape_proksee_image import scrape_proksee_image
 
 
-def get_version_from_pyproject():
-    """Read version from pyproject.toml."""
-    pyproject_path = os.path.join(
-        os.path.dirname(__file__), "..", "..", "pyproject.toml"
-    )
-    with open(pyproject_path) as pyproject_file:
-        pyproject_data = toml.load(pyproject_file)
-    return pyproject_data["tool"]["poetry"]["version"]
-
-
 @click.command()
-@click.version_option(version=get_version_from_pyproject(), prog_name="Proksee Batch")
+@click.version_option(version=version("proksee-batch"), prog_name="Proksee Batch")
 @click.option(
     "--genomes",
-    required=True,
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
     help="Path to the directory containing input genomes in GenBank format.",
 )
 @click.option(
     "--output",
-    required=True,
     type=click.Path(file_okay=False, dir_okay=True),
     help="Path to the output directory.",
 )
@@ -47,12 +37,42 @@ def get_version_from_pyproject():
     type=click.Path(exists=True),
     help="Path to the Proksee configuration file in JSON format.",
 )
-def main(genomes: str, output: str, template: Optional[str]) -> None:
-    """Proksee Batch: A tool for batch processing of genomes using Proksee
-    (https://proksee.ca/)."""
+@click.option(
+    "--download-example",
+    type=click.Path(file_okay=False, dir_okay=True),
+    help="Download example GenBank files to the specified directory, and exit.",
+)
+def main(
+    genomes: Optional[str],
+    output: Optional[str],
+    template: Optional[str],
+    download_example: Optional[str],
+) -> None:
+    """Proksee Batch: A tool for batch processing of genomes using Proksee."""
+
+    # Check if the download example GenBank files option is used
+    if download_example:
+        # Download logic
+        download_example_genbank_files(download_example)
+        print(f"Example GenBank files downloaded to {download_example}")
+        sys.exit(0)
+
+    # Check if genomes directory is provided
+    if not genomes:
+        print("Error: Missing option '--genomes'.", file=sys.stderr)
+        sys.exit(1)
+
+    # Check if output directory is provided
+    if not output:
+        print("Error: Missing option '--output'.", file=sys.stderr)
+        sys.exit(1)
+
     # Process genomes directory.
     # Check that there is at least one .gbk file in the directory.
-    if not any(genome.endswith(".gbk") for genome in os.listdir(genomes)):
+    if not any(
+        genome.endswith(".gbk") or genome.endswith(".gbff") or genome.endswith(".gb")
+        for genome in os.listdir(genomes)
+    ):
         print("No GenBank files found in the genomes directory.", file=sys.stderr)
         sys.exit(1)
 
@@ -88,7 +108,11 @@ def main(genomes: str, output: str, template: Optional[str]) -> None:
 
     # Iterate over the .gbk files in the genomes directory, and process each one to create a .json file in the output directory.
     for genome in os.listdir(genomes):
-        if genome.endswith(".gbk"):
+        if (
+            genome.endswith(".gbk")
+            or genome.endswith(".gbff")
+            or genome.endswith(".gb")
+        ):
             print(f"Processing {genome}...")
 
             # Get basic stats from the GenBank file.
@@ -110,17 +134,19 @@ def main(genomes: str, output: str, template: Optional[str]) -> None:
             }
 
             # Convert the GenBank file to a basic cgview map in JSON format.
-            basic_json_file = os.path.join(temp_output, genome.replace(".gbk", ".json"))
+            basic_json_file = os.path.join(
+                temp_output, genome.rsplit(".", 1)[0] + ".json"
+            )
             genbank_to_cgview_json(os.path.join(genomes, genome), basic_json_file)
 
             # Merge the basic cgview map with the template Proksee configuration file.
             merged_json_file = os.path.join(
-                temp_output, genome.replace(".gbk", ".merged.json")
+                temp_output, genome.rsplit(".", 1)[0] + ".merged.json"
             )
             merge_cgview_json_with_template(basic_json_file, template, merged_json_file)
 
             # Convert the merged JSON file to .js file by wrapping it in a variable assignment.
-            js_file = os.path.join(temp_output, genome.replace(".gbk", ".js"))
+            js_file = os.path.join(temp_output, genome.rsplit(".", 1)[0] + ".js")
             genome_files[genome_id]["JSON_file"] = js_file
             with open(js_file, "w") as file:
                 # Get the JSON data from the merged JSON file as a string.
@@ -132,13 +158,13 @@ def main(genomes: str, output: str, template: Optional[str]) -> None:
 
             # Generate a Proksee link using the merged JSON file.
             proksee_project_link_file = os.path.join(
-                temp_output, genome.replace(".gbk", ".proksee_link.txt")
+                temp_output, genome.rsplit(".", 1)[0] + ".proksee_link.txt"
             )
             generate_proksee_link(merged_json_file, proksee_project_link_file)
 
             # Scrape proksee image.
             proksee_image_file = os.path.join(
-                temp_output, genome.replace(".gbk", ".svg")
+                temp_output, genome.rsplit(".", 1)[0] + ".svg"
             )
             genome_files[genome_id]["Proksee_image_file"] = proksee_image_file
             scrape_proksee_image(proksee_project_link_file, proksee_image_file)
