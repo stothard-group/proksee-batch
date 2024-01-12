@@ -31,13 +31,13 @@ genomes via the [Proksee] web application.
 You can simply install _Proksee Batch_ via [pip] from [PyPI]:
 
 ```console
-$ pip install proksee-batch
+pip install proksee-batch
 ```
 
 Or, better yet, use [pipx] to install _Proksee Batch_ from [PyPI] in an isolated environment:
 
 ```console
-$ pipx install proksee-batch
+pipx install proksee-batch
 ```
 
 To install _Proksee Batch_ in a [conda] environment, use a YAML file like this:
