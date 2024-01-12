@@ -12,9 +12,9 @@ Here is a list of important resources for contributors:
 - [Code of Conduct]
 
 [mit license]: https://opensource.org/licenses/MIT
-[source code]: https://github.com/laelbarlow/proksee-batch
+[source code]: https://github.com/stothard-group/proksee-batch
 [documentation]: https://proksee-batch.readthedocs.io/
-[issue tracker]: https://github.com/laelbarlow/proksee-batch/issues
+[issue tracker]: https://github.com/stothard-group/proksee-batch/issues
 
 ## How to report a bug
 
@@ -108,7 +108,7 @@ $ nox --session=pre-commit -- install
 It is recommended to open an issue before starting work on anything.
 This will allow a chance to talk it over with the owners and validate your approach.
 
-[pull request]: https://github.com/laelbarlow/proksee-batch/pulls
+[pull request]: https://github.com/stothard-group/proksee-batch/pulls
 
 <!-- github-only -->
 

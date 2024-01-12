@@ -5,15 +5,15 @@ description = "Proksee Batch"
 authors = ["Lael D. Barlow"]
 license = "MIT"
 readme = "README.md"
-homepage = "https://github.com/laelbarlow/proksee-batch"
-repository = "https://github.com/laelbarlow/proksee-batch"
+homepage = "https://github.com/stothard-group/proksee-batch"
+repository = "https://github.com/stothard-group/proksee-batch"
 documentation = "https://proksee-batch.readthedocs.io"
 classifiers = [
     "Development Status :: 1 - Planning",
 ]
 
 [tool.poetry.urls]
-Changelog = "https://github.com/laelbarlow/proksee-batch/releases"
+Changelog = "https://github.com/stothard-group/proksee-batch/releases"
 
 [tool.poetry.dependencies]
 python = "^3.11"

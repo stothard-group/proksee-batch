@@ -17,7 +17,7 @@
 [python version]: https://pypi.org/project/proksee-batch
 [read the docs]: https://proksee-batch.readthedocs.io/
 [tests]: https://github.com/stothard-group/proksee-batch/actions?workflow=Tests
-[codecov]: https://app.codecov.io/gh/laelbarlow/proksee-batch
+[codecov]: https://app.codecov.io/gh/stothard-groupproksee-batch
 [pre-commit]: https://github.com/pre-commit/pre-commit
 [black]: https://github.com/psf/black
 
@@ -79,7 +79,7 @@ This project was initially generated using [@cjolowicz]'s [Hypermodern Python Co
 [@cjolowicz]: https://github.com/cjolowicz
 [pypi]: https://pypi.org/
 [hypermodern python cookiecutter]: https://github.com/cjolowicz/cookiecutter-hypermodern-python
-[file an issue]: https://github.com/laelbarlow/proksee-batch/issues
+[file an issue]: https://github.com/stothard-group/proksee-batch/issues
 [pip]: https://pip.pypa.io/
 [pipx]: https://pipx.pypa.io/stable/
 [conda]: https://docs.conda.io/en/latest/
@@ -87,6 +87,6 @@ This project was initially generated using [@cjolowicz]'s [Hypermodern Python Co
 
 <!-- github-only -->
 
-[license]: https://github.com/laelbarlow/proksee-batch/blob/main/LICENSE
-[contributor guide]: https://github.com/laelbarlow/proksee-batch/blob/main/CONTRIBUTING.md
+[license]: https://github.com/stothard-group/proksee-batch/blob/main/LICENSE
+[contributor guide]: https://github.com/stothard-group/proksee-batch/blob/main/CONTRIBUTING.md
 [command-line reference]: https://proksee-batch.readthedocs.io/en/latest/usage.html

@@ -19,5 +19,5 @@ reference
 contributing
 Code of Conduct <codeofconduct>
 License <license>
-Changelog <https://github.com/laelbarlow/proksee-batch/releases>
+Changelog <https://github.com/stothard-group/proksee-batch/releases>
 ```
