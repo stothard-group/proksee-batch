@@ -24,7 +24,13 @@
 ## Features
 
 _Proksee Batch_ is a command-line tool for visualizing multiple prokaryotic
-genomes via the [Proksee] web application.
+genomes via the [Proksee] web application. Instead of manually uploading each
+genome to [Proksee] and manually configuring the visualization, _Proksee Batch_
+allows you to, with a single command, upload multiple genomes with custom
+configuration options, download preview images for each genome, and obtain links
+to [Proksee] projects for further analysis of each genome. Also, _Proksee Batch_
+is designed to be included in bioinformatics workflows/pipelines for analyzing
+hundreds of genomes efficiently and reproducibly.
 
 ## Installation
 

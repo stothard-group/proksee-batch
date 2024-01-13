@@ -12,7 +12,7 @@ def generate_proksee_link(json_data_file: str, output_file: str) -> None:
     json_data = None
     with open(json_data_file) as file:
         json_data = json.load(file)
-    data = {"data": json.dumps(json_data)}
+    data = {"data": json.dumps(json_data), "origin": "proksee-batch"}
 
     try:
         response = requests.post(
