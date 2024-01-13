@@ -208,7 +208,7 @@ def generate_report_html(
                     alert('Failed to generate Proksee project: No data available for this sample.');
                     return;
                 }
-                const data = { data: JSON.stringify(window.jsonData) };
+                const data = { origin: 'proksee-batch', data: JSON.stringify(window.jsonData) };
                 const url = 'https://proksee.ca/api/v1/projects.json';
                 fetch(url, {
                     method: 'POST',
