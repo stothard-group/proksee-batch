@@ -104,6 +104,7 @@ def main(
             "proksee_batch.data", "default_proksee_template.json"
         ) as template_path:
             template = str(template_path)
+        assert os.path.exists(template)
 
     # Define path to a temporary output directory within the output directory.
     temp_output = os.path.join(output, "temp")
