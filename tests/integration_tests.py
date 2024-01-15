@@ -50,7 +50,7 @@ def test_download_example(runner: CliRunner) -> None:
         assert len(gbff_files) > 0
 
         # Parse the first .gbff file with BioPython to check that it is a valid GenBank file.
-        records = SeqIO.parse(os.path.join(genome_dir, gbff_files[0]), "genbank")
+        records = SeqIO.parse(os.path.join(genome_dir, gbff_files[0]), "genbank")  # type: ignore
         assert len(list(records)) > 0
 
 
@@ -69,7 +69,9 @@ def test_default_proksee_json() -> None:
     # Use temporary files for Proksee link and SVG image
     with tempfile.TemporaryDirectory() as temp_dir, resources.files(
         "proksee_batch.data"
-    ).joinpath("default_proksee_template.json") as template_file_path:
+    ).joinpath(
+        "default_proksee_template.json"
+    ) as template_file_path:  # type: ignore
         temp_proksee_link = Path(temp_dir, "proksee_link.txt")
         temp_svg_file = Path(temp_dir, "proksee_image.svg")
 

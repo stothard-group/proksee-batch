@@ -63,22 +63,6 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
         }
         json_data["cgview"]["sequence"]["contigs"].append(contig_data)
 
-        # for feature in record.features:
-        #    if feature.type == "CDS":
-        #        if feature.location.start is None or feature.location.end is None or feature.location.strand is None:
-        #            continue
-        #        feature_data: Dict[str, Any] = {
-        #            "type": feature.type,
-        #            "name": feature.qualifiers["locus_tag"][0],
-        #            "start": int(feature.location.start) + 1,
-        #            "stop": int(feature.location.end),
-        #            "strand": feature.location.strand,
-        #            "source": "genbank-features",
-        #            "contig": record.name,
-        #            "legend": feature.type,
-        #        }
-        #        json_data["cgview"]["features"].append(feature_data)
-
         for feature in record.features:
             if feature.type == "CDS":
                 # Check if location is None
