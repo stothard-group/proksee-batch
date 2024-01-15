@@ -87,6 +87,18 @@ and are written using the [pytest] testing framework.
 
 [pytest]: https://pytest.readthedocs.io/
 
+Unit tests can be run via:
+
+```console
+$ poetry run pytest
+```
+
+Integration tests can be run via (involves accessing the Proksee server, etc.):
+
+```console
+$ poetry run pytest tests/integration_tests.py
+```
+
 ## How to submit changes
 
 Open a [pull request] to submit changes to this project.
