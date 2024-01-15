@@ -72,25 +72,34 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
         }
         json_data["cgview"]["sequence"]["contigs"].append(contig_data)
 
+        # Define feature types to skip.
+        features_to_skip = ["source", "gene", "exon"]
+
         for feature in record.features:
-            if feature.type == "CDS":
-                # Check if location is None
-                if feature.location is None:
-                    raise ValueError("Location is None")
+            if feature.type in features_to_skip:
+                continue
 
-                # Handle CompoundLocation
-                if isinstance(feature.location, CompoundLocation):
-                    # Example handling: use the start of the first part and the end of the last part
-                    start = int(feature.location.parts[0].start) + 1
-                    end = int(feature.location.parts[-1].end)
-                    strand = feature.location.parts[0].strand
-                elif isinstance(feature.location, FeatureLocation):
-                    # Handle SimpleLocation
-                    start = int(feature.location.start) + 1
-                    end = int(feature.location.end)
-                    strand = feature.location.strand
+            if feature.location is None:
+                raise ValueError("Location is None")
 
-                feature_data: Dict[str, Any] = {
+            # Determine the location type and process accordingly
+            locations = (
+                feature.location.parts
+                if isinstance(feature.location, CompoundLocation)
+                else [feature.location]
+                if isinstance(feature.location, FeatureLocation)
+                else None
+            )
+
+            if locations is None:
+                continue  # Or handle the unexpected location type if necessary
+
+            for loc in locations:
+                start = int(loc.start) + 1
+                end = int(loc.end)
+                strand = loc.strand
+
+                feature_data = {
                     "type": feature.type,
                     "name": feature.qualifiers.get("locus_tag", [""])[0],
                     "start": start,

@@ -1,0 +1,57 @@
+LOCUS       RandomSeq     1000 bp    DNA     circular     15-JAN-2024
+DEFINITION  Hypothetical random circular DNA sequence with a gene containing two exons.
+ACCESSION   XXXX0000000
+VERSION     XXXX0000000.1
+KEYWORDS    .
+SOURCE      synthetic construct
+  ORGANISM  synthetic construct
+            other sequences; artificial sequences.
+REFERENCE   1  (bases 1 to 1000)
+  AUTHORS   Doe,J.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (15-JAN-2024) to the GenBank
+FEATURES             Location/Qualifiers
+     source          1..1000
+                     /organism="synthetic construct"
+                     /mol_type="genomic DNA"
+                     /db_xref="taxon:XXXX"
+     gene            100..400
+                     /gene="gene1"
+                     /locus_tag="G1_XXXX"
+     mRNA            join(100..200,300..400)
+                     /gene="gene1"
+                     /product="hypothetical mRNA"
+     CDS             join(100..200,300..400)
+                     /gene="gene1"
+                     /codon_start=1
+                     /transl_table=11
+                     /product="hypothetical protein"
+                     /protein_id="XXXX0000001.1"
+                     /db_xref="GI:XXXX"
+     exon            100..200
+                     /gene="gene1"
+                     /number=1
+     exon            300..400
+                     /gene="gene1"
+                     /number=2
+     misc_feature    600..800
+                     /note="hypothetical regulatory element"
+ORIGIN
+        1 gatcctccat atacaacggt atctccacct caggtttaga tctcaacaac ggaaccattg
+       61 ccgacatgag acagttagga tctgcaactc gactacgtga agactgcaaa tgccttgcac
+      121 ttgtaatccc agcactttgg gaggccaagg cgggtggatc acgaggtcag gagattcgag
+      181 accatcctgg ctaacatggt gaaaccccgt ctctactaaa aatacaaaaa attagccagg
+      241 cgtggtggca catgcctgta atcccagcta ctcaggaagg cagaggcagg cagatcacct
+      301 gaggctcaga gttcaaggcc agcctggtct acaaagtgag ttccaggaca gctgggcaac
+      361 atagtgagac cctgtctctg tacaaaagaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaag
+      421 gcttagctca gctgggatgg cgtggctcat gcctgtaatc ccagcacttt gggaggccaa
+      481 ggcgggcgga tcacctgagg tcaggagatc gagaccatcc tggccaacat ggtgaaaccc
+      541 cgtctctact aaaaatacaa aaaaattagc caggcatggt ggcatgcctg taatcccagc
+      601 tactcaggag gctgaggcag gcagatcaca tgaggctcag agttcgagac cagcctgggc
+      661 aaacatagca agaccctgtc tctactaaaa atacaaaaat tagccaggcg tggcggcaca
+      721 tcctgtaatc ccagctactc aggaagctga ggcatgagga gatcgagacc atcctggcta
+      781 acacggcgaa accccgtctc tactaaaaat acaaaaaatt agccaggcgt ggtggcgggc
+      841 atgcctgtaa tcccagctac tcaggaaggc tgaggcaggc agatcacctg aggtcagaga
+      901 ttcaagacca gcctgggcaa catagtgaga ccctgtctca aaaaaaaaaa aaaaaaaaaa
+      961 aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa aaaaaaaaaa
+//
