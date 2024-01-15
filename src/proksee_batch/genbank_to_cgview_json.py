@@ -54,9 +54,18 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
         }
     }
 
+    all_contig_names: List[str] = []
     for record in genbank_records:
+        # Handle potentially problematic characters in contig names.
+        assert record.name is not None
+        assert (
+            record.name not in all_contig_names
+        ), f"Duplicate contig name {record.name} in {genbank_file}."
+        all_contig_names.append(record.name)
+        contig_name = record.name.replace("|", "_").replace(";", "_")
+
         contig_data: Dict[str, Any] = {
-            "name": record.name,
+            "name": contig_name,
             "orientation": orientation,
             "length": len(record.seq),
             "seq": str(record.seq),
