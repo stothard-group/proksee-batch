@@ -5,7 +5,6 @@ from typing import List
 
 
 def generate_report_html(
-    # js_files: list, svg_files: list, genome_files: dict, output_file: str
     js_files: List[str],
     svg_files: List[str],
     genome_files: Dict[str, Any],
