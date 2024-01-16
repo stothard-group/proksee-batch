@@ -229,17 +229,16 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
 
                 # Assign name based on availability of attributes.
                 name = ""
-                if feature.qualifiers.get("locus_tag") is not None:
-                    if feature.qualifiers.get("locus_tag")[0] != "":
-                        name = feature.qualifiers.get("locus_tag")[0]
-                if name == "":
-                    if feature.qualifiers.get("gene") is not None:
-                        if feature.qualifiers.get("gene")[0] != "":
-                            name = feature.qualifiers.get("gene")[0]
-                if name == "":
-                    if feature.qualifiers.get("product") is not None:
-                        if feature.qualifiers.get("product")[0] != "":
-                            name = feature.qualifiers.get("product")[0]
+                locus_tag = feature.qualifiers.get("locus_tag")
+                gene = feature.qualifiers.get("gene")
+                product = feature.qualifiers.get("product")
+
+                if locus_tag is not None and locus_tag:
+                    name = locus_tag[0]
+                elif gene is not None and gene:
+                    name = gene[0]
+                elif product is not None and product:
+                    name = product[0]
 
                 feature_data = {
                     "type": feature.type,
