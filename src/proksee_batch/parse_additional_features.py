@@ -25,10 +25,10 @@ def parse_blast_files(
         with open(blast_file) as f:
             blast_results = f.readlines()
         # Parse the BLAST result file.
-        for i, blast_result in enumerate(blast_results):
+        for i, blast_result_line in enumerate(blast_results):
             num = i + 1
             # Parse the BLAST result line.
-            blast_result = blast_result.split("\t")
+            blast_result = blast_result_line.split("\t")
             # Define the BLAST feature.
             blast_feature = {
                 "name": "",
