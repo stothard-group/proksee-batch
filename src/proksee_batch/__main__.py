@@ -18,6 +18,7 @@ from .generate_proksee_link import generate_proksee_link
 from .generate_report_html import generate_report_html
 from .get_stats_from_genbank import get_stats_from_genbank
 from .merge_cgview_json_with_template import merge_cgview_json_with_template
+from .parse_additional_features import add_blast_features_and_tracks
 from .scrape_proksee_image import scrape_proksee_image
 
 
@@ -27,6 +28,11 @@ from .scrape_proksee_image import scrape_proksee_image
     "--genomes",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
     help="Path to the directory containing input genomes in GenBank format.",
+)
+@click.option(
+    "--blast-results",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+    help="Path to the directory containing BLAST results in tabular (outfmt 6) format.",
 )
 @click.option(
     "--output",
@@ -45,11 +51,12 @@ from .scrape_proksee_image import scrape_proksee_image
 )
 def main(
     genomes: Optional[str],
+    blast_results: Optional[str],
     output: Optional[str],
     template: Optional[str],
     download_example: Optional[str],
 ) -> None:
-    """Proksee Batch: A tool for batch processing of genomes using Proksee."""
+    """Proksee Batch: A tool for visualizing batches of genomes via https://www.proksee.ca."""
 
     # Check if the download example GenBank files option is used
     if download_example:
@@ -76,6 +83,38 @@ def main(
     ):
         print("No GenBank files found in the genomes directory.", file=sys.stderr)
         sys.exit(1)
+
+    # Process BLAST results directory (if provided).
+    if blast_results:
+        # Check that there is at least one .txt or .tsv file in the directory.
+        if not any(
+            blast_result.endswith(".txt") or blast_result.endswith(".tsv")
+            for blast_result in os.listdir(blast_results)
+        ):
+            print(
+                "No BLAST result files (.txt or .tsv) found in the BLAST results directory.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        # Check that the basename of each BLAST result file matches the basename of a GenBank file.
+        blast_result_genome_ids = [
+            blast_result.rsplit(".", 1)[0]
+            for blast_result in os.listdir(blast_results)
+            if blast_result.endswith(".txt") or blast_result.endswith(".tsv")
+        ]
+        genome_ids = [genome.rsplit(".", 1)[0] for genome in os.listdir(genomes)]
+        for blast_result_genome_id in blast_result_genome_ids:
+            found_corresponding_genome = False
+            for genome_id in genome_ids:
+                if blast_result_genome_id.startswith(genome_id):
+                    found_corresponding_genome = True
+                    break
+            if not found_corresponding_genome:
+                print(
+                    f"No GenBank file found for {blast_result_genome_id}. BLAST result file names must start with the genome name.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
 
     # Process output directory
     # If it exists, delete it and create a new one.
@@ -141,11 +180,34 @@ def main(
             )
             genbank_to_cgview_json(os.path.join(genomes, genome), basic_json_file)
 
+            # Find any BLAST result files for this genome.
+            blast_files = []
+            if blast_results:
+                for blast_result in os.listdir(blast_results):
+                    if blast_result.endswith(".txt") or blast_result.endswith(".tsv"):
+                        if blast_result.startswith(genome_id):
+                            blast_files.append(
+                                os.path.join(blast_results, blast_result)
+                            )
+
+            # Parse the BLAST result files (if any) to create additional features and tracks.
+            basic_json_file_with_blast_features = os.path.join(
+                temp_output, genome.rsplit(".", 1)[0] + ".with_blast_features.json"
+            )
+            if blast_files:
+                add_blast_features_and_tracks(
+                    blast_files, basic_json_file, basic_json_file_with_blast_features
+                )
+            else:
+                shutil.copy(basic_json_file, basic_json_file_with_blast_features)
+
             # Merge the basic cgview map with the template Proksee configuration file.
             merged_json_file = os.path.join(
                 temp_output, genome.rsplit(".", 1)[0] + ".merged.json"
             )
-            merge_cgview_json_with_template(basic_json_file, template, merged_json_file)
+            merge_cgview_json_with_template(
+                basic_json_file_with_blast_features, template, merged_json_file
+            )
 
             # Convert the merged JSON file to .js file by wrapping it in a variable assignment.
             js_file = os.path.join(temp_output, genome.rsplit(".", 1)[0] + ".js")
