@@ -17,3 +17,4 @@ run.sh
 .pytest_cache
 tests/temp_output
 *.DS_Store
+tests/data/private_test_data

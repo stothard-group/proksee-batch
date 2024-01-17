@@ -82,7 +82,19 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
             if feature.location is None:
                 raise ValueError("Location is None")
 
-            # Determine the location type and process accordingly
+            # If the feature is a CDS, determine the reading frame.
+            feature_codon_start = 1
+            if feature.type == "CDS":
+                codon_start_qualifier = feature.qualifiers.get("codon_start")
+                if codon_start_qualifier is not None and codon_start_qualifier:
+                    feature_codon_start = int(codon_start_qualifier[0])
+            assert feature_codon_start in [
+                1,
+                2,
+                3,
+            ], f"codon_start must be 1, 2, or 3, not {feature_codon_start}"
+
+            # Determine the location type, and process accordingly
             locations = (
                 feature.location.parts
                 if isinstance(feature.location, CompoundLocation)
@@ -104,128 +116,38 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
                     )
                 )
 
-            # Determine whether any features start or end at the origin.
-            spans_origin = False
-            for loc in locations:
-                if (
-                    loc.start == 0
-                    or loc.start == len(record.seq)
-                    or loc.end == 0
-                    or loc.end == len(record.seq)
-                ):
-                    spans_origin = True
-                    break
+            ## Determine whether any features start or end at the origin.
+            # spans_origin = False
+            # for loc in locations:
+            #    if (
+            #        loc.start == 0
+            #        or loc.start == len(record.seq)
+            #        or loc.end == 0
+            #        or loc.end == len(record.seq)
+            #    ):
+            #        spans_origin = True
+            #        break
 
+            if feature.type == "CDS":
+                if strand == 1:
+                    # Assume that the locations are already sorted by start position from 5' to 3' on the forward strand.
+                    pass
+                elif strand == -1:
+                    # Sort the locations by start position from 3' to 5' on the reverse strand by reversing the list.
+                    locations = list(reversed(locations))
+
+            # Initiate a counter for the number of base pairs from the start of
+            # the first codon (for use in the case of CDS features).
+            cumulative_bp_from_first_codon_start = 0
+
+            # Iterate over the locations within this feature.
+            loc_num = 0
             for loc in locations:
-                start = (
-                    int(loc.start) + 1
-                )  # Biopython converts to 0-based indexing, but CGView uses 1-based indexing (like GenBank format).
+                loc_num += 1
+
+                # Switch back to 1-based indexing (Biopython converts to 0-based indexing when parsing GenBank format).
+                start = int(loc.start) + 1
                 stop = int(loc.end)
-
-                # Re-order start and end positions if necessary to conform to
-                # the CGView convention.
-                if strand == -1:
-                    start, stop = stop, start
-
-                # If the feature is a CDS and spans the origin (has locations
-                # that start or stop there), then process it accordingly.
-                if feature.type == "CDS" and spans_origin:
-                    if strand == 1:
-                        # Sum the length of all preceding locations.
-                        preceding_length = 0
-                        for preceding_loc_start, preceding_loc_stop in [
-                            (loc.start + 1, loc.end) for loc in locations
-                        ]:
-                            if preceding_loc_stop < start:
-                                preceding_length += (
-                                    abs(preceding_loc_stop - preceding_loc_start) + 1
-                                )
-                        # Determine if the location ends at the origin.
-                        if stop == len(record.seq):
-                            # Determine if the length of the location is a multiple of three.
-                            if (
-                                abs(
-                                    (preceding_length + stop)
-                                    - (preceding_length + start)
-                                )
-                                + 1
-                            ) % 3 != 0:
-                                # Reduce the value of the stop position until the length of the location is a multiple of three.
-                                while (
-                                    abs(
-                                        (preceding_length + stop)
-                                        - (preceding_length + start)
-                                    )
-                                    + 1
-                                ) % 3 != 0:
-                                    stop -= 1
-                        # Determine if the location starts at the origin.
-                        if start == 1:
-                            # Determine if the length of the location is a multiple of three.
-                            if (
-                                abs(
-                                    (preceding_length + stop)
-                                    - (preceding_length + start)
-                                )
-                                + 1
-                            ) % 3 != 0:
-                                # Increase the value of the start position until the length of the location is a multiple of three.
-                                while (
-                                    abs(
-                                        (preceding_length + stop)
-                                        - (preceding_length + start)
-                                    )
-                                    + 1
-                                ) % 3 != 0:
-                                    start += 1
-                    elif strand == -1:
-                        # Sum the length of all preceding locations.
-                        preceding_length = 0
-                        for preceding_loc_start, preceding_loc_stop in [
-                            (loc.end, loc.start + 1) for loc in locations
-                        ]:
-                            if preceding_loc_stop > start:
-                                preceding_length += (
-                                    abs(preceding_loc_stop - preceding_loc_start) + 1
-                                )
-                        # Determine if the location starts at the origin.
-                        if start == len(record.seq):
-                            # Determine if the length of the location is a multiple of three.
-                            if (
-                                abs(
-                                    (preceding_length + stop)
-                                    - (preceding_length + start)
-                                )
-                                + 1
-                            ) % 3 != 0:
-                                # Reduce the value of the start position until the length of the location is a multiple of three.
-                                while (
-                                    abs(
-                                        (preceding_length + stop)
-                                        - (preceding_length + start)
-                                    )
-                                    + 1
-                                ) % 3 != 0:
-                                    start -= 1
-                        # Determine if the location ends at the origin.
-                        if stop == 1:
-                            # Determine if the length of the location is a multiple of three.
-                            if (
-                                abs(
-                                    (preceding_length + stop)
-                                    - (preceding_length + start)
-                                )
-                                + 1
-                            ) % 3 != 0:
-                                # Increase the value of the stop position until the length of the location is a multiple of three.
-                                while (
-                                    abs(
-                                        (preceding_length + stop)
-                                        - (preceding_length + start)
-                                    )
-                                    + 1
-                                ) % 3 != 0:
-                                    stop += 1
 
                 # Assign name based on availability of attributes.
                 name = ""
@@ -240,6 +162,139 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
                 elif product is not None and product:
                     name = product[0]
 
+                ## Re-order start and end positions if necessary to conform to
+                ## the CGView convention.
+                # if strand == -1:
+                #    start, stop = stop, start
+
+                ## If the feature is a CDS and spans the origin (has locations
+                ## that start or stop there), then process it accordingly.
+                # if feature.type == "CDS" and spans_origin:
+                #    if strand == 1:
+                #        # Sum the length of all preceding locations.
+                #        preceding_length = 0
+                #        for preceding_loc_start, preceding_loc_stop in [
+                #            (loc.start + 1, loc.end) for loc in locations
+                #        ]:
+                #            if preceding_loc_stop < start:
+                #                preceding_length += (
+                #                    abs(preceding_loc_stop - preceding_loc_start) + 1
+                #                )
+                #        # Determine if the location ends at the origin.
+                #        if stop == len(record.seq):
+                #            # Determine if the length of the location is a multiple of three.
+                #            if (
+                #                abs(
+                #                    (preceding_length + stop)
+                #                    - (preceding_length + start)
+                #                )
+                #                + 1
+                #            ) % 3 != 0:
+                #                # Reduce the value of the stop position until the length of the location is a multiple of three.
+                #                while (
+                #                    abs(
+                #                        (preceding_length + stop)
+                #                        - (preceding_length + start)
+                #                    )
+                #                    + 1
+                #                ) % 3 != 0:
+                #                    stop -= 1
+                #        # Determine if the location starts at the origin.
+                #        if start == 1:
+                #            # Determine if the length of the location is a multiple of three.
+                #            if (
+                #                abs(
+                #                    (preceding_length + stop)
+                #                    - (preceding_length + start)
+                #                )
+                #                + 1
+                #            ) % 3 != 0:
+                #                # Increase the value of the start position until the length of the location is a multiple of three.
+                #                while (
+                #                    abs(
+                #                        (preceding_length + stop)
+                #                        - (preceding_length + start)
+                #                    )
+                #                    + 1
+                #                ) % 3 != 0:
+                #                    start += 1
+                #    elif strand == -1:
+                #        # Sum the length of all preceding locations.
+                #        preceding_length = 0
+                #        for preceding_loc_start, preceding_loc_stop in [
+                #            (loc.end, loc.start + 1) for loc in locations
+                #        ]:
+                #            if preceding_loc_stop > start:
+                #                preceding_length += (
+                #                    abs(preceding_loc_stop - preceding_loc_start) + 1
+                #                )
+                #        # Determine if the location starts at the origin.
+                #        if start == len(record.seq):
+                #            # Determine if the length of the location is a multiple of three.
+                #            if (
+                #                abs(
+                #                    (preceding_length + stop)
+                #                    - (preceding_length + start)
+                #                )
+                #                + 1
+                #            ) % 3 != 0:
+                #                # Reduce the value of the start position until the length of the location is a multiple of three.
+                #                while (
+                #                    abs(
+                #                        (preceding_length + stop)
+                #                        - (preceding_length + start)
+                #                    )
+                #                    + 1
+                #                ) % 3 != 0:
+                #                    start -= 1
+                #        # Determine if the location ends at the origin.
+                #        if stop == 1:
+                #            # Determine if the length of the location is a multiple of three.
+                #            if (
+                #                abs(
+                #                    (preceding_length + stop)
+                #                    - (preceding_length + start)
+                #                )
+                #                + 1
+                #            ) % 3 != 0:
+                #                # Increase the value of the stop position until the length of the location is a multiple of three.
+                #                while (
+                #                    abs(
+                #                        (preceding_length + stop)
+                #                        - (preceding_length + start)
+                #                    )
+                #                    + 1
+                #                ) % 3 != 0:
+                #                    stop += 1
+
+                codon_start = 1
+                if feature.type == "CDS":
+                    # Figure out what the reading frame is for this location
+                    # within the CDS feature.
+                    if loc_num == 1:
+                        # The codon start for this location is the same as the
+                        # codon start for the original CDS feature.
+                        codon_start = feature_codon_start
+
+                        # Start counting at the first bp of the first codon.
+                        cumulative_bp_from_first_codon_start = (
+                            abs(stop - start) + 1 - (feature_codon_start - 1)
+                        )
+
+                    else:
+                        remainder_after_last_full_codon = (
+                            cumulative_bp_from_first_codon_start % 3
+                        )
+                        if remainder_after_last_full_codon == 0:
+                            codon_start = 1
+                        elif remainder_after_last_full_codon == 1:
+                            codon_start = 3
+                        elif remainder_after_last_full_codon == 2:
+                            codon_start = 2
+
+                        # Add the length of the current location to the total.
+                        cumulative_bp_from_first_codon_start += abs(stop - start) + 1
+
                 feature_data = {
                     "type": feature.type,
                     "name": name,
@@ -250,6 +305,11 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
                     "contig": record.name,
                     "legend": feature.type,
                 }
+
+                if feature.type == "CDS":
+                    # Define the reading frame in the feature data using the JSON feature "codonStart".
+                    feature_data["codonStart"] = codon_start
+
                 json_data["cgview"]["features"].append(feature_data)
 
     with open(json_file, "w") as outfile:

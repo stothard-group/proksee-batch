@@ -97,36 +97,38 @@ def test_genbank_to_cgview_on_origin_in_codon() -> None:
                 ), """There should be four CDS features in the JSON file,
                 because one CDS feature location is split up by the origin."""
 
-            # Check that the length of each coding sequence is a multiple of three.
-            for feature in json_data["cgview"]["features"]:
-                if feature["type"] == "CDS":
-                    assert (
-                        abs(feature["stop"] - feature["start"]) + 1
-                    ) % 3 == 0, """The length of each coding sequence should be a multiple
-                    of three, otherwise the reading frame may be disrupted by
-                    splitting the original coding sequence at the origin."""
+            ## Check that the length of each coding sequence is a multiple of three.
+            # for feature in json_data["cgview"]["features"]:
+            #    if feature["type"] == "CDS":
+            #        assert (
+            #            abs(feature["stop"] - feature["start"]) + 1
+            #        ) % 3 == 0, """The length of each coding sequence should be a multiple
+            #        of three, otherwise the reading frame may be disrupted by
+            #        splitting the original coding sequence at the origin."""
 
             # Check that specific expected coding sequences are present.
             expected_cds_features = [
                 {
                     "type": "CDS",
                     "name": "VHWIEOXL_CDS249",
-                    "start": 3,
+                    "start": 1,
                     "stop": 239,
                     "strand": 1,
                     "source": "genbank-features",
                     "contig": "AB123456",
                     "legend": "CDS",
+                    "codonStart": 3,
                 },
                 {
                     "type": "CDS",
                     "name": "VHWIEOXL_CDS249",
                     "start": 140888,
-                    "stop": 141097,
+                    "stop": 141098,
                     "strand": 1,
                     "source": "genbank-features",
                     "contig": "AB123456",
                     "legend": "CDS",
+                    "codonStart": 1,
                 },
             ]
             found_expected_cds_features = []
@@ -180,7 +182,7 @@ def test_genbank_to_cgview_on_reverse_strand() -> None:
                 if feature["type"] == "CDS":
                     if feature["name"] == "REV7":
                         rev7_gene_found = True
-                        assert feature["start"] == 4037
-                        assert feature["stop"] == 3300
+                        assert feature["start"] == 3300
+                        assert feature["stop"] == 4037
                         assert feature["strand"] == -1
             assert rev7_gene_found
