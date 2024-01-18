@@ -77,17 +77,26 @@ def main(
     validate_directory_contents(
         genomes, [".gbk", ".gbff", ".gb"], "GenBank files", "--genomes"
     )
+    genomes_path = ""
+    if genomes:
+        genomes_path = os.path.abspath(genomes)
 
     # Get a list of IDs and a list of filenames for the genomes.
     genome_filenames = [
         genome
-        for genome in os.listdir(genomes)
+        for genome in os.listdir(genomes_path)
         if genome.endswith(".gbk") or genome.endswith(".gbff") or genome.endswith(".gb")
     ]
     genome_ids = [genome.rsplit(".", 1)[0] for genome in genome_filenames]
 
+    output_path = ""
     if not output:
         handle_error_exit("Missing option '--output'.")
+    else:
+        output_path = os.path.abspath(output)
+        if os.path.exists(output_path):
+            shutil.rmtree(output_path)
+        os.mkdir(output_path)
 
     if blast_results:
         validate_directory_contents(
@@ -101,12 +110,6 @@ def main(
             bed_features, [".bed"], "BED files", "--bed-features"
         )
         check_filenames_in_directory(bed_features, [".bed"], genome_ids, "BED")
-
-    # Process output directory
-    # If it exists, delete it and create a new one.
-    if os.path.exists(output):
-        shutil.rmtree(output)
-    os.mkdir(output)
 
     # Process template file
     if template:
@@ -126,7 +129,7 @@ def main(
         assert os.path.exists(template)
 
     # Define path to a temporary output directory within the output directory.
-    temp_output = os.path.join(output, "temp")
+    temp_output = os.path.join(output_path, "temp")
     os.mkdir(temp_output)
 
     # Initiate a dictionary to store file paths for each genome.
@@ -142,7 +145,7 @@ def main(
             genbank_total_size,
             genbank_number_of_contigs,
             genbank_gc_content,
-        ) = get_stats_from_genbank(os.path.join(genomes, genome))
+        ) = get_stats_from_genbank(os.path.join(genomes_path, genome))
 
         genome_id = genome.rsplit(".", 1)[0]
         genome_files[genome_id] = {
@@ -156,7 +159,7 @@ def main(
 
         # Convert the GenBank file to a basic cgview map in JSON format.
         basic_json_file = os.path.join(temp_output, genome.rsplit(".", 1)[0] + ".json")
-        genbank_to_cgview_json(os.path.join(genomes, genome), basic_json_file)
+        genbank_to_cgview_json(os.path.join(genomes_path, genome), basic_json_file)
 
         # Find any BLAST result files for this genome.
         blast_files = []
@@ -234,9 +237,9 @@ def main(
         scrape_proksee_image(proksee_project_link_file, proksee_image_file)
 
     # Make "data" and "images" subdirectories in the report directory.
-    data_dir = os.path.join(output, "data")
+    data_dir = os.path.join(output_path, "data")
     os.mkdir(data_dir)
-    images_dir = os.path.join(output, "images")
+    images_dir = os.path.join(output_path, "images")
     os.mkdir(images_dir)
 
     # Copy the .js files to the data directory, and the .svg files to the images
@@ -250,7 +253,7 @@ def main(
         shutil.copy(genome_files[genome_id]["Proksee_image_file"], images_dir)
 
     # Generate the HTML report file.
-    report_file = os.path.join(output, "report.html")
+    report_file = os.path.join(output_path, "report.html")
     generate_report_html(js_files, image_files, genome_files, report_file)
 
     # Delete the temporary output directory.
@@ -278,15 +281,16 @@ def validate_directory_contents(
     if not directory:
         handle_error_exit(f"Missing option '{option_name}'.")
 
-    if not os.path.exists(directory):
-        handle_error_exit(
-            f"The directory specified in '{option_name}' does not exist: {directory}"
-        )
+    else:
+        if not os.path.exists(directory):
+            handle_error_exit(
+                f"The directory specified in '{option_name}' does not exist: {directory}"
+            )
 
-    if not any(file.endswith(tuple(extensions)) for file in os.listdir(directory)):
-        handle_error_exit(
-            f"No {file_description} found in the directory specified in '{option_name}': {directory}"
-        )
+        if not any(file.endswith(tuple(extensions)) for file in os.listdir(directory)):
+            handle_error_exit(
+                f"No {file_description} found in the directory specified in '{option_name}': {directory}"
+            )
 
 
 def handle_error_exit(error_message: str, exit_code: int = 1) -> None:
