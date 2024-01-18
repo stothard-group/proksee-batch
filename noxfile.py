@@ -158,31 +158,6 @@ def mypy(session: Session) -> None:
         session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
 
 
-@session(python=python_versions)
-def tests(session: Session) -> None:
-    """Run the test suite."""
-    session.install(".")
-    session.install("coverage[toml]", "pytest", "pygments")
-    try:
-        session.run("coverage", "run", "--parallel", "-m", "pytest", *session.posargs)
-    finally:
-        if session.interactive:
-            session.notify("coverage", posargs=[])
-
-
-@session(python=python_versions[0])
-def coverage(session: Session) -> None:
-    """Produce the coverage report."""
-    args = session.posargs or ["report"]
-
-    session.install("coverage[toml]")
-
-    if not session.posargs and any(Path().glob(".coverage.*")):
-        session.run("coverage", "combine")
-
-    session.run("coverage", *args)
-
-
 @session(python=python_versions[0])
 def typeguard(session: Session) -> None:
     """Runtime type checking using Typeguard."""

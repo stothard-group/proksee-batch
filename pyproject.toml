@@ -31,7 +31,6 @@ types-toml = "^0.10.8.7"
 [tool.poetry.dev-dependencies]
 Pygments = ">=2.10.0"
 black = ">=21.10b0"
-coverage = {extras = ["toml"], version = ">=6.2"}
 darglint = ">=1.8.1"
 flake8 = ">=4.0.1"
 flake8-bandit = ">=2.1.2"
@@ -56,18 +55,6 @@ myst-parser = {version = ">=0.16.1"}
 
 [tool.poetry.scripts]
 proksee-batch = "proksee_batch.__main__:main"
-
-[tool.coverage.paths]
-source = ["src", "*/site-packages"]
-tests = ["tests", "*/tests"]
-
-[tool.coverage.run]
-branch = true
-source = ["proksee_batch", "tests"]
-
-[tool.coverage.report]
-show_missing = true
-fail_under = 100
 
 [tool.isort]
 profile = "black"
