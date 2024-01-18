@@ -30,7 +30,6 @@ nox.options.sessions = (
     "pre-commit",
     "safety",
     "mypy",
-    "tests",
     "typeguard",
     "xdoctest",
     "docs-build",
@@ -156,6 +155,19 @@ def mypy(session: Session) -> None:
     session.run("mypy", *args)
     if not session.posargs:
         session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
+
+
+@session(python=python_versions[0])
+def coverage(session: Session) -> None:
+    """Produce the coverage report."""
+    args = session.posargs or ["report"]
+
+    session.install("coverage[toml]")
+
+    if not session.posargs and any(Path().glob(".coverage.*")):
+        session.run("coverage", "combine")
+
+    session.run("coverage", *args)
 
 
 @session(python=python_versions[0])
