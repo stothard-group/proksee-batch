@@ -32,12 +32,12 @@ configuration options, add features from additonal files, and obtain links to
 designed to be included in bioinformatics workflows/pipelines for analyzing
 hundreds of genomes efficiently and reproducibly.
 
-The main advantage over alternative genome visualization tools is that _Proksee
-Batch_ provides access to the genome information in the form of an interactive
-[Proksee] map that supports zooming to the nucleotide level and that is linked
-to numerous additional tools for further genome analysis via the graphical
-interface. The genome maps can also be easily customized within [Proksee] and
-exported in a variety of formats.
+The main advantage over alternative command-line genome visualization tools is
+that _Proksee Batch_ provides access to the genome information in the form of an
+interactive [Proksee] map that supports zooming to the nucleotide level and that
+is linked to numerous additional tools for further genome analysis via the
+graphical interface. The genome maps can also be easily customized within
+[Proksee] and exported in a variety of formats.
 
 ## Installation
 
