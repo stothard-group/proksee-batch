@@ -7,6 +7,7 @@ from importlib import resources
 from importlib.metadata import version
 from typing import Any
 from typing import Dict
+from typing import List
 from typing import Optional
 
 import click
@@ -72,94 +73,34 @@ def main(
         print(f"Example GenBank files downloaded to {download_example}")
         sys.exit(0)
 
-    # Check if genomes directory is provided
-    if not genomes:
-        print("Error: Missing option '--genomes'.", file=sys.stderr)
-        sys.exit(1)
+    # Validate contents of the genomes directory.
+    validate_directory_contents(
+        genomes, [".gbk", ".gbff", ".gb"], "GenBank files", "--genomes"
+    )
 
-    # Check if output directory is provided
-    if not output:
-        print("Error: Missing option '--output'.", file=sys.stderr)
-        sys.exit(1)
-
-    # Process genomes directory.
-    # Check that there is at least one .gbk file in the directory.
-    if not any(
-        genome.endswith(".gbk") or genome.endswith(".gbff") or genome.endswith(".gb")
+    # Get a list of IDs and a list of filenames for the genomes.
+    genome_filenames = [
+        genome
         for genome in os.listdir(genomes)
-    ):
-        print("No GenBank files found in the genomes directory.", file=sys.stderr)
-        sys.exit(1)
+        if genome.endswith(".gbk") or genome.endswith(".gbff") or genome.endswith(".gb")
+    ]
+    genome_ids = [genome.rsplit(".", 1)[0] for genome in genome_filenames]
 
-    # Process BLAST results directory (if provided).
+    if not output:
+        handle_error_exit("Missing option '--output'.")
+
     if blast_results:
-        # Check that there is at least one .txt or .tsv file in the directory.
-        if not any(
-            blast_result.endswith(".txt") or blast_result.endswith(".tsv")
-            for blast_result in os.listdir(blast_results)
-        ):
-            print(
-                "No BLAST result files (.txt or .tsv) found in the BLAST results directory.",
-                file=sys.stderr,
-            )
-            sys.exit(1)
-        # Check that the basename of each BLAST result file matches the basename of a GenBank file.
-        blast_result_genome_ids = [
-            blast_result.rsplit(".", 1)[0]
-            for blast_result in os.listdir(blast_results)
-            if blast_result.endswith(".txt") or blast_result.endswith(".tsv")
-        ]
-        genome_ids = [genome.rsplit(".", 1)[0] for genome in os.listdir(genomes)]
-        for blast_result_genome_id in blast_result_genome_ids:
-            corresponding_genomes = []
-            for genome_id in genome_ids:
-                if blast_result_genome_id.startswith(genome_id):
-                    corresponding_genomes.append(genome_id)
-            if len(corresponding_genomes) == 0:
-                print(
-                    f"No GenBank file found for {blast_result_genome_id}. BLAST result file names must start with the genome name.",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
-            elif len(corresponding_genomes) > 1:
-                print(
-                    f"BLAST result file {blast_result_genome_id} is ambiguously assigned to multiple genomes: {corresponding_genomes}. BLAST result file names must start with a unique genome name.",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
-
-    # Process BED features directory (if provided).
+        validate_directory_contents(
+            blast_results, [".txt", ".tsv"], "BLAST result files", "--blast-results"
+        )
+        check_filenames_in_directory(
+            blast_results, [".txt", ".tsv"], genome_ids, "BLAST result"
+        )
     if bed_features:
-        # Check that there is at least one .bed file in the directory.
-        if not any(
-            bed_feature.endswith(".bed") for bed_feature in os.listdir(bed_features)
-        ):
-            print("No BED files found in the BED features directory.", file=sys.stderr)
-            sys.exit(1)
-        # Check that the basename of each BED file matches the basename of a GenBank file.
-        bed_feature_genome_ids = [
-            bed_feature.rsplit(".", 1)[0]
-            for bed_feature in os.listdir(bed_features)
-            if bed_feature.endswith(".bed")
-        ]
-        genome_ids = [genome.rsplit(".", 1)[0] for genome in os.listdir(genomes)]
-        for bed_feature_genome_id in bed_feature_genome_ids:
-            corresponding_genomes = []
-            for genome_id in genome_ids:
-                if bed_feature_genome_id.startswith(genome_id):
-                    corresponding_genomes.append(genome_id)
-            if len(corresponding_genomes) == 0:
-                print(
-                    f"No GenBank file found for {bed_feature_genome_id}. BED file names must start with the genome name.",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
-            elif len(corresponding_genomes) > 1:
-                print(
-                    f"BED file {bed_feature_genome_id} is ambiguously assigned to multiple genomes: {corresponding_genomes}. BED file names must start with a unique genome name.",
-                    file=sys.stderr,
-                )
-                sys.exit(1)
+        validate_directory_contents(
+            bed_features, [".bed"], "BED files", "--bed-features"
+        )
+        check_filenames_in_directory(bed_features, [".bed"], genome_ids, "BED")
 
     # Process output directory
     # If it exists, delete it and create a new one.
@@ -171,9 +112,8 @@ def main(
     if template:
         try:
             with open(template) as template_file:
+                # Load the template file as a JSON object.
                 configuration = json.load(template_file)
-                # Process the configuration as needed
-                print("Configuration loaded successfully.")
         except json.JSONDecodeError as e:
             print(f"Error reading the template file: {e}", file=sys.stderr)
             sys.exit(1)
@@ -193,114 +133,105 @@ def main(
     genome_files: Dict[str, Any] = {}
 
     # Iterate over the .gbk files in the genomes directory, and process each one to create a .json file in the output directory.
-    for genome in os.listdir(genomes):
-        if (
-            genome.endswith(".gbk")
-            or genome.endswith(".gbff")
-            or genome.endswith(".gb")
-        ):
-            print(f"Processing {genome}...")
+    for genome in genome_filenames:
+        print(f"Processing {genome}...")
 
-            # Get basic stats from the GenBank file.
-            (
-                genbank_description,
-                genbank_total_size,
-                genbank_number_of_contigs,
-                genbank_gc_content,
-            ) = get_stats_from_genbank(os.path.join(genomes, genome))
+        # Get basic stats from the GenBank file.
+        (
+            genbank_description,
+            genbank_total_size,
+            genbank_number_of_contigs,
+            genbank_gc_content,
+        ) = get_stats_from_genbank(os.path.join(genomes, genome))
 
-            genome_id = genome.rsplit(".", 1)[0]
-            genome_files[genome_id] = {
-                "JSON_file": "",
-                "Proksee_image_file": "",
-                "Description": genbank_description,
-                "Total size": genbank_total_size,
-                "Number of contigs": genbank_number_of_contigs,
-                "GC content": genbank_gc_content,
-            }
+        genome_id = genome.rsplit(".", 1)[0]
+        genome_files[genome_id] = {
+            "JSON_file": "",
+            "Proksee_image_file": "",
+            "Description": genbank_description,
+            "Total size": genbank_total_size,
+            "Number of contigs": genbank_number_of_contigs,
+            "GC content": genbank_gc_content,
+        }
 
-            # Convert the GenBank file to a basic cgview map in JSON format.
-            basic_json_file = os.path.join(
-                temp_output, genome.rsplit(".", 1)[0] + ".json"
+        # Convert the GenBank file to a basic cgview map in JSON format.
+        basic_json_file = os.path.join(temp_output, genome.rsplit(".", 1)[0] + ".json")
+        genbank_to_cgview_json(os.path.join(genomes, genome), basic_json_file)
+
+        # Find any BLAST result files for this genome.
+        blast_files = []
+        if blast_results:
+            for blast_result in os.listdir(blast_results):
+                if blast_result.endswith(".txt") or blast_result.endswith(".tsv"):
+                    if blast_result.startswith(genome_id):
+                        blast_files.append(os.path.join(blast_results, blast_result))
+
+        # Parse the BLAST result files (if any) to create additional features and tracks.
+        basic_json_file_with_blast_features = os.path.join(
+            temp_output, genome.rsplit(".", 1)[0] + ".with_blast_features.json"
+        )
+        if blast_files:
+            add_blast_features_and_tracks(
+                blast_files, basic_json_file, basic_json_file_with_blast_features
             )
-            genbank_to_cgview_json(os.path.join(genomes, genome), basic_json_file)
+        else:
+            shutil.copy(basic_json_file, basic_json_file_with_blast_features)
 
-            # Find any BLAST result files for this genome.
-            blast_files = []
-            if blast_results:
-                for blast_result in os.listdir(blast_results):
-                    if blast_result.endswith(".txt") or blast_result.endswith(".tsv"):
-                        if blast_result.startswith(genome_id):
-                            blast_files.append(
-                                os.path.join(blast_results, blast_result)
-                            )
+        # Find any BED files for this genome.
+        bed_files = []
+        if bed_features:
+            for bed_feature in os.listdir(bed_features):
+                if bed_feature.endswith(".bed"):
+                    if bed_feature.startswith(genome_id):
+                        bed_files.append(os.path.join(bed_features, bed_feature))
 
-            # Parse the BLAST result files (if any) to create additional features and tracks.
-            basic_json_file_with_blast_features = os.path.join(
-                temp_output, genome.rsplit(".", 1)[0] + ".with_blast_features.json"
+        # Parse the BED files (if any) to create additional features and tracks.
+        basic_json_file_with_bed_features = os.path.join(
+            temp_output, genome.rsplit(".", 1)[0] + ".with_bed_features.json"
+        )
+        if bed_files:
+            add_bed_features_and_tracks(
+                bed_files,
+                basic_json_file_with_blast_features,
+                basic_json_file_with_bed_features,
             )
-            if blast_files:
-                add_blast_features_and_tracks(
-                    blast_files, basic_json_file, basic_json_file_with_blast_features
-                )
-            else:
-                shutil.copy(basic_json_file, basic_json_file_with_blast_features)
-
-            # Find any BED files for this genome.
-            bed_files = []
-            if bed_features:
-                for bed_feature in os.listdir(bed_features):
-                    if bed_feature.endswith(".bed"):
-                        if bed_feature.startswith(genome_id):
-                            bed_files.append(os.path.join(bed_features, bed_feature))
-
-            # Parse the BED files (if any) to create additional features and tracks.
-            basic_json_file_with_bed_features = os.path.join(
-                temp_output, genome.rsplit(".", 1)[0] + ".with_bed_features.json"
-            )
-            if bed_files:
-                add_bed_features_and_tracks(
-                    bed_files,
-                    basic_json_file_with_blast_features,
-                    basic_json_file_with_bed_features,
-                )
-            else:
-                shutil.copy(
-                    basic_json_file_with_blast_features,
-                    basic_json_file_with_bed_features,
-                )
-
-            # Merge the basic cgview map with the template Proksee configuration file.
-            merged_json_file = os.path.join(
-                temp_output, genome.rsplit(".", 1)[0] + ".merged.json"
-            )
-            merge_cgview_json_with_template(
-                basic_json_file_with_bed_features, template, merged_json_file
+        else:
+            shutil.copy(
+                basic_json_file_with_blast_features,
+                basic_json_file_with_bed_features,
             )
 
-            # Convert the merged JSON file to .js file by wrapping it in a variable assignment.
-            js_file = os.path.join(temp_output, genome.rsplit(".", 1)[0] + ".js")
-            genome_files[genome_id]["JSON_file"] = js_file
-            with open(js_file, "w") as file:
-                # Get the JSON data from the merged JSON file as a string.
-                json_data = None
-                with open(merged_json_file) as json_file:
-                    json_data = json_file.read()
-                # Write the variable assignment.
-                file.write(f"var jsonData = {json_data};")
+        # Merge the basic cgview map with the template Proksee configuration file.
+        merged_json_file = os.path.join(
+            temp_output, genome.rsplit(".", 1)[0] + ".merged.json"
+        )
+        merge_cgview_json_with_template(
+            basic_json_file_with_bed_features, template, merged_json_file
+        )
 
-            # Generate a Proksee link using the merged JSON file.
-            proksee_project_link_file = os.path.join(
-                temp_output, genome.rsplit(".", 1)[0] + ".proksee_link.txt"
-            )
-            generate_proksee_link(merged_json_file, proksee_project_link_file)
+        # Convert the merged JSON file to .js file by wrapping it in a variable assignment.
+        js_file = os.path.join(temp_output, genome.rsplit(".", 1)[0] + ".js")
+        genome_files[genome_id]["JSON_file"] = js_file
+        with open(js_file, "w") as file:
+            # Get the JSON data from the merged JSON file as a string.
+            json_data = None
+            with open(merged_json_file) as json_file:
+                json_data = json_file.read()
+            # Write the variable assignment.
+            file.write(f"var jsonData = {json_data};")
 
-            # Scrape proksee image.
-            proksee_image_file = os.path.join(
-                temp_output, genome.rsplit(".", 1)[0] + ".svg"
-            )
-            genome_files[genome_id]["Proksee_image_file"] = proksee_image_file
-            scrape_proksee_image(proksee_project_link_file, proksee_image_file)
+        # Generate a Proksee link using the merged JSON file.
+        proksee_project_link_file = os.path.join(
+            temp_output, genome.rsplit(".", 1)[0] + ".proksee_link.txt"
+        )
+        generate_proksee_link(merged_json_file, proksee_project_link_file)
+
+        # Scrape proksee image.
+        proksee_image_file = os.path.join(
+            temp_output, genome.rsplit(".", 1)[0] + ".svg"
+        )
+        genome_files[genome_id]["Proksee_image_file"] = proksee_image_file
+        scrape_proksee_image(proksee_project_link_file, proksee_image_file)
 
     # Make "data" and "images" subdirectories in the report directory.
     data_dir = os.path.join(output, "data")
@@ -324,6 +255,93 @@ def main(
 
     # Delete the temporary output directory.
     shutil.rmtree(temp_output)
+
+
+def validate_directory_contents(
+    directory: Optional[str],
+    extensions: List[str],
+    file_description: str,
+    option_name: str,
+) -> None:
+    """
+    Validates if the provided directory contains files with the specified extensions.
+
+    Args:
+        directory (Optional[str]): The path to the directory to be checked.
+        extensions (List[str]): A list of acceptable file extensions.
+        file_description (str): A description of the expected files, for error messages.
+        option_name (str): The name of the command-line option corresponding to the directory.
+
+    Raises:
+        SystemExit: If the directory is not provided, doesn't exist, or doesn't contain files with the required extensions.
+    """
+    if not directory:
+        handle_error_exit(f"Missing option '{option_name}'.")
+
+    if not os.path.exists(directory):
+        handle_error_exit(
+            f"The directory specified in '{option_name}' does not exist: {directory}"
+        )
+
+    if not any(file.endswith(tuple(extensions)) for file in os.listdir(directory)):
+        handle_error_exit(
+            f"No {file_description} found in the directory specified in '{option_name}': {directory}"
+        )
+
+
+def handle_error_exit(error_message: str, exit_code: int = 1) -> None:
+    """
+    Handles errors by printing a message to sys.stderr and exiting the program.
+
+    Args:
+        error_message (str): The error message to be printed.
+        exit_code (int): The exit code to be used for sys.exit. Defaults to 1.
+
+    Exits:
+        SystemExit: Exits the program with the provided exit code.
+    """
+    print(error_message, file=sys.stderr)
+    sys.exit(exit_code)
+
+
+def check_filenames_in_directory(
+    directory: str, file_extensions: List[str], genome_ids: List[str], file_type: str
+) -> None:
+    """
+    Checks that the basename of each file in the directory matches the basename of a GenBank file.
+
+    Args:
+        directory (str): The path to the directory to be checked.
+        file_extensions (List[str]): A list of acceptable file extensions.
+        genome_ids (List[str]): A list of genome IDs.
+        file_type (str): A description of the type of file being checked, for error messages.
+
+    Raises:
+        SystemExit: If a file in the directory does not have a basename that matches the basename of a GenBank file.
+    """
+    # Check that the basename of each file matches the basename of a GenBank file.
+    file_genome_ids = [
+        file.rsplit(".", 1)[0]
+        for file in os.listdir(directory)
+        if any(file.endswith(ext) for ext in file_extensions)
+    ]
+    for file_genome_id in file_genome_ids:
+        corresponding_genomes = []
+        for genome_id in genome_ids:
+            if file_genome_id.startswith(genome_id):
+                corresponding_genomes.append(genome_id)
+        if len(corresponding_genomes) == 0:
+            print(
+                f"No GenBank file found for {file_genome_id}. {file_type} file names must start with the genome name.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        elif len(corresponding_genomes) > 1:
+            print(
+                f"{file_type} file {file_genome_id} is ambiguously assigned to multiple genomes: {corresponding_genomes}. {file_type} file names must start with a unique genome name.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
 
 
 if __name__ == "__main__":
