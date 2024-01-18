@@ -30,6 +30,7 @@ nox.options.sessions = (
     "pre-commit",
     "safety",
     "mypy",
+    "tests",
     "typeguard",
     "xdoctest",
     "docs-build",
@@ -155,6 +156,14 @@ def mypy(session: Session) -> None:
     session.run("mypy", *args)
     if not session.posargs:
         session.run("mypy", f"--python-executable={sys.executable}", "noxfile.py")
+
+
+@session(python=python_versions)
+def tests(session: Session) -> None:
+    """Run the test suite."""
+    session.install(".")
+    session.install("pytest", "pygments")
+    session.run("pytest", *session.posargs)
 
 
 @session(python=python_versions[0])
