@@ -18,6 +18,7 @@ from .generate_proksee_link import generate_proksee_link
 from .generate_report_html import generate_report_html
 from .get_stats_from_genbank import get_stats_from_genbank
 from .merge_cgview_json_with_template import merge_cgview_json_with_template
+from .parse_additional_features import add_bed_features_and_tracks
 from .parse_additional_features import add_blast_features_and_tracks
 from .scrape_proksee_image import scrape_proksee_image
 
@@ -32,7 +33,12 @@ from .scrape_proksee_image import scrape_proksee_image
 @click.option(
     "--blast-results",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
-    help="Path to the directory containing BLAST results in tabular (outfmt 6) format.",
+    help="Path to a directory containing BLAST results in tabular (outfmt 6) format.",
+)
+@click.option(
+    "--bed-features",
+    type=click.Path(exists=True, file_okay=False, dir_okay=True),
+    help="Path to a directory containing BED files with additional genomic features.",
 )
 @click.option(
     "--output",
@@ -52,6 +58,7 @@ from .scrape_proksee_image import scrape_proksee_image
 def main(
     genomes: Optional[str],
     blast_results: Optional[str],
+    bed_features: Optional[str],
     output: Optional[str],
     template: Optional[str],
     download_example: Optional[str],
@@ -104,14 +111,52 @@ def main(
         ]
         genome_ids = [genome.rsplit(".", 1)[0] for genome in os.listdir(genomes)]
         for blast_result_genome_id in blast_result_genome_ids:
-            found_corresponding_genome = False
+            corresponding_genomes = []
             for genome_id in genome_ids:
                 if blast_result_genome_id.startswith(genome_id):
-                    found_corresponding_genome = True
-                    break
-            if not found_corresponding_genome:
+                    corresponding_genomes.append(genome_id)
+            if len(corresponding_genomes) == 0:
                 print(
                     f"No GenBank file found for {blast_result_genome_id}. BLAST result file names must start with the genome name.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            elif len(corresponding_genomes) > 1:
+                print(
+                    f"BLAST result file {blast_result_genome_id} is ambiguously assigned to multiple genomes: {corresponding_genomes}. BLAST result file names must start with a unique genome name.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+
+    # Process BED features directory (if provided).
+    if bed_features:
+        # Check that there is at least one .bed file in the directory.
+        if not any(
+            bed_feature.endswith(".bed") for bed_feature in os.listdir(bed_features)
+        ):
+            print("No BED files found in the BED features directory.", file=sys.stderr)
+            sys.exit(1)
+        # Check that the basename of each BED file matches the basename of a GenBank file.
+        bed_feature_genome_ids = [
+            bed_feature.rsplit(".", 1)[0]
+            for bed_feature in os.listdir(bed_features)
+            if bed_feature.endswith(".bed")
+        ]
+        genome_ids = [genome.rsplit(".", 1)[0] for genome in os.listdir(genomes)]
+        for bed_feature_genome_id in bed_feature_genome_ids:
+            corresponding_genomes = []
+            for genome_id in genome_ids:
+                if bed_feature_genome_id.startswith(genome_id):
+                    corresponding_genomes.append(genome_id)
+            if len(corresponding_genomes) == 0:
+                print(
+                    f"No GenBank file found for {bed_feature_genome_id}. BED file names must start with the genome name.",
+                    file=sys.stderr,
+                )
+                sys.exit(1)
+            elif len(corresponding_genomes) > 1:
+                print(
+                    f"BED file {bed_feature_genome_id} is ambiguously assigned to multiple genomes: {corresponding_genomes}. BED file names must start with a unique genome name.",
                     file=sys.stderr,
                 )
                 sys.exit(1)
@@ -201,12 +246,36 @@ def main(
             else:
                 shutil.copy(basic_json_file, basic_json_file_with_blast_features)
 
+            # Find any BED files for this genome.
+            bed_files = []
+            if bed_features:
+                for bed_feature in os.listdir(bed_features):
+                    if bed_feature.endswith(".bed"):
+                        if bed_feature.startswith(genome_id):
+                            bed_files.append(os.path.join(bed_features, bed_feature))
+
+            # Parse the BED files (if any) to create additional features and tracks.
+            basic_json_file_with_bed_features = os.path.join(
+                temp_output, genome.rsplit(".", 1)[0] + ".with_bed_features.json"
+            )
+            if bed_files:
+                add_bed_features_and_tracks(
+                    bed_files,
+                    basic_json_file_with_blast_features,
+                    basic_json_file_with_bed_features,
+                )
+            else:
+                shutil.copy(
+                    basic_json_file_with_blast_features,
+                    basic_json_file_with_bed_features,
+                )
+
             # Merge the basic cgview map with the template Proksee configuration file.
             merged_json_file = os.path.join(
                 temp_output, genome.rsplit(".", 1)[0] + ".merged.json"
             )
             merge_cgview_json_with_template(
-                basic_json_file_with_blast_features, template, merged_json_file
+                basic_json_file_with_bed_features, template, merged_json_file
             )
 
             # Convert the merged JSON file to .js file by wrapping it in a variable assignment.

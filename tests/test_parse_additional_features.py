@@ -3,7 +3,9 @@ import os
 import tempfile
 from importlib import resources
 
+from proksee_batch.parse_additional_features import add_bed_features_and_tracks
 from proksee_batch.parse_additional_features import add_blast_features_and_tracks
+from proksee_batch.parse_additional_features import parse_bed_files
 from proksee_batch.parse_additional_features import parse_blast_files
 
 
@@ -54,8 +56,11 @@ def test_parse_blast_files() -> None:
 
 
 def test_add_blast_features_and_tracks() -> None:
-    """Test the add_blast_features_and_tracks function using a simple BLAST result file, and a simple cgview map file in JSON format."""
-    # Use the add_blast_features_and_tracks function to parse the BLAST result file, a cgview map JSON file, and write a new cgview map file in JSON format.
+    """Test the add_blast_features_and_tracks function using a simple BLAST
+    result file, and a simple cgview map file in JSON format."""
+    # Use the add_blast_features_and_tracks function to parse the BLAST result
+    # file, a cgview map JSON file, and write a new cgview map file in JSON
+    # format.
     with resources.path(
         "tests.data.blast", "U49845.1.txt"
     ) as blast_path, resources.path(
@@ -65,7 +70,9 @@ def test_add_blast_features_and_tracks() -> None:
         json_file = str(json_path)
         output_file = os.path.join(temp_dir, "U49845.1.json")
 
-        # Use the add_blast_features_and_tracks function to parse the BLAST result file, a cgview map JSON file, and write a new cgview map file in JSON format.
+        # Use the add_blast_features_and_tracks function to parse the BLAST
+        # result file, a cgview map JSON file, and write a new cgview map file
+        # in JSON format.
         add_blast_features_and_tracks([blast_file], json_file, output_file)
 
         # Define expected BLAST features and tracks.
@@ -101,7 +108,8 @@ def test_add_blast_features_and_tracks() -> None:
             }
         ]
 
-        # Check that the expected BLAST features and tracks were correctly added to the cgview map JSON data structure.
+        # Check that the expected BLAST features and tracks were correctly added
+        # to the cgview map JSON data structure.
         with open(output_file) as f:
             json_data = json.load(f)
             for expected_feature in expected_blast_features:
@@ -114,7 +122,9 @@ def test_add_blast_features_and_tracks_multiple_features() -> None:
     """Test the add_blast_features_and_tracks function using a simple BLAST
     result file, and a simple cgview map file in JSON format. There are multiple
     features to map on a single track."""
-    # Use the add_blast_features_and_tracks function to parse the BLAST result file, a cgview map JSON file, and write a new cgview map file in JSON format.
+    # Use the add_blast_features_and_tracks function to parse the BLAST result
+    # file, a cgview map JSON file, and write a new cgview map file in JSON
+    # format.
     with resources.path(
         "tests.data.blast", "U49845.1_v2.txt"
     ) as blast_path, resources.path(
@@ -124,7 +134,9 @@ def test_add_blast_features_and_tracks_multiple_features() -> None:
         json_file = str(json_path)
         output_file = os.path.join(temp_dir, "U49845.1.json")
 
-        # Use the add_blast_features_and_tracks function to parse the BLAST result file, a cgview map JSON file, and write a new cgview map file in JSON format.
+        # Use the add_blast_features_and_tracks function to parse the BLAST
+        # result file, a cgview map JSON file, and write a new cgview map file
+        # in JSON format.
         add_blast_features_and_tracks([blast_file], json_file, output_file)
 
         # Define expected BLAST features and tracks.
@@ -177,7 +189,8 @@ def test_add_blast_features_and_tracks_multiple_features() -> None:
             }
         ]
 
-        # Check that the expected BLAST features and tracks were correctly added to the cgview map JSON data structure.
+        # Check that the expected BLAST features and tracks were correctly added
+        # to the cgview map JSON data structure.
         with open(output_file) as f:
             json_data = json.load(f)
             for expected_feature in expected_blast_features:
@@ -186,74 +199,186 @@ def test_add_blast_features_and_tracks_multiple_features() -> None:
                 assert expected_track in json_data["cgview"]["tracks"]
 
 
-# def test_parse_bed_files() -> None:
-#    """Test the parse_bed_files function using a simple BED file."""
-#    # Define path to an example BED file.
-#    with resources.path("tests.data.bed", "U49845.1.bed") as bed_path:
-#        bed_file = str(bed_path)
-#
-#        # Use the parse_bed_files function to parse the BED file.
-#        bed_features, bed_tracks = parse_bed_files([bed_file])
-#
-#        # Assert that the BED file was parsed correctly.
-#        expected_bed_features = [
-#            {
-#                "name": "FirstFeature",
-#                "type": "bed",
-#                "start": 1,
-#                "stop": 100,
-#                "strand": 1,
-#                "source": "bed_1",
-#                "legend": "U49845.1.bed",
-#                "tags": [],
-#                "meta": {},
-#            },
-#            {
-#                "name": "SecondFeature",
-#                "type": "bed",
-#                "start": 101,
-#                "stop": 200,
-#                "strand": 1,
-#                "source": "bed_1",
-#                "legend": "U49845.1.bed",
-#                "tags": [],
-#                "meta": {},
-#            },
-#            {
-#                "name": "ThirdFeature",
-#                "type": "bed",
-#                "start": 201,
-#                "stop": 300,
-#                "strand": -1,
-#                "source": "bed_1",
-#                "legend": "U49845.1.bed",
-#                "tags": [],
-#                "meta": {},
-#            },
-#            {
-#                "name": "FourthFeature",
-#                "type": "bed",
-#                "start": 301,
-#                "stop": 400,
-#                "strand": -1,
-#                "source": "bed_1",
-#                "legend": "U49845.1.bed",
-#                "tags": [],
-#                "meta": {},
-#            }
-#        ]
-#        expected_bed_tracks = [
-#            {
-#                "name": "U49845.1.bed",
-#                "separateFeaturesBy": "none",
-#                "position": "both",
-#                "thicknessRatio": 1,
-#                "dataType": "feature",
-#                "dataMethod": "source",
-#                "dataKeys": "bed_1",
-#                "drawOrder": "score",
-#            }
-#        ]
-#
-#        assert bed_features == expected_bed_features
-#        assert bed_tracks == expected_bed_tracks
+def test_parse_bed_files() -> None:
+    """Test the parse_bed_files function using a simple BED file."""
+    # Define path to an example BED file.
+    with resources.path("tests.data.bed", "minimal_example_4.bed") as bed_path:
+        bed_file = str(bed_path)
+
+        # Use the parse_bed_files function to parse the BED file.
+        bed_features, bed_tracks = parse_bed_files([bed_file])
+
+        # Assert that the BED file was parsed correctly.
+        expected_bed_features = [
+            {
+                "name": "FirstFeature",
+                "type": "bed",
+                "start": 1,
+                "stop": 100,
+                "strand": 1,
+                "source": "bed_1",
+                "contig": "U49845.1",
+                "legend": "minimal_example_4.bed",
+                "tags": [],
+                "meta": {
+                    "score": 0,
+                },
+            },
+            {
+                "name": "SecondFeature",
+                "type": "bed",
+                "start": 101,
+                "stop": 200,
+                "strand": 1,
+                "source": "bed_1",
+                "contig": "U49845.1",
+                "legend": "minimal_example_4.bed",
+                "tags": [],
+                "meta": {
+                    "score": 0,
+                },
+            },
+            {
+                "name": "ThirdFeature",
+                "type": "bed",
+                "start": 201,
+                "stop": 300,
+                "strand": -1,
+                "source": "bed_1",
+                "contig": "U49845.1",
+                "legend": "minimal_example_4.bed",
+                "tags": [],
+                "meta": {
+                    "score": 0,
+                },
+            },
+            {
+                "name": "FourthFeature",
+                "type": "bed",
+                "start": 301,
+                "stop": 400,
+                "strand": -1,
+                "source": "bed_1",
+                "contig": "U49845.1",
+                "legend": "minimal_example_4.bed",
+                "tags": [],
+                "meta": {
+                    "score": 0,
+                },
+            },
+        ]
+        expected_bed_tracks = [
+            {
+                "name": "minimal_example_4.bed",
+                "separateFeaturesBy": "none",
+                "position": "both",
+                "thicknessRatio": 1,
+                "dataType": "feature",
+                "dataMethod": "source",
+                "dataKeys": "bed_1",
+                "drawOrder": "score",
+            }
+        ]
+
+        assert bed_features == expected_bed_features
+        assert bed_tracks == expected_bed_tracks
+
+
+def test_add_bed_features_and_tracks() -> None:
+    """Test the add_bed_features_and_tracks function using a simple BED file,
+    and a simple cgview map file in JSON format."""
+    # Use the add_bed_features_and_tracks function to parse the BED file, a
+    # cgview map JSON file, and write a new cgview map file in JSON format.
+    with resources.path(
+        "tests.data.bed", "minimal_example_4.bed"
+    ) as bed_path, resources.path(
+        "tests.data.json", "U49845.1.json"
+    ) as json_path, tempfile.TemporaryDirectory() as temp_dir:
+        bed_file = str(bed_path)
+        json_file = str(json_path)
+        output_file = os.path.join(temp_dir, "U49845.1.json")
+
+        # Use the add_bed_features_and_tracks function to parse the BED file, a
+        # cgview map JSON file, and write a new cgview map file in JSON format.
+        add_bed_features_and_tracks([bed_file], json_file, output_file)
+
+        # Define expected BED features and tracks.
+        expected_bed_features = [
+            {
+                "name": "FirstFeature",
+                "type": "bed",
+                "start": 1,
+                "stop": 100,
+                "strand": 1,
+                "source": "bed_1",
+                "contig": "U49845.1",
+                "legend": "minimal_example_4.bed",
+                "tags": [],
+                "meta": {
+                    "score": 0,
+                },
+            },
+            {
+                "name": "SecondFeature",
+                "type": "bed",
+                "start": 101,
+                "stop": 200,
+                "strand": 1,
+                "source": "bed_1",
+                "contig": "U49845.1",
+                "legend": "minimal_example_4.bed",
+                "tags": [],
+                "meta": {
+                    "score": 0,
+                },
+            },
+            {
+                "name": "ThirdFeature",
+                "type": "bed",
+                "start": 201,
+                "stop": 300,
+                "strand": -1,
+                "source": "bed_1",
+                "contig": "U49845.1",
+                "legend": "minimal_example_4.bed",
+                "tags": [],
+                "meta": {
+                    "score": 0,
+                },
+            },
+            {
+                "name": "FourthFeature",
+                "type": "bed",
+                "start": 301,
+                "stop": 400,
+                "strand": -1,
+                "source": "bed_1",
+                "contig": "U49845.1",
+                "legend": "minimal_example_4.bed",
+                "tags": [],
+                "meta": {
+                    "score": 0,
+                },
+            },
+        ]
+        expected_bed_tracks = [
+            {
+                "name": "minimal_example_4.bed",
+                "separateFeaturesBy": "none",
+                "position": "both",
+                "thicknessRatio": 1,
+                "dataType": "feature",
+                "dataMethod": "source",
+                "dataKeys": "bed_1",
+                "drawOrder": "score",
+            }
+        ]
+
+        # Check that the expected BED features and tracks were correctly added
+        # to the cgview map JSON data structure.
+        with open(output_file) as f:
+            json_data = json.load(f)
+            for expected_feature in expected_bed_features:
+                assert expected_feature in json_data["cgview"]["features"]
+            for expected_track in expected_bed_tracks:
+                assert expected_track in json_data["cgview"]["tracks"]
