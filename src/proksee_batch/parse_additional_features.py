@@ -20,23 +20,52 @@ def parse_blast_files(
     """
     blast_features = []
     blast_tracks = []
-    for blast_file in blast_files:
+    for i, blast_file in enumerate(blast_files):
+        num = i + 1
+
+        # Define the BLAST track.
+        blast_track = {
+            "name": os.path.basename(blast_file),
+            "separateFeaturesBy": "none",
+            "position": "both",
+            "thicknessRatio": 1,
+            "dataType": "feature",
+            "dataMethod": "source",
+            "dataKeys": f"blast_{num}",
+            "drawOrder": "score",
+        }
+        # Add the BLAST track to the list of BLAST tracks.
+        blast_tracks.append(blast_track)
+
         # Parse the BLAST result file.
         with open(blast_file) as f:
             blast_results = f.readlines()
         # Parse the BLAST result file.
-        for i, blast_result_line in enumerate(blast_results):
-            num = i + 1
+        for blast_result_line in blast_results:
             # Parse the BLAST result line.
             blast_result = blast_result_line.split("\t")
+
+            # Skip the header line(s), if present.
+            if blast_result[0] == "qseqid" or blast_result[0].startswith("#"):
+                continue
+
             # Define the BLAST feature.
             blast_feature = {
-                "name": "",
+                "name": blast_result[
+                    0
+                ],  # Here we assume that the query sequence is a sequence aligned to a contig in the genome/map.
                 "type": "blast",
-                "start": int(blast_result[8]),
-                "stop": int(blast_result[9]),
+                "start": int(
+                    blast_result[8]
+                ),  # Here we assume that the subject sequence is a contig in the genome/map.
+                "stop": int(
+                    blast_result[9]
+                ),  # Here we assume that the subject sequence is a contig in the genome/map.
                 "strand": 1 if blast_result[8] < blast_result[9] else -1,
                 "source": f"blast_{num}",
+                "contig": blast_result[
+                    1
+                ],  # Here we assume that the subject sequence is a contig in the genome/map.
                 "legend": os.path.basename(blast_file),
                 "tags": [],
                 "meta": {
@@ -48,19 +77,6 @@ def parse_blast_files(
             }
             # Add the BLAST feature to the list of BLAST features.
             blast_features.append(blast_feature)
-            # Define the BLAST track.
-            blast_track = {
-                "name": os.path.basename(blast_file),
-                "separateFeaturesBy": "none",
-                "position": "both",
-                "thicknessRatio": 1,
-                "dataType": "feature",
-                "dataMethod": "source",
-                "dataKeys": f"blast_{num}",
-                "drawOrder": "score",
-            }
-            # Add the BLAST track to the list of BLAST tracks.
-            blast_tracks.append(blast_track)
     assert (
         len(blast_features) > 0 and len(blast_tracks) > 0
     ), "No BLAST features or tracks were obtained from input file {}.".format(
@@ -88,6 +104,18 @@ def add_blast_features_and_tracks(
     # Read the cgview map JSON file.
     with open(json_file) as f:
         json_data = json.load(f)
+
+    # Get list of contigs from JSON data.
+    contigs = [contig["name"] for contig in json_data["cgview"]["sequence"]["contigs"]]
+
+    # Check that all the blast features are assigned to contigs that are in the JSON data.
+    for blast_feature in blast_features:
+        assert (
+            blast_feature["contig"] in contigs
+        ), "The subject sequence {} listed in the BLAST result file {} is not among the contigs in the genome being mapped.".format(
+            blast_feature["contig"], blast_feature["legend"]
+        )
+
     # Add the parsed BLAST features and tracks to the cgview map JSON data structure.
     json_data["cgview"]["features"] += blast_features
     json_data["cgview"]["tracks"] += blast_tracks

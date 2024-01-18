@@ -56,13 +56,19 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
 
     all_contig_names: List[str] = []
     for record in genbank_records:
+        # Determine contig name based on availability of attributes.
+        genbank_contig_name = ""
+        if record.id is not None and record.id:
+            genbank_contig_name = record.id
+        elif record.name is not None and record.name:
+            genbank_contig_name = record.name
+
         # Handle potentially problematic characters in contig names.
-        assert record.name is not None
         assert (
-            record.name not in all_contig_names
-        ), f"Duplicate contig name {record.name} in {genbank_file}."
-        all_contig_names.append(record.name)
-        contig_name = record.name.replace("|", "_").replace(";", "_")
+            genbank_contig_name not in all_contig_names
+        ), f"Duplicate contig name {genbank_contig_name} in {genbank_file}."
+        all_contig_names.append(genbank_contig_name)
+        contig_name = genbank_contig_name.replace("|", "_").replace(";", "_")
 
         contig_data: Dict[str, Any] = {
             "name": contig_name,
@@ -116,18 +122,6 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
                     )
                 )
 
-            ## Determine whether any features start or end at the origin.
-            # spans_origin = False
-            # for loc in locations:
-            #    if (
-            #        loc.start == 0
-            #        or loc.start == len(record.seq)
-            #        or loc.end == 0
-            #        or loc.end == len(record.seq)
-            #    ):
-            #        spans_origin = True
-            #        break
-
             if feature.type == "CDS":
                 if strand == 1:
                     # Assume that the locations are already sorted by start position from 5' to 3' on the forward strand.
@@ -161,111 +155,6 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
                     name = gene[0]
                 elif product is not None and product:
                     name = product[0]
-
-                ## Re-order start and end positions if necessary to conform to
-                ## the CGView convention.
-                # if strand == -1:
-                #    start, stop = stop, start
-
-                ## If the feature is a CDS and spans the origin (has locations
-                ## that start or stop there), then process it accordingly.
-                # if feature.type == "CDS" and spans_origin:
-                #    if strand == 1:
-                #        # Sum the length of all preceding locations.
-                #        preceding_length = 0
-                #        for preceding_loc_start, preceding_loc_stop in [
-                #            (loc.start + 1, loc.end) for loc in locations
-                #        ]:
-                #            if preceding_loc_stop < start:
-                #                preceding_length += (
-                #                    abs(preceding_loc_stop - preceding_loc_start) + 1
-                #                )
-                #        # Determine if the location ends at the origin.
-                #        if stop == len(record.seq):
-                #            # Determine if the length of the location is a multiple of three.
-                #            if (
-                #                abs(
-                #                    (preceding_length + stop)
-                #                    - (preceding_length + start)
-                #                )
-                #                + 1
-                #            ) % 3 != 0:
-                #                # Reduce the value of the stop position until the length of the location is a multiple of three.
-                #                while (
-                #                    abs(
-                #                        (preceding_length + stop)
-                #                        - (preceding_length + start)
-                #                    )
-                #                    + 1
-                #                ) % 3 != 0:
-                #                    stop -= 1
-                #        # Determine if the location starts at the origin.
-                #        if start == 1:
-                #            # Determine if the length of the location is a multiple of three.
-                #            if (
-                #                abs(
-                #                    (preceding_length + stop)
-                #                    - (preceding_length + start)
-                #                )
-                #                + 1
-                #            ) % 3 != 0:
-                #                # Increase the value of the start position until the length of the location is a multiple of three.
-                #                while (
-                #                    abs(
-                #                        (preceding_length + stop)
-                #                        - (preceding_length + start)
-                #                    )
-                #                    + 1
-                #                ) % 3 != 0:
-                #                    start += 1
-                #    elif strand == -1:
-                #        # Sum the length of all preceding locations.
-                #        preceding_length = 0
-                #        for preceding_loc_start, preceding_loc_stop in [
-                #            (loc.end, loc.start + 1) for loc in locations
-                #        ]:
-                #            if preceding_loc_stop > start:
-                #                preceding_length += (
-                #                    abs(preceding_loc_stop - preceding_loc_start) + 1
-                #                )
-                #        # Determine if the location starts at the origin.
-                #        if start == len(record.seq):
-                #            # Determine if the length of the location is a multiple of three.
-                #            if (
-                #                abs(
-                #                    (preceding_length + stop)
-                #                    - (preceding_length + start)
-                #                )
-                #                + 1
-                #            ) % 3 != 0:
-                #                # Reduce the value of the start position until the length of the location is a multiple of three.
-                #                while (
-                #                    abs(
-                #                        (preceding_length + stop)
-                #                        - (preceding_length + start)
-                #                    )
-                #                    + 1
-                #                ) % 3 != 0:
-                #                    start -= 1
-                #        # Determine if the location ends at the origin.
-                #        if stop == 1:
-                #            # Determine if the length of the location is a multiple of three.
-                #            if (
-                #                abs(
-                #                    (preceding_length + stop)
-                #                    - (preceding_length + start)
-                #                )
-                #                + 1
-                #            ) % 3 != 0:
-                #                # Increase the value of the stop position until the length of the location is a multiple of three.
-                #                while (
-                #                    abs(
-                #                        (preceding_length + stop)
-                #                        - (preceding_length + start)
-                #                    )
-                #                    + 1
-                #                ) % 3 != 0:
-                #                    stop += 1
 
                 codon_start = 1
                 if feature.type == "CDS":
@@ -302,7 +191,7 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
                     "stop": stop,
                     "strand": strand,
                     "source": "genbank-features",
-                    "contig": record.name,
+                    "contig": contig_name,
                     "legend": feature.type,
                 }
 
