@@ -1,3 +1,4 @@
+exclude: ^src/proksee_batch/data/
 repos:
   - repo: local
     hooks:
