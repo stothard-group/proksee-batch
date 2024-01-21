@@ -4,6 +4,86 @@ from typing import Dict
 from typing import List
 
 
+#  <!doctype html>
+#  <html lang="en">
+#    <head>
+#      <!-- Required meta tags -->
+#      <meta charset="utf-8">
+#      <meta name="viewport" content="width=device-width, initial-scale=1">
+#
+#      <!-- Bootstrap CSS -->
+#      <link href="./styles/bootstrap.min.css" rel="stylesheet">
+#
+#      <link rel="stylesheet" href="./styles/prism.css" />
+#      <link rel="stylesheet" href="./styles/tables.css" />
+#      <link rel="stylesheet" href="./styles/general.css" />
+#      <script src='./scripts/marked.min.js'></script>
+#      <script src='./scripts/general.js'></script>
+#
+#      <!-- D3 -->
+#      <script src="./scripts/d3.min.js"></script>
+#      <!-- CGView -->
+#      <script src='./dist/cgview.min.js'></script>
+#      <link rel="stylesheet" href="./dist/cgview.css" />
+#      <link rel="stylesheet" href="./styles/controls.css" />
+#
+#      <title>CGView.js - Examples</title>
+#    </head>
+#    <body>
+#
+#  <body>
+#    <main>
+#
+#  <div id='my-viewer'></div>
+#  <div class='cgv-controls'>
+#    <div class='cgv-btn' id='btn-reset' title='Reset Map'></div>
+#    <div class='cgv-btn' id='btn-zoom-in' title='Zoom In'></div>
+#    <div class='cgv-btn' id='btn-zoom-out' title='Zoom Out'></div>
+#    <div class='cgv-btn' id='btn-move-left' title='Move Left/Counterclockwise'></div>
+#    <div class='cgv-btn' id='btn-move-right' title='Move Right/Clockwise'></div>
+#    <div class='cgv-btn' id='btn-toggle-format' title='Toggle Linear/Circular Format'></div>
+#    <div class='cgv-btn' id='btn-invert-colors' title='Invert Map Colors'></div>
+#    <div class='cgv-btn' id='btn-download' title='Download Map PNG'></div>
+#    <div class='cgv-btn' id='btn-toggle-labels' title='Toggle Labels'></div>
+#  </div>
+#
+#  </main>
+#
+#      <script src="./scripts/prism.js"></script>
+#
+#      <!-- Bootstrap JavaScript -->
+#      <script src="./scripts/bootstrap.min.js"></script>
+#
+#      <script>
+#        function createViewerAndLoadJS(path) {
+#          // Create Viewer in default div: #my-viewer
+#          const cgv = new CGV.Viewer('#my-viewer', {height: 500});
+#
+#          // Auto resize viewer
+#          autoResizeMyViewer();
+#
+#          // Add viewer as global variable 'cgv'
+#          window.cgv = cgv;
+#
+#          // Load the JavaScript file
+#          var script = document.createElement('script');
+#          script.src = path;
+#          script.onload = function() {
+#            // Use the 'json' variable directly
+#            cgv.io.loadJSON(window.json);
+#            cgv.draw();
+#          };
+#          document.head.appendChild(script);
+#        }
+#
+#        createViewerAndLoadJS('./data/js/NZ_CP028842.js');
+#      </script>
+#      <script src='./scripts/controls.js'></script>
+#
+#    </body>
+#  </html>
+
+
 def generate_report_html(
     output_dir: str,
     genome_info: Dict[str, Any],
@@ -22,6 +102,21 @@ def generate_report_html(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Import CGView.js code -->
+    <link href="./cgview-js_code/docs/styles/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./cgview-js_code/docs/styles/prism.css" />
+    <link rel="stylesheet" href="./cgview-js_code/docs/styles/tables.css" />
+    <link rel="stylesheet" href="./cgview-js_code/docs/styles/general.css" />
+    <script src='./cgview-js_code/docs/scripts/marked.min.js'></script>
+    <script src='./cgview-js_code/docs/scripts/general.js'></script>
+    <script src="./cgview-js_code/docs/scripts/d3.min.js"></script>
+    <script src='./cgview-js_code/docs/dist/cgview.min.js'></script>
+    <link rel="stylesheet" href="./cgview-js_code/docs/dist/cgview.css" />
+    <link rel="stylesheet" href="./cgview-js_code/docs/styles/controls.css" />
+    <script src="./cgview-js_code/docs/scripts/prism.js"></script>
+    <script src="./cgview-js_code/docs/scripts/bootstrap.min.js"></script>
+
     <title>Results</title>
     <style>
         body {
@@ -64,7 +159,7 @@ def generate_report_html(
             cursor: pointer;
             user-select: none;
         }
-        .image-row {
+        .viewer-row {
             display: none;
         }
         .image-cell img {
@@ -113,30 +208,42 @@ def generate_report_html(
         )
 
         ## Create table rows based on the js and svg files
-        # for js_file, svg_file in zip(js_files, svg_files):
-        #    sample_id = os.path.basename(js_file).rsplit(".", 1)[0]
-        for genome_dir_name in genome_info.keys():
-            description = genome_info[genome_dir_name]["Description"]
-            total_size = str(genome_info[genome_dir_name]["Total size"])
-            number_of_contigs = str(genome_info[genome_dir_name]["Number of contigs"])
-            gc_content = str(genome_info[genome_dir_name]["GC content"])
+        for genome_code_name in genome_info.keys():
+            genome_name = genome_info[genome_code_name]["Name"]
+            description = genome_info[genome_code_name]["Description"]
+            total_size = str(genome_info[genome_code_name]["Total size"])
+            number_of_contigs = str(genome_info[genome_code_name]["Number of contigs"])
+            gc_content = str(genome_info[genome_code_name]["GC content"])
 
             file.write(
                 f"""
         <tr>
             <td class="dropdown-arrow">&#9660;</td>
-            <td>{genome_dir_name}</td>
+            <td>{genome_name}</td>
             <td>{description}</td>
             <td>{total_size}</td>
             <td>{number_of_contigs}</td>
             <td>{gc_content}</td>
-            <td class="generate-link" onclick="generateProkseeLink(this, 'data/{genome_dir_name}')">Generate Proksee Project</td>
+            <td class="generate-link" onclick="generateProkseeLink(this, 'data/{genome_code_name}')">Generate Proksee Project</td>
         </tr>
-        <tr class="image-row">
-            <td colspan="5" class="image-cell">
-                <img src="images/{genome_dir_name}.svg" alt="Sample Image">
+        <tr class="viewer-row">
+            <td colspan="7">
+                <div id="{genome_code_name}" class="genome-viewer"></div>
+                <div class='cgv-controls'>
+                    <div class='cgv-btn' id='btn-reset' title='Reset Map'></div>
+                    <div class='cgv-btn' id='btn-zoom-in' title='Zoom In'></div>
+                    <div class='cgv-btn' id='btn-zoom-out' title='Zoom Out'></div>
+                    <div class='cgv-btn' id='btn-move-left' title='Move Left/Counterclockwise'></div>
+                    <div class='cgv-btn' id='btn-move-right' title='Move Right/Clockwise'></div>
+                    <div class='cgv-btn' id='btn-toggle-format' title='Toggle Linear/Circular Format'></div>
+                    <div class='cgv-btn' id='btn-invert-colors' title='Invert Map Colors'></div>
+                    <div class='cgv-btn' id='btn-download' title='Download Map PNG'></div>
+                    <div class='cgv-btn' id='btn-toggle-labels' title='Toggle Labels'></div>
+                </div>
             </td>
         </tr>
+
+
 """
             )
 
@@ -233,15 +340,47 @@ def generate_report_html(
             });
         }
 
+
+        function createViewerAndLoadJS(viewer_id, path) {
+            // Create Viewer
+            const cgv = new CGV.Viewer('#' + viewer_id, {height: 500});
+
+            // Auto resize viewer
+            autoResizeMyViewer();
+
+            // Add viewer as global variable 'cgv'
+            window.cgv = cgv;
+
+            // Load the JavaScript file
+            var script = document.createElement('script');
+            script.src = path;
+            script.onload = function() {
+                // Use the 'jsonData' variable directly
+                cgv.io.loadJSON(window.jsonData);
+                cgv.draw();
+            };
+            document.head.appendChild(script);
+        }
+
         document.querySelectorAll('.dropdown-arrow').forEach(arrow => {
             arrow.addEventListener('click', function() {
                 let nextRow = this.parentNode.nextElementSibling;
-                if (nextRow && nextRow.classList.contains('image-row')) {
+                if (nextRow && nextRow.classList.contains('viewer-row')) {
                     nextRow.style.display = nextRow.style.display === 'table-row' ? 'none' : 'table-row';
                     this.innerHTML = nextRow.style.display === 'table-row' ? '&#9650;' : '&#9660;';
+                    // Load the viewer if it is not already loaded
+                    if (nextRow.style.display === 'table-row') {
+                        const viewerId = nextRow.querySelector('.genome-viewer').id;
+                        const viewer = document.getElementById(viewerId);
+                        if (viewer && viewer.children.length === 0) {
+                            createViewerAndLoadJS(viewerId, `./data/${viewerId}.js`);
+                        }
+                    }
                 }
             });
         });
+
+
     </script>
 </body>
 </html>

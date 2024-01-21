@@ -177,17 +177,18 @@ def update_cgview_js_code(downloaded_code_dir: str, existing_code_dir: str) -> N
     # (by comparing the md5sums to those of the previous versions of the files
     # that are already in the src/proksee-batch/data/cgview-js_code directory).
     for expected_file in expected_files:
-        downloaded_file = os.path.join(downloaded_code_dir, expected_file)
-        existing_file = os.path.join(existing_code_dir, expected_file)
-        # Skip directories.
-        if not os.path.isdir(downloaded_file):
-            if not os.path.exists(existing_file):
-                raise Exception(f"Missing expected file: {existing_file}")
-            if not are_files_same(downloaded_file, existing_file):
-                print(f"Updating {existing_file}...")
-                shutil.copyfile(downloaded_file, existing_file)
-            else:
-                print(f"{existing_file} is up to date.")
+        if not expected_file == "LICENSE":
+            downloaded_file = os.path.join(downloaded_code_dir, expected_file)
+            existing_file = os.path.join(existing_code_dir, expected_file)
+            # Skip directories.
+            if not os.path.isdir(downloaded_file):
+                if not os.path.exists(existing_file):
+                    raise Exception(f"Missing expected file: {existing_file}")
+                if not are_files_same(downloaded_file, existing_file):
+                    print(f"Updating {existing_file}...")
+                    shutil.copyfile(downloaded_file, existing_file)
+                else:
+                    print(f"{existing_file} is up to date.")
 
 
 def file_md5(file_path: str) -> str:
