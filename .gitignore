@@ -18,3 +18,4 @@ run.sh
 tests/temp_output
 *.DS_Store
 tests/data/private_test_data
+node_modules
