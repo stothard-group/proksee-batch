@@ -12,47 +12,46 @@ function tutorialMarkdown(marked, addFinalCode) {
   //    sanitize: true
   //  });
   var marked_ = marked;
-  var marked = function (text) {
+  var marked = function(text) {
     var tok = marked_.lexer(text);
     text = marked_.parser(tok);
-    text = text.replace(/<pre>/gi, '<pre class="prettyprint">');
-    text = text.replace(/&amp;gt;/g, ">");
-    text = text.replace(/&amp;lt;/g, "<");
+    text = text.replace(/<pre>/ig, '<pre class="prettyprint">');
+    text = text.replace(/&amp;gt;/g, '>');
+    text = text.replace(/&amp;lt;/g, '<');
     return text;
   };
 
-  var inEl = document.querySelector("#markdown-in");
-  var outEl = document.querySelector("#markdown-out");
-  outEl.innerHTML = marked(inEl.innerHTML);
+  var inEl = document.querySelector('#markdown-in');
+  var outEl = document.querySelector('#markdown-out');
+  outEl.innerHTML = marked( inEl.innerHTML );
 
   // Takes all the code block on the page
   // Copies the code (minus the comments) to an element with the id $(#final-code code)
   // Run the code as well. This is great for demos of CGView.
   if (addFinalCode) {
-    var finalCode = document.querySelector("#final-code code");
-    var codeEls = document.querySelectorAll("code.language-js:not(.final)");
-    codeEls.forEach(function (el) {
-      var code = el.innerHTML.replace(/\s*\/\/.*/g, "");
-      code = code.replaceAll("&lt;", "<");
-      code = code.replaceAll("&gt;", ">");
+    var finalCode = document.querySelector('#final-code code');
+    var codeEls = document.querySelectorAll('code.language-js:not(.final)');
+    codeEls.forEach( function(el) {
+      var code = el.innerHTML.replace(/\s*\/\/.*/g, '');
+      code = code.replaceAll('&lt;', '<');
+      code = code.replaceAll('&gt;', '>');
       // console.log(code);
-      eval(code);
-      var textNode = document.createTextNode(code + "\n");
+      eval( code );
+      var textNode = document.createTextNode( code + "\n" );
       finalCode.appendChild(textNode);
     });
   }
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // Side Nav Collapse
 ////////////////////////////////////////////////////////////////////////////////
 
-// Collapse Side Nav if narrow enough on window resize
+// Collapse Side Nav if narrow enough on window resize 
 function sideNavCheck() {
-  const sidenav = document.getElementById("sidebar-nav");
-  if (!sidenav) {
-    return;
-  }
+  const sidenav = document.getElementById('sidebar-nav');
+  if (!sidenav) {return}
   if (window.innerWidth < 576) {
     sidenav.classList.add("collapse");
   } else {
@@ -61,8 +60,9 @@ function sideNavCheck() {
 }
 
 // Adjust side nav on window resize
-window.addEventListener("resize", sideNavCheck);
+window.addEventListener("resize", sideNavCheck)
 setTimeout(sideNavCheck, 100);
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Auto Resize My Viewer
@@ -72,8 +72,8 @@ function autoResizeMyViewer() {
   const setHeight = 500;
   const mainPadding = 20 * 2;
   function myResize() {
-    const myViewer = document.querySelector("#my-viewer");
-    const main = document.getElementsByTagName("main")[0];
+    const myViewer = document.querySelector('#my-viewer');
+    const main = document.getElementsByTagName('main')[0];
     const mainWidth = main.clientWidth - mainPadding;
     const height = Math.min(mainWidth, setHeight);
     // const width = Math.min(mainWidth, setWidth);
@@ -81,11 +81,12 @@ function autoResizeMyViewer() {
   }
   window.onresize = myResize;
   window.onload = function () {
-    setTimeout(() => {
+    setTimeout( () => {
       myResize();
     }, 100);
-  };
+  }
 }
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // Create CGView and Load Data
@@ -93,7 +94,7 @@ function autoResizeMyViewer() {
 
 function createViewerAndLoadJSON(path) {
   // Create Viewer in default div: #my-viewer
-  const cgv = new CGV.Viewer("#my-viewer", { height: 500 });
+  const cgv = new CGV.Viewer('#my-viewer', {height: 500});
 
   // Auto resize viewer
   autoResizeMyViewer();
@@ -103,12 +104,12 @@ function createViewerAndLoadJSON(path) {
 
   // Request data and draw map
   var request = new XMLHttpRequest();
-  request.open("GET", path, true);
-  request.onload = function () {
+  request.open('GET', path, true);
+  request.onload = function() {
     var response = request.response;
     const json = JSON.parse(response);
     cgv.io.loadJSON(json);
-    cgv.draw();
+    cgv.draw()
   };
   request.send();
 }
@@ -142,10 +143,15 @@ function addExampleTables(id, name, size, link) {
     </table>`;
 
   // Replace tables
-  const tableDiv = document.getElementById("example-tables");
+  const tableDiv = document.getElementById('example-tables');
   tableDiv.innerHTML = `
     <h3>Source</h3>
     ${sourceTable}
     <h3>Files</h3>
     ${filesTable}`;
 }
+
+
+
+
+

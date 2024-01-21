@@ -4,7 +4,7 @@
 .cgv-wrapper {
   overflow: hidden;
   display: inline-block;
-  border: 1px solid #ddd;
+  border: 1px solid #DDD;
   text-align: left;
 }
 
@@ -13,6 +13,7 @@
   left: 0;
   top: 0;
 }
+
 
 /*******************************************/
 /* COLOR PICKER */
@@ -35,7 +36,7 @@
   height: 22px;
   width: 22px;
   background-color: white;
-  border: 1px solid #b4b4b4;
+  border: 1px solid #B4B4B4;
   border-radius: 2px;
   display: flex;
   align-items: center;
@@ -43,14 +44,14 @@
 }
 .cp-mode-button:hover,
 .cp-done-button:hover {
-  background-color: #eee;
+  background-color: #EEE;
   color: black;
 }
 .cp-done-button svg path {
   stroke: grey;
   stroke-width: 2px;
 }
-.cp-done-button:hover svg path {
+.cp-done-button:hover svg path{
   stroke: black;
 }
 
@@ -99,7 +100,7 @@
 .cp-picker-indicator-rect-1 {
   /* border: 3px solid rgba(25,25,25,0.5); */
   /* border: 3px solid rgba(75,75,75,0.75); */
-  border: 2px solid rgba(25, 25, 25, 0.5);
+  border: 2px solid rgba(25,25,25,0.5);
   /* border: 2px solid rgba(75,75,75,0.75); */
   background-clip: padding-box;
   /* border-radius: 4px; */
@@ -156,7 +157,7 @@
 .cp-color-slider-indicator {
   /* width: 100%; */
   left: -2px;
-  width: 22px;
+  width: 22px; 
   height: 5px;
   position: absolute;
   /* border: 1px solid black; */
@@ -168,7 +169,7 @@
   /* border: 3px solid white; */
 
   /* Switch These for work in progress indicators */
-  border: 3px solid rgb(25, 25, 25);
+  border: 3px solid rgb(25,25,25);
   /* border: 2px solid white; */
   /* box-shadow: 0 0 0 1px rgba(16,22,26,.4),0 1px 2px rgba(16,22,26,.8); */
 
@@ -212,7 +213,7 @@
   cursor: pointer;
 }
 .cp-alpha-slider-indicator {
-  width: 3px;
+  width: 3px; 
   height: 12px;
   top: -1px;
   position: absolute;
@@ -223,7 +224,7 @@
   /* border: 3px solid white; */
 
   /* Switch These for work in progress indicators */
-  border: 3px solid rgb(25, 25, 25);
+  border: 3px solid rgb(25,25,25);
   /* border: 2px solid white; */
   /* box-shadow: 0 0 0 1px rgba(16,22,26,.4),0 1px 2px rgba(16,22,26,.8); */
 
@@ -258,10 +259,7 @@
   background-color: white;
   border-radius: 2px;
   /* box-shadow: 0px 1px 2px 0px rgba(0, 0, 0, 0.5); */
-  box-shadow:
-    0 0 0 1px rgba(16, 22, 26, 0.1),
-    0 2px 4px rgba(16, 22, 26, 0.2),
-    0 8px 24px rgba(16, 22, 26, 0.2);
+  box-shadow: 0 0 0 1px rgba(16,22,26,.1),0 2px 4px rgba(16,22,26,.2),0 8px 24px rgba(16,22,26,.2);
   text-align: left;
 }
 
@@ -310,7 +308,7 @@
   cursor: pointer;
 }
 .cp-color-original:hover {
-  outline: #0067f4 solid 1px;
+  outline: #0067F4 solid 1px;
 }
 
 .cp-color-picker {
@@ -343,8 +341,8 @@
   font-family: monospace;
   padding: 2px;
   box-sizing: border-box;
-  color: #868e96;
-  line-height: 11px;
+  color: #868E96;
+  line-height: 11px;;
 }
 .cp-number-div input {
   width: 25px;
@@ -367,7 +365,7 @@
   font-size: 9px;
   font-weight: bold;
   cursor: ew-resize;
-  color: #868e96;
+  color: #868E96;
 }
 .cp-hex-div .cp-number-label {
   cursor: unset;
@@ -390,7 +388,7 @@
   margin-top: 5px;
 }
 
-.cp-dialog .cp-swatch,
+.cp-dialog .cp-swatch, 
 .cp-dialog-favorites .cp-swatch-blank {
   width: 15px;
   height: 15px;
@@ -413,10 +411,10 @@
 }
 
 .cp-dialog .cp-swatch:hover {
-  outline: #0067f4 solid 1px;
+  outline: #0067F4 solid 1px;
 }
 .cp-swatch-active {
-  outline: #0067f4 solid 1px;
+  outline: #0067F4 solid 1px;
 }
 .cp-dialog-favorites .cp-favorite-btn {
   height: 15px;
@@ -428,11 +426,11 @@
 }
 .cp-dialog-favorites .cp-favorite-btn-active svg path {
   /* fill: yellow; */
-  fill: #868e96;
+  fill: #868E96;
 }
 
 .cp-dialog-favorites .cp-favorite-btn svg path {
-  stroke: #868e96;
+  stroke: #868E96;
   stroke-width: 4px;
 }
 .cp-favorite-btn:hover svg path {
@@ -443,7 +441,7 @@
 .cp-swatch-section .cp-swatch-label {
   font-size: 9px;
   font-weight: bold;
-  color: #868e96;
+  color: #868E96;
 }
 .cp-swatch-section .cp-swatch-row {
   display: flex;
@@ -480,10 +478,10 @@
   top: 5px;
   right: 10px;
   height: 20px;
-  width: 20px;
+  width: 20px; 
   background-color: white;
   cursor: pointer;
-  color: #ccc;
+  color: #CCC;
   font-weight: bold;
   font-size: 18px;
   text-align: right;
@@ -504,7 +502,7 @@
   font-weight: bold;
   font-size: 16px;
   text-align: center;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #CCC;
   color: rgb(50, 50, 50);
 }
 
@@ -520,7 +518,7 @@
 /* Area at bottom of dialog buttons */
 .cgv-dialog-footer {
   height: 30px;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid #CCC;
   padding-top: 5px;
   text-align: right;
 }
@@ -557,22 +555,18 @@
 .cgv-input {
   border-radius: 4px;
   color: #555;
-  border: 1px solid #ccc;
+  border: 1px solid #CCC;
   padding: 4px 8px;
   display: table-cell;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
-  transition:
-    border-color ease-in-out 0.15s,
-    box-shadow ease-in-out 0.15s;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+  transition: border-color ease-in-out .15s, box-shadow ease-in-out .15s;
   font-size: 14px;
 }
 
 .cgv-input:focus {
   border-color: #66afe9;
   outline: 0;
-  box-shadow:
-    inset 0 1px 1px rgba(0, 0, 0, 0.075),
-    0 0 8px rgba(102, 175, 233, 0.6);
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
 }
 
 .cgv-input-addon {
@@ -581,7 +575,7 @@
   padding: 4px 8px;
   background-color: #eee;
   color: #555;
-  border: 1px solid #ccc;
+  border: 1px solid #CCC;
   text-align: center;
   display: table-cell;
   font-size: 14px;
@@ -600,8 +594,9 @@
 .cgv-input-addon:last-child {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
-  border-left: 0;
+  border-left: 0
 }
+
 
 /*******************************************/
 /* SETTINGS */
@@ -709,7 +704,7 @@
 /* MESSENGER */
 /*******************************************/
 .cgv-messenger {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(255,255,255,0.8);
   /* border: 1px solid black; */
   position: absolute;
   top: 0;
@@ -742,26 +737,26 @@
 
 .cgv-highlighter-popover-box:after,
 .cgv-highlighter-popover-box:before {
-  content: "";
-  pointer-events: none;
-  display: block;
-  position: absolute;
-  right: 100%;
-  width: 0;
-  height: 0;
-  border-style: solid;
+    content: '';
+    pointer-events: none;
+    display: block;
+    position: absolute;
+    right: 100%;
+    width: 0;
+    height: 0;
+    border-style: solid;
 }
 
 .cgv-highlighter-popover-box:after {
-  top: 0px;
-  border-color: transparent white transparent transparent;
-  border-width: 10px;
+    top: 0px;
+    border-color: transparent white transparent transparent;
+    border-width: 10px;
 }
 
 .cgv-highlighter-popover-box:before {
-  top: -1px;
-  border-color: transparent grey transparent transparent;
-  border-width: 11px;
+    top: -1px;
+    border-color: transparent grey transparent transparent;
+    border-width: 11px;
 }
 
 .meta-data-container {
@@ -785,3 +780,4 @@
 .track-data {
   font-size: 10px;
 }
+

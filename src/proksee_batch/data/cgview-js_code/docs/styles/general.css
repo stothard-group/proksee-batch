@@ -11,25 +11,17 @@ body {
   /* font-size: 14.5px; */
   /* This needs to match API for navbar to llok the same */
   font-size: 1rem;
-  font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva,
-    Verdana, sans-serif;
+  font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
   line-height: normal;
   /* This color will fill in the letterbox on iPhone landscape mode */
   background-color: rgb(33, 37, 41);
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
-h1,
-h2,
-h3 {
+h1, h2, h3 {
   font-weight: bold;
   padding-top: 10px;
   padding-bottom: 5px;
@@ -62,6 +54,7 @@ p {
   line-height: 1.3;
 }
 
+
 /*****************************************************************************/
 /* Tutorials and Maps
 /*****************************************************************************/
@@ -79,6 +72,7 @@ p {
 /* Main Page Stuff                                                           */
 /*****************************************************************************/
 
+
 main {
   margin-left: 175px;
   margin-top: 50px;
@@ -89,6 +83,7 @@ main {
 main.welcome {
   background-color: transparent;
 }
+
 
 /*****************************************************************************/
 /* Welcome Page Stuff                                                        */
@@ -180,10 +175,9 @@ main.welcome {
 #sidebar-nav .side-link,
 #sidebar-nav p {
   font-size: 13px;
-  font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva,
-    Verdana, sans-serif;
+  font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
   color: rgb(225, 225, 225);
-  padding: 0.1rem 0.5rem;
+  padding: .1rem 0.5rem;
   display: block;
 }
 #sidebar-nav p {
@@ -212,8 +206,9 @@ ul#gumshoe-list {
   list-style-type: none;
 }
 
+
 .sidebar-toggle {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255,255,255,.1);
 }
 .sidebar-toggle svg {
   fill: rgba(255, 255, 255, 0.55);
@@ -266,6 +261,7 @@ ul#gumshoe-list {
   margin: -50px 0 0; /* negative fixed header height */
 }
 
+
 /*****************************************************************************/
 /* Code formatting (in Markdown)                                             */
 /*****************************************************************************/
@@ -281,6 +277,7 @@ pre[class*="language-"] {
   font-size: 12px;
 }
 
+
 /*****************************************************************************/
 /* Jaguar stuff I want site wide                                             */
 /*****************************************************************************/
@@ -293,6 +290,7 @@ pre[class*="language-"] {
   background-color: gray;
   border-radius: 4px;
 }
+
 
 /*****************************************************************************/
 /* Styles for Viewer Help                                                    */
@@ -341,7 +339,7 @@ pre[class*="language-"] {
   cursor: pointer;
   margin: 0 3px 6px 0;
   filter: none;
-  transition: 0.6s;
+  transition:  0.6s;
   background-color: rgb(30, 30, 30);
   background-position: center;
   background-repeat: no-repeat;
@@ -351,9 +349,9 @@ pre[class*="language-"] {
 }
 
 .btn-proksee:hover {
-  filter: invert(89%) sepia(11%) saturate(1202%) hue-rotate(165deg)
-    brightness(95%) contrast(92%);
+  filter: invert(89%) sepia(11%) saturate(1202%) hue-rotate(165deg) brightness(95%) contrast(92%);
 }
+
 
 /*****************************************************************************/
 /* Note Sure Yet  (Everything below here may need to be incorporated)        */
@@ -384,6 +382,7 @@ pre[class*="language-"] {
 /*   list-style-type: disc; */
 /* } */
 
+
 /******************************/
 /* Specific Table Formatting  */
 /******************************/
@@ -402,3 +401,6 @@ pre[class*="language-"] {
 /*   max-width: none; */
 /*   word-break: break-all; */
 /* } */
+
+
+
