@@ -109,11 +109,11 @@ def download_example_input(output_dir: str) -> None:
     # Retrieve the path to the local example input data directory using
     # importlib.
     with resources.path("proksee_batch.data", "example_input_dir") as template_path:
-        template_path = str(template_path)
-        assert os.path.exists(template_path)
+        template_path_str = str(template_path)
+        assert os.path.exists(template_path_str)
         # Copy the example input data directory from the tests/data directory to
         # the output directory path.
-        shutil.copytree(template_path, output_dir)
+        shutil.copytree(template_path_str, output_dir)
 
     # Check that the subdirectories in the output directory match the primary
     # keys in the example_data_dict.

@@ -48,6 +48,7 @@ project JSON file that will be used as a template for the visualization.
 import json
 import os
 import sys
+from typing import List
 
 from Bio import SeqIO
 
@@ -91,7 +92,7 @@ def validate_input_directory_contents(input: str) -> None:
         try:
             SeqIO.parse(
                 os.path.join(input, genome_dir, "genbank", genbank_files[0]), "genbank"
-            ).__next__()
+            ).__next__()  # type: ignore
         except Exception as e:
             handle_error_exit(
                 f"Error parsing the GenBank file: {e}. Please check that the file is in GenBank format."
@@ -241,7 +242,7 @@ def validate_input_directory_contents(input: str) -> None:
                         )
 
 
-def get_data_files(input_subdir: str, data_type: str) -> list:
+def get_data_files(input_subdir: str, data_type: str) -> List[str]:
     """
     Returns the paths to the data files of the specified type in the provided subdirectory.
 
@@ -303,6 +304,9 @@ def get_data_files(input_subdir: str, data_type: str) -> list:
             handle_error_exit(f"The expected directory {data_dir} does not exist.")
         else:
             return []
+
+    # This should never be reached.
+    return []
 
 
 def handle_error_exit(error_message: str, exit_code: int = 1) -> None:

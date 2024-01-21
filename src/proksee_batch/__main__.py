@@ -122,14 +122,16 @@ def main(
         sys.exit(0)
 
     # Check if the input directory is provided.
+    input_dir_path = ""
     if not input:
         handle_error_exit("Missing option '--input'.")
     else:
         if not os.path.exists(input):
             handle_error_exit(f"The input directory does not exist: {input}")
+            input_dir_path = os.path.abspath(input)
 
     # Validate the contents of the input directory.
-    validate_input_directory_contents(input)
+    validate_input_directory_contents(input_dir_path)
 
     # Make the output directory if it doesn't exist.
     output_path = ""
@@ -149,7 +151,7 @@ def main(
     # Iterate over subdirectories in the input directory.
     for genome_dir in os.listdir(input):
         # Skip any files in the input directory.
-        if os.path.isfile(os.path.join(input, genome_dir)):
+        if os.path.isfile(os.path.join(input_dir_path, genome_dir)):
             continue
 
         # Define path to a temporary output directory within the output directory.
@@ -157,12 +159,14 @@ def main(
         os.mkdir(temp_output)
 
         # Get the data file paths
-        genbank_path = get_data_files(os.path.join(input, genome_dir), "genbank")[0]
-        json_paths = get_data_files(os.path.join(input, genome_dir), "json")
-        blast_paths = get_data_files(os.path.join(input, genome_dir), "blast")
-        bed_paths = get_data_files(os.path.join(input, genome_dir), "bed")
-        vcf_paths = get_data_files(os.path.join(input, genome_dir), "vcf")
-        gff_paths = get_data_files(os.path.join(input, genome_dir), "gff")
+        genbank_path = get_data_files(
+            os.path.join(input_dir_path, genome_dir), "genbank"
+        )[0]
+        json_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "json")
+        blast_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "blast")
+        bed_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "bed")
+        vcf_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "vcf")
+        gff_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "gff")
 
         # Get basic stats from the GenBank file.
         (
@@ -224,8 +228,8 @@ def main(
         else:
             with resources.path(
                 "proksee_batch.data", "default_proksee_template.json"
-            ) as template_path:
-                template_path = str(template_path)
+            ) as template_json_path:
+                template_path = str(template_json_path)
         assert os.path.exists(template_path)
 
         # Merge the basic cgview map with the template Proksee configuration file.
@@ -258,6 +262,10 @@ def main(
 
         # Delete the temporary output directory.
         shutil.rmtree(temp_output)
+
+    # Copy the directory with CGView.js code from the package data to the output directory.
+    with resources.path("proksee_batch.data", "cgview-js_code") as cgview_js_path:
+        shutil.copytree(cgview_js_path, os.path.join(output_path, "cgview-js_code"))
 
     # Generate the HTML report file.
     generate_report_html(output_path, genome_info)
