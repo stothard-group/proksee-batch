@@ -51,14 +51,7 @@
 import hashlib
 import os
 import shutil
-import sys
 import zipfile
-from pathlib import Path
-from typing import Any
-from typing import Dict
-from typing import List
-from typing import Optional
-from typing import Union
 
 import requests
 

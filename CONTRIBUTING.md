@@ -61,6 +61,16 @@ $ poetry run proksee-batch
 [nox]: https://nox.thea.codes/
 [nox-poetry]: https://nox-poetry.readthedocs.io/
 
+## How to update code included from CGView.js
+
+Code from the [CGView.js] project is included in this repository in the
+`src/proksee_batch/data/cgview-js_code` directory. To update this code from the
+GitHub repository, use the provided script as follows:
+
+```console
+$ poetry run python3 scripts/update_cgview-js_code.py
+```
+
 ## How to test the project
 
 Run the full test suite:
