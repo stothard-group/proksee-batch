@@ -77,7 +77,7 @@ from typing import Optional
 import click
 import toml
 
-from .download_example_genbank_files import download_example_genbank_files
+from .download_example_input import download_example_input
 from .genbank_to_cgview_json import genbank_to_cgview_json
 from .generate_proksee_link import generate_proksee_link
 from .generate_report_html import generate_report_html
@@ -103,22 +103,22 @@ from .validate_input_data import validate_input_directory_contents
     help="Path to the output directory.",
 )
 @click.option(
-    "--download-example-input",
+    "--download-example-data",
     type=click.Path(file_okay=False, dir_okay=True),
     help="Download example input files to the specified directory, and exit.",
 )
 def main(
     input: Optional[str],
     output: Optional[str],
-    download_example: Optional[str],
+    download_example_data: Optional[str],
 ) -> None:
     """Proksee Batch: A tool for visualizing batches of genomes via https://www.proksee.ca."""
 
     # Check if the download example GenBank files option is used
-    if download_example:
+    if download_example_data:
         # Download logic
-        download_example_genbank_files(download_example)
-        print(f"Example GenBank files downloaded to {download_example}")
+        download_example_input(download_example_data)
+        print(f"Example data files downloaded to {download_example_data}")
         sys.exit(0)
 
     # Check if the input directory is provided.
@@ -157,12 +157,12 @@ def main(
         os.mkdir(temp_output)
 
         # Get the data file paths
-        genbank_path = get_data_files(genome_dir, "genbank")[0]
-        json_paths = get_data_files(genome_dir, "json")
-        blast_paths = get_data_files(genome_dir, "blast")
-        bed_paths = get_data_files(genome_dir, "bed")
-        vcf_paths = get_data_files(genome_dir, "vcf")
-        gff_paths = get_data_files(genome_dir, "gff")
+        genbank_path = get_data_files(os.path.join(input, genome_dir), "genbank")[0]
+        json_paths = get_data_files(os.path.join(input, genome_dir), "json")
+        blast_paths = get_data_files(os.path.join(input, genome_dir), "blast")
+        bed_paths = get_data_files(os.path.join(input, genome_dir), "bed")
+        vcf_paths = get_data_files(os.path.join(input, genome_dir), "vcf")
+        gff_paths = get_data_files(os.path.join(input, genome_dir), "gff")
 
         # Get basic stats from the GenBank file.
         (
@@ -181,7 +181,7 @@ def main(
 
         # Convert the GenBank file to a basic cgview map in JSON format.
         basic_json_file = os.path.join(temp_output, genome_dir + ".json")
-        genbank_to_cgview_json(genbank_path, basic_json_file)
+        genbank_to_cgview_json(genome_dir, genbank_path, basic_json_file)
 
         # Parse the BLAST result files (if any) to create additional features and tracks.
         basic_json_file_with_blast_features = os.path.join(
@@ -235,7 +235,7 @@ def main(
         )
 
         # Convert the merged JSON file to .js file by wrapping it in a variable assignment.
-        js_file = os.path.join(output, genome_dir + ".js")
+        js_file = os.path.join(output_path, "data", genome_dir + ".js")
         with open(js_file, "w") as file:
             # Get the JSON data from the merged JSON file as a string.
             json_data = None
@@ -256,11 +256,11 @@ def main(
         )
         scrape_proksee_image(proksee_project_link_file, proksee_image_file)
 
+        # Delete the temporary output directory.
+        shutil.rmtree(temp_output)
+
     # Generate the HTML report file.
     generate_report_html(output_path, genome_info)
-
-    # Delete the temporary output directory.
-    shutil.rmtree(temp_output)
 
 
 def handle_error_exit(error_message: str, exit_code: int = 1) -> None:

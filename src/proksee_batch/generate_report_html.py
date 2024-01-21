@@ -5,15 +5,15 @@ from typing import List
 
 
 def generate_report_html(
-    js_files: List[str],
-    svg_files: List[str],
-    genome_files: Dict[str, Any],
-    output_file: str,
+    output_dir: str,
+    genome_info: Dict[str, Any],
 ) -> None:
     """
     Generates an HTML report file with a table containing links to Proksee
     projects and images for each sample.
     """
+    assert os.path.isdir(output_dir), f"Output directory does not exist: {output_dir}"
+    output_file = os.path.join(output_dir, "report.html")
     with open(output_file, "w") as file:
         # Write the DOCTYPE, html, and head sections with CSS
         file.write(
@@ -112,29 +112,29 @@ def generate_report_html(
                 """
         )
 
-        # Create table rows based on the js and svg files
-        for js_file, svg_file in zip(js_files, svg_files):
-            sample_id = os.path.basename(js_file).rsplit(".", 1)[0]
-
-            description = genome_files[sample_id]["Description"]
-            total_size = str(genome_files[sample_id]["Total size"])
-            number_of_contigs = str(genome_files[sample_id]["Number of contigs"])
-            gc_content = str(genome_files[sample_id]["GC content"])
+        ## Create table rows based on the js and svg files
+        # for js_file, svg_file in zip(js_files, svg_files):
+        #    sample_id = os.path.basename(js_file).rsplit(".", 1)[0]
+        for genome_dir_name in genome_info.keys():
+            description = genome_info[genome_dir_name]["Description"]
+            total_size = str(genome_info[genome_dir_name]["Total size"])
+            number_of_contigs = str(genome_info[genome_dir_name]["Number of contigs"])
+            gc_content = str(genome_info[genome_dir_name]["GC content"])
 
             file.write(
                 f"""
         <tr>
             <td class="dropdown-arrow">&#9660;</td>
-            <td>{sample_id}</td>
+            <td>{genome_dir_name}</td>
             <td>{description}</td>
             <td>{total_size}</td>
             <td>{number_of_contigs}</td>
             <td>{gc_content}</td>
-            <td class="generate-link" onclick="generateProkseeLink(this, 'data/{sample_id}')">Generate Proksee Project</td>
+            <td class="generate-link" onclick="generateProkseeLink(this, 'data/{genome_dir_name}')">Generate Proksee Project</td>
         </tr>
         <tr class="image-row">
             <td colspan="5" class="image-cell">
-                <img src="images/{sample_id}.svg" alt="Sample Image">
+                <img src="images/{genome_dir_name}.svg" alt="Sample Image">
             </td>
         </tr>
 """

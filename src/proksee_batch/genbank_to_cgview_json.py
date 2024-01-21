@@ -18,7 +18,7 @@ genetic_code: str = "11"
 orientation: str = "+"
 
 
-def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
+def genbank_to_cgview_json(genome_name: str, genbank_file: str, json_file: str) -> None:
     genbank_records: List[SeqRecord] = list(SeqIO.parse(genbank_file, "genbank"))  # type: ignore
 
     now: datetime.datetime = datetime.datetime.now()
@@ -30,7 +30,7 @@ def genbank_to_cgview_json(genbank_file: str, json_file: str) -> None:
             "version": "1.0",
             "created": now.strftime("%Y-%m-%d %H:%M:%S"),
             "id": map_id,
-            "name": os.path.basename(genbank_file.rsplit(".", 1)[0]),
+            "name": genome_name,
             "geneticCode": genetic_code,
             "settings": {},
             "backbone": {},
