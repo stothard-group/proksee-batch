@@ -17,7 +17,7 @@ def test_genbank_to_cgview_json() -> None:
             json_file = os.path.join(temp_output, "temp.json")
 
             # Use the genbank_to_cgview_json function to convert the genbank file to a CGView JSON file.
-            genbank_to_cgview_json(genbank_file, json_file)
+            genbank_to_cgview_json("TESTGENOMENAME", genbank_file, json_file)
 
             # Check that the JSON file was created.
             assert os.path.exists(json_file)
@@ -46,7 +46,7 @@ def test_genbank_to_cgview_json_on_compound_location() -> None:
             json_file = os.path.join(temp_output, "temp.json")
 
             # Use the genbank_to_cgview_json function to convert the genbank file to a CGView JSON file.
-            genbank_to_cgview_json(genbank_file, json_file)
+            genbank_to_cgview_json("TESTGENOMENAME", genbank_file, json_file)
 
             # Check that the JSON file was created.
             assert os.path.exists(json_file)
@@ -77,7 +77,7 @@ def test_genbank_to_cgview_on_origin_in_codon() -> None:
             json_file = os.path.join(temp_output, "temp.json")
 
             # Use the genbank_to_cgview_json function to convert the genbank file to a CGView JSON file.
-            genbank_to_cgview_json(genbank_file, json_file)
+            genbank_to_cgview_json("TESTGENOMENAME", genbank_file, json_file)
 
             # Check that the JSON file was created.
             assert os.path.exists(json_file)
@@ -159,7 +159,7 @@ def test_genbank_to_cgview_on_reverse_strand() -> None:
             json_file = os.path.join(temp_output, "temp.json")
 
             # Use the genbank_to_cgview_json function to convert the genbank file to a CGView JSON file.
-            genbank_to_cgview_json(genbank_file, json_file)
+            genbank_to_cgview_json("TESTGENOMENAME", genbank_file, json_file)
 
             # Check that the JSON file was created.
             assert os.path.exists(json_file)
