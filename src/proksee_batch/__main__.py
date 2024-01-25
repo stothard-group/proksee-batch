@@ -210,7 +210,7 @@ def main(
             with open(merged_json_file) as json_file:
                 json_data = json_file.read()
             # Write the variable assignment.
-            file.write(f"var jsonData = {json_data};")
+            file.write(f"json = {json_data};")
 
         ## Generate a Proksee link using the merged JSON file.
         # proksee_project_link_file = os.path.join(

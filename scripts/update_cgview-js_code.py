@@ -38,13 +38,10 @@
 #     │   ├── d3.min.js
 #     │   ├── general.js
 #     │   ├── marked.min.js
-#     │   ├── prism.js
 #     │   └── svgcanvas.iife.js
 #     ├── styles
 #         ├── bootstrap.min.css
 #         ├── controls.css
-#         ├── general.css
-#         ├── prism.css
 
 # Note: The script should download the latest version of the CGView.js code to a temporary directory
 
@@ -74,8 +71,6 @@ expected_files = [
     "docs/styles",
     "docs/styles/bootstrap.min.css",
     "docs/styles/controls.css",
-    "docs/styles/general.css",
-    "docs/styles/prism.css",
 ]
 
 license_ending = """
