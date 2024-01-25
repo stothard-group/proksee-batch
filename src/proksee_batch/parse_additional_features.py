@@ -5,6 +5,8 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 
+from .remove_covered_features import remove_covered_features
+
 
 def parse_blast_files(
     blast_files: List[str],
@@ -77,12 +79,50 @@ def parse_blast_files(
             }
             # Add the BLAST feature to the list of BLAST features.
             blast_features.append(blast_feature)
+
+    # Remove BLAST features that are completely covered by another BLAST feature
+    # with an equal or higher score.
+    blast_features = [
+        blast_feature
+        for blast_feature, is_not_covered in zip(
+            blast_features,
+            remove_covered_features(
+                get_feature_locations_and_scores_from_blast_features(blast_features)
+            ),
+        )
+        if is_not_covered
+    ]
+
     assert (
         len(blast_features) > 0 and len(blast_tracks) > 0
     ), "No BLAST features or tracks were obtained from input file {}.".format(
         blast_file
     )
     return (blast_features, blast_tracks)
+
+
+def get_feature_locations_and_scores_from_blast_features(
+    blast_features: List[Dict[str, Any]]
+) -> List[Tuple[int, int, int]]:
+    """
+    Gets feature locations and scores from BLAST features.
+
+    Parameters:
+    blast_features (list): A list of parsed BLAST features.
+
+    Returns:
+    list: A list of tuples containing feature locations and scores.
+    """
+    feature_locations_and_scores = []
+    for blast_feature in blast_features:
+        feature_locations_and_scores.append(
+            (
+                blast_feature["start"],
+                blast_feature["stop"],
+                blast_feature["meta"]["bit_score"],
+            )
+        )
+    return feature_locations_and_scores
 
 
 def add_blast_features_and_tracks(
