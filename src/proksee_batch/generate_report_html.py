@@ -1,3 +1,19 @@
+"""Code for generating an HTML report file with a table containing links to
+Proksee projects and images for each sample. A single genome viewer is
+positioned to the right of the table.
+
+The output directory will be structured as in the following example:
+
+    output_directory/
+        cgview-js_code/
+            ...
+        data/
+            genome_name_1.js
+            genome_name_2.js
+            ...
+        report.html
+"""
+
 import os
 from typing import Any
 from typing import Dict

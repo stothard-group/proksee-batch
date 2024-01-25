@@ -3,22 +3,6 @@
 This file defines the proksee-batch command-line interface and implements the
 high-level logic of the tool.
 
-The output directory will be structured as in the following example:
-
-    output_directory/
-        cgview-js_code/
-            ...
-        data/
-            genome_name_1.js
-            genome_name_2.js
-            ...
-        images/
-            genome_name_1.svg
-            genome_name_2.svg
-            ...
-        report.html
-
-
 """
 import json
 import os
@@ -85,9 +69,10 @@ def main(
     if not input:
         handle_error_exit("Missing option '--input'.")
     else:
+        assert input is not None
         if not os.path.exists(input):
             handle_error_exit(f"The input directory does not exist: {input}")
-    input_dir_path = os.path.abspath(input)
+        input_dir_path = os.path.abspath(input)
 
     # Validate the contents of the input directory.
     validate_input_directory_contents(input_dir_path)
