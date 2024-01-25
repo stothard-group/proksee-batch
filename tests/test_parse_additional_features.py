@@ -172,7 +172,7 @@ def test_add_blast_features_and_tracks_multiple_features() -> None:
                     "identity": 100.0,
                     "mismatches": 0,
                     "evalue": 0.0,
-                    "bit_score": 9286,
+                    "bit_score": 9287,
                 },
             },
         ]

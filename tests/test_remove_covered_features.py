@@ -1,7 +1,7 @@
 from proksee_batch.remove_covered_features import remove_covered_features
 
 
-def test_remove_covered_features():
+def test_remove_covered_features() -> None:
     """Test the remove_covered_features function. It should take a list of
     tuples. Each tuple should have three elements: a start position, an end
     position, and a score. The function should return a list of boolean values.
