@@ -1,2 +1,4 @@
 NC_000913.3	100	200	FirstFeature	0	+
 NC_000913.3	300	400	SecondFeature	0	-
+NC_000913.3	310	390	ShouldBeRemoved	0	-
+NC_000913.3	320	380	ShouldNotBeRemoved	1	-

@@ -251,10 +251,48 @@ def parse_bed_files(
             }
             # Add the BED feature to the list of BED features.
             bed_features.append(bed_feature)
+
+    # Remove BED features that are completely covered by another BED feature
+    # with an equal or higher score.
+    bed_features = [
+        bed_feature
+        for bed_feature, is_not_covered in zip(
+            bed_features,
+            remove_covered_features(
+                get_feature_locations_and_scores_from_bed_features(bed_features)
+            ),
+        )
+        if is_not_covered
+    ]
+
     assert (
         len(bed_features) > 0 and len(bed_tracks) > 0
     ), f"No BED features or tracks were obtained from input file {bed_file}."
     return (bed_features, bed_tracks)
+
+
+def get_feature_locations_and_scores_from_bed_features(
+    bed_features: List[Dict[str, Any]]
+) -> List[Tuple[int, int, int]]:
+    """
+    Gets feature locations and scores from BED features.
+
+    Parameters:
+    bed_features (list): A list of parsed BED features.
+
+    Returns:
+    list: A list of tuples containing feature locations and scores.
+    """
+    feature_locations_and_scores = []
+    for bed_feature in bed_features:
+        feature_locations_and_scores.append(
+            (
+                bed_feature["start"],
+                bed_feature["stop"],
+                bed_feature["meta"]["score"],
+            )
+        )
+    return feature_locations_and_scores
 
 
 def add_bed_features_and_tracks(
