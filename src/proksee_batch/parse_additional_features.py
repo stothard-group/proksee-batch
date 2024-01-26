@@ -5,6 +5,8 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 
+import gffutils
+
 from .remove_covered_features import remove_covered_features
 
 
@@ -484,6 +486,154 @@ def add_vcf_features_and_tracks(
     # Add the parsed VCF features and tracks to the cgview map JSON data structure.
     json_data["cgview"]["features"] += vcf_features
     json_data["cgview"]["tracks"] += vcf_tracks
+    # Write the cgview map JSON data structure to a new file.
+    with open(output_file, "w") as f:
+        json.dump(json_data, f, indent=4)
+
+
+# Use gffutils to parse GFF files.
+def parse_gff_files(
+    gff_files: List[str],
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Parses GFF files.
+
+    Parameters:
+    gff_files (list): A list of paths to GFF files.
+
+    Returns:
+    tuple: A tuple containing a list of parsed GFF features and a list of parsed GFF tracks.
+    """
+    gff_features = []
+    gff_tracks = []
+    for i, gff_file in enumerate(gff_files):
+        num = i + 1
+
+        # Define the GFF track.
+        gff_track = {
+            "name": os.path.basename(gff_file),
+            "separateFeaturesBy": "none",
+            "position": "both",
+            "thicknessRatio": 1,
+            "dataType": "feature",
+            "dataMethod": "source",
+            "dataKeys": f"gff_{num}",
+            "drawOrder": "score",
+        }
+        # Add the GFF track to the list of GFF tracks.
+        gff_tracks.append(gff_track)
+
+        # Parse the GFF file.
+        db = gffutils.create_db(
+            gff_file,
+            ":memory:",
+            force=True,
+            keep_order=True,
+            merge_strategy="merge",
+            sort_attribute_values=True,
+        )
+
+        # Parse the GFF file.
+        for gff_result in db.all_features():
+            # Skip the header line(s), if present.
+            if gff_result.featuretype == "region":
+                continue
+
+            # Define the GFF feature.
+            gff_feature = {
+                "name": gff_result.id,
+                "type": "gff",
+                "start": gff_result.start,
+                "stop": gff_result.stop,
+                "strand": gff_result.strand,
+                "source": f"gff_{num}",
+                "contig": gff_result.seqid,
+                "legend": os.path.basename(gff_file),
+                "tags": [],
+                "meta": {
+                    "score": gff_result.score,
+                },
+            }
+            # Add the GFF feature to the list of GFF features.
+            gff_features.append(gff_feature)
+
+    # Remove GFF features that are completely covered by another GFF feature
+    # with an equal or higher score.
+    gff_features = [
+        gff_feature
+        for gff_feature, is_not_covered in zip(
+            gff_features,
+            remove_covered_features(
+                get_feature_locations_and_scores_from_gff_features(gff_features)
+            ),
+        )
+        if is_not_covered
+    ]
+
+    assert (
+        len(gff_features) > 0 and len(gff_tracks) > 0
+    ), f"No GFF features or tracks were obtained from input file {gff_file}."
+    return (gff_features, gff_tracks)
+
+
+def get_feature_locations_and_scores_from_gff_features(
+    gff_features: List[Dict[str, Any]]
+) -> List[Tuple[int, int, int]]:
+    """
+    Gets feature locations and scores from GFF features.
+
+    Parameters:
+    gff_features (list): A list of parsed GFF features.
+
+    Returns:
+    list: A list of tuples containing feature locations and scores.
+    """
+    feature_locations_and_scores = []
+    for gff_feature in gff_features:
+        feature_locations_and_scores.append(
+            (
+                gff_feature["start"],
+                gff_feature["stop"],
+                gff_feature["meta"]["score"],
+            )
+        )
+    return feature_locations_and_scores
+
+
+def add_gff_features_and_tracks(
+    gff_files: List[str], json_file: str, output_file: str
+) -> None:
+    """
+    Parses GFF files, adds the parsed GFF features and tracks to the cgview map JSON data structure, and writes the cgview map JSON data structure to a new file.
+
+    Parameters:
+    gff_files (list): A list of paths to GFF files.
+    json_file (str): The path to a cgview map JSON file.
+    output_file (str): The path to the output file.
+
+    Returns:
+    None
+    """
+    # Parse the GFF file.
+    gff_features, gff_tracks = parse_gff_files(gff_files)
+    # Read the cgview map JSON file.
+    with open(json_file) as f:
+        json_data = json.load(f)
+
+    # Get list of contigs from JSON data.
+    contigs = [contig["name"] for contig in json_data["cgview"]["sequence"]["contigs"]]
+
+    # Check that all the gff features are assigned to contigs that are in the JSON data.
+    for gff_feature in gff_features:
+        assert (
+            gff_feature["contig"] in contigs
+        ), "The contig {} listed in the GFF file {} is not among the contigs in the genome being mapped.".format(
+            gff_feature["contig"], gff_feature["legend"]
+        )
+
+    # Add the parsed GFF features and tracks to the cgview map JSON data structure.
+    json_data["cgview"]["features"] += gff_features
+    json_data["cgview"]["tracks"] += gff_tracks
     # Write the cgview map JSON data structure to a new file.
     with open(output_file, "w") as f:
         json.dump(json_data, f, indent=4)

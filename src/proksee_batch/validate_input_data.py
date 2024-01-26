@@ -6,6 +6,8 @@ The input directory must be structured as in the following example:
         genome_name_1/
             genbank/
                 genome1.gbk
+            fasta/
+                genome1.fna
             blast/
                 abc.txt
                 def.tsv
@@ -23,6 +25,8 @@ The input directory must be structured as in the following example:
         genome_name_2/
             genbank/
                 genome2.gbff
+            fasta/
+                genome2.fa
             blast/
                 yza.txt
                 bcd.tsv
@@ -39,15 +43,18 @@ The input directory must be structured as in the following example:
                 tuv.gff3
         ...
 
-The genbank directory must a single GenBank file with the extension .gbk, .gbff,
-or .gb. This is the genome that will be visualized.  The blast, bed, vcf, and
-gff directories are optional. They contain files with additional genomic
-features.  The json directory is also optional. It contains a custom Proksee
-project JSON file that will be used as a template for the visualization.
+The genbank directory must contain a single GenBank file with the extension
+.gbk, .gbff, or .gb. This is the genome that will be visualized. If the genbank
+directory is not present, then proksee-batch will use a file from the fasta
+directory instead (otherwise the fasta directory is ignored).  The blast, bed,
+vcf, and gff directories are optional. They contain files with additional
+genomic features.  The json directory is also optional. It contains a custom
+Proksee project JSON file that will be used as a template for the visualization.
 """
 import json
 import os
 import sys
+from typing import Dict
 from typing import List
 
 from Bio import SeqIO
@@ -99,7 +106,7 @@ def validate_input_directory_contents(input: str) -> None:
             )
 
         # Check that all other subdirectories have valid names.
-        optional_subdirectories = ["blast", "bed", "json", "vcf", "gff"]
+        optional_subdirectories = ["fasta", "blast", "bed", "json", "vcf", "gff"]
         for subdirectory in os.listdir(os.path.join(input, genome_dir)):
             if (
                 subdirectory not in required_subdirectories
@@ -213,6 +220,27 @@ def validate_input_directory_contents(input: str) -> None:
                                             handle_error_exit(
                                                 f"The VCF file {file} does not have the correct format. Please check that the file is in VCF format."
                                             )
+                            # Check that all sequence IDs in the VCF file are contigs in the GenBank file.
+                            if not check_vcf_seq_ids(
+                                os.path.join(subdirectory_path, file),
+                                os.path.join(
+                                    input, genome_dir, "genbank", genbank_files[0]
+                                ),
+                            ):
+                                handle_error_exit(
+                                    f"The VCF file {file} contains sequence IDs that are not contigs in the GenBank file."
+                                )
+                            # Check that the genotypes in the genome in the GenBank file match the REF genotypes in the VCF file.
+                            if not check_vcf_ref_vs_alt_genotypes(
+                                os.path.join(subdirectory_path, file),
+                                os.path.join(
+                                    input, genome_dir, "genbank", genbank_files[0]
+                                ),
+                                "genbank",
+                            ):
+                                handle_error_exit(
+                                    f"The genotypes in the genome in the GenBank file {genbank_files[0]} do not match the REF genotypes in the VCF file {file}."
+                                )
                     if len(vcf_files) == 0:
                         handle_error_exit(
                             f"The input directory {subdirectory_path} does not contain any VCF files. Valid file extension is .vcf."
@@ -234,7 +262,10 @@ def validate_input_directory_contents(input: str) -> None:
                                         try:
                                             int(line_split[3])
                                             int(line_split[4])
-                                            float(line_split[5])
+                                            try:
+                                                float(line_split[5])
+                                            except:
+                                                assert line_split[5] == "."
                                         except ValueError:
                                             handle_error_exit(
                                                 f"The GFF file {file} does not have the correct format. Please check that the file is in GFF format."
@@ -325,3 +356,71 @@ def handle_error_exit(error_message: str, exit_code: int = 1) -> None:
     """
     print(error_message, file=sys.stderr)
     sys.exit(exit_code)
+
+
+def check_vcf_seq_ids(vcf_file_path: str, genbank_file_path: str) -> bool:
+    """
+    Checks if all the sequence IDs in the first column of the VCF file are contigs in the GenBank file.
+
+    Args:
+        vcf_file_path (str): The path to the VCF file.
+        genbank_file_path (str): The path to the GenBank file.
+
+    Returns:
+        bool: True if all sequence IDs in the VCF file are contigs in the GenBank file, False otherwise.
+    """
+    vcf_seq_ids = []
+    with open(vcf_file_path) as vcf_file:
+        for line in vcf_file:
+            if not line.startswith("#") and line.strip() != "":
+                vcf_seq_ids.append(line.split("\t")[0])
+    genbank_seq_ids = []
+    for record in SeqIO.parse(genbank_file_path, "genbank"):
+        genbank_seq_ids.append(record.id)
+    return all(seq_id in genbank_seq_ids for seq_id in vcf_seq_ids)
+
+
+def check_vcf_ref_vs_alt_genotypes(
+    vcf_file_path: str, genome_file_path: str, genome_file_type: str
+) -> bool:
+    """
+    Checks if the genotypes in the genome in the GenBank file match the REF genotypes in the VCF file.
+    Args:
+        vcf_file_path (str): The path to the VCF file.
+        genbank_file_path (str): The path to the GenBank file.
+    Returns:
+        bool: True if the genotypes in the genome in the GenBank file match the REF genotypes in the VCF file, False otherwise.
+    """
+    # Get the genome sequences from the GenBank file
+    genome_sequences = {}
+    if genome_file_type == "genbank":
+        genome_sequences = {
+            record.id: str(record.seq)
+            for record in SeqIO.parse(genome_file_path, "genbank")
+        }
+    elif genome_file_type == "fasta":
+        genome_sequences = {
+            record.id: str(record.seq)
+            for record in SeqIO.parse(genome_file_path, "fasta")
+        }
+    else:
+        handle_error_exit(f"Invalid genome file type: {genome_file_type}")
+
+    # Parse the VCF file content
+    vcf_data = []
+    with open(vcf_file_path) as vcf_file:
+        for line in vcf_file:
+            if not line.startswith("#") and line.strip():
+                parts = line.split("\t")
+                vcf_data.append((parts[0], int(parts[1]), parts[3]))
+
+    # Check each genotype in the VCF file
+    for chrom, pos, ref_genotype in vcf_data:
+        actual_genotype = genome_sequences[chrom][pos - 1]
+        if ref_genotype != actual_genotype:
+            print(
+                f"Genotype mismatch at {chrom}:{pos}: {actual_genotype} should be {ref_genotype}"
+            )
+            return False
+
+    return True

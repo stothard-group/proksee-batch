@@ -85,15 +85,23 @@ def download_genbank_file(output_dir: str, url: str) -> None:
 example_data_dict = {
     "Escherichia_coli_str._K-12_substr._MG1655": {
         "genbank": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.gbff.gz",
+        "gff": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.gff.gz",
+        "fasta": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/005/845/GCF_000005845.2_ASM584v2/GCF_000005845.2_ASM584v2_genomic.fna.gz",
     },
     "Klebsiella_aerogenes": {
         "genbank": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/007/632/255/GCF_007632255.1_ASM763225v1/GCF_007632255.1_ASM763225v1_genomic.gbff.gz",
+        "gff": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/007/632/255/GCF_007632255.1_ASM763225v1/GCF_007632255.1_ASM763225v1_genomic.gff.gz",
+        "fasta": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/007/632/255/GCF_007632255.1_ASM763225v1/GCF_007632255.1_ASM763225v1_genomic.fna.gz",
     },
     "Salmonella_enterica_subsp._enterica_serovar_Typhimurium_str._LT2": {
         "genbank": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/006/945/GCF_000006945.2_ASM694v2/GCF_000006945.2_ASM694v2_genomic.gbff.gz",
+        "gff": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/006/945/GCF_000006945.2_ASM694v2/GCF_000006945.2_ASM694v2_genomic.gff.gz",
+        "fasta": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/006/945/GCF_000006945.2_ASM694v2/GCF_000006945.2_ASM694v2_genomic.fna.gz",
     },
     "Shigella_flexneri_2a_str._301": {
         "genbank": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/006/925/GCF_000006925.2_ASM692v2/GCF_000006925.2_ASM692v2_genomic.gbff.gz",
+        "gff": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/006/925/GCF_000006925.2_ASM692v2/GCF_000006925.2_ASM692v2_genomic.gff.gz",
+        "fasta": "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/006/925/GCF_000006925.2_ASM692v2/GCF_000006925.2_ASM692v2_genomic.fna.gz",
     },
 }
 
@@ -119,11 +127,17 @@ def download_example_input(output_dir: str) -> None:
     # keys in the example_data_dict.
     assert set(example_data_dict.keys()) == set(os.listdir(output_dir))
 
-    # Download the example GenBank files using the URLs in the example_data_dict.
+    # Download the example GenBank, GFF, and FASTA files using the URLs in the example_data_dict.
     for genome_name, genome_data in example_data_dict.items():
         output_subdir = os.path.join(output_dir, genome_name, "genbank")
         os.mkdir(output_subdir)
         download_genbank_file(output_subdir, genome_data["genbank"])
+        output_subdir = os.path.join(output_dir, genome_name, "gff")
+        os.mkdir(output_subdir)
+        download_genbank_file(output_subdir, genome_data["gff"])
+        output_subdir = os.path.join(output_dir, genome_name, "fasta")
+        os.mkdir(output_subdir)
+        download_genbank_file(output_subdir, genome_data["fasta"])
 
 
 if __name__ == "__main__":

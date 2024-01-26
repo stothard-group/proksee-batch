@@ -1,0 +1,78 @@
+LOCUS       Contig1     100 bp    DNA             PLN       21-JUN-1999
+DEFINITION  Example Bacterial Contig 1.
+ACCESSION   XXXX0000001
+VERSION     XXXX0000001.1
+KEYWORDS    .
+SOURCE      Example bacteria
+  ORGANISM  Example bacteria
+            Bacteria; Example Order; Example Family; Example Genus.
+REFERENCE   1  (bases 1 to 100)
+  AUTHORS   Researcher, A.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (26-JAN-2024) to the Example Department, Example University
+FEATURES             Location/Qualifiers
+     gene            1..100
+                     /gene="example_gene_1"
+                     /locus_tag="EXG1"
+     CDS             1..100
+                     /gene="example_gene_1"
+                     /codon_start=1
+                     /product="example protein 1"
+                     /protein_id="XXX0000001.1"
+                     /translation="MRTL..."
+ORIGIN
+        1 gatatcggat ctgatcgatc gatcgatcga tcgatcgatc gatcgatcga
+       51 tgcagctgca gctagctagc tagctagcta gctagctagc tagctagcta
+//
+LOCUS       Contig2     100 bp    DNA             PLN       21-JUN-1999
+DEFINITION  Example Bacterial Contig 2.
+ACCESSION   XXXX0000002
+VERSION     XXXX0000002.1
+KEYWORDS    .
+SOURCE      Example bacteria
+  ORGANISM  Example bacteria
+            Bacteria; Example Order; Example Family; Example Genus.
+REFERENCE   1  (bases 1 to 100)
+  AUTHORS   Researcher, A.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (26-JAN-2024) to the Example Department, Example University
+FEATURES             Location/Qualifiers
+     gene            1..100
+                     /gene="example_gene_2"
+                     /locus_tag="EXG2"
+     CDS             1..100
+                     /gene="example_gene_2"
+                     /codon_start=1
+                     /product="example protein 2"
+                     /protein_id="XXX0000002.1"
+                     /translation="VKYAP..."
+ORIGIN
+        1 actgactgac tagctagctg actgactgac tagctagctg actgactgac
+       51 tgactgactg actgactgac tgactgactg actgactgac tgactgactg
+//
+LOCUS       Contig3     100 bp    DNA             PLN       21-JUN-1999
+DEFINITION  Example Bacterial Contig 3.
+ACCESSION   XXXX0000003
+VERSION     XXXX0000003.1
+KEYWORDS    .
+SOURCE      Example bacteria
+  ORGANISM  Example bacteria
+            Bacteria; Example Order; Example Family; Example Genus.
+REFERENCE   1  (bases 1 to 100)
+  AUTHORS   Researcher, A.
+  TITLE     Direct Submission
+  JOURNAL   Submitted (26-JAN-2024) to the Example Department, Example University
+FEATURES             Location/Qualifiers
+     gene            1..100
+                     /gene="example_gene_3"
+                     /locus_tag="EXG3"
+     CDS             1..100
+                     /gene="example_gene_3"
+                     /codon_start=1
+                     /product="example protein 3"
+                     /protein_id="XXX0000003.1"
+                     /translation="QWER..."
+ORIGIN
+        1 cgatcgatcg atcgatcgat cgatcgatcg atcgatcgat cgatcgatcg
+       51 atcgatcgat cgatcgatcg atcgatcgat cgatcgatcg atcgatcgat
+//

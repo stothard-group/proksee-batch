@@ -27,6 +27,7 @@ from .get_stats_from_genbank import get_stats_from_genbank
 from .merge_cgview_json_with_template import merge_cgview_json_with_template
 from .parse_additional_features import add_bed_features_and_tracks
 from .parse_additional_features import add_blast_features_and_tracks
+from .parse_additional_features import add_gff_features_and_tracks
 from .parse_additional_features import add_vcf_features_and_tracks
 
 # from .scrape_proksee_image import scrape_proksee_image
@@ -180,6 +181,22 @@ def main(
                 basic_json_file_with_vcf_features,
             )
 
+        # Parse the GFF files (if any) to create additional features and tracks.
+        basic_json_file_with_gff_features = os.path.join(
+            temp_output, genome_code_name + ".with_gff_features.json"
+        )
+        if gff_paths:
+            add_gff_features_and_tracks(
+                gff_paths,
+                basic_json_file_with_vcf_features,
+                basic_json_file_with_gff_features,
+            )
+        else:
+            shutil.copy(
+                basic_json_file_with_vcf_features,
+                basic_json_file_with_gff_features,
+            )
+
         # Determine path to the template Proksee configuration file.
         template_path = ""
         if json_paths:
@@ -201,7 +218,7 @@ def main(
         # Merge the basic cgview map with the template Proksee configuration file.
         merged_json_file = os.path.join(temp_output, genome_code_name + ".merged.json")
         merge_cgview_json_with_template(
-            basic_json_file_with_vcf_features, template_path, merged_json_file
+            basic_json_file_with_gff_features, template_path, merged_json_file
         )
 
         # Convert the merged JSON file to .js file by wrapping it in a variable assignment.

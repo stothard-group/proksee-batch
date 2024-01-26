@@ -2,6 +2,6 @@
 ##source=Simulation
 ##reference=None
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-NC_000913.3	50	.	A	G	.	.	.
-NC_000913.3	150	.	T	C	.	.	.
-NC_000913.3	250	.	C	T	.	.	.
+NC_000913.3	50	.	A	T	.	.	.
+NC_000913.3	150	.	A	T	.	.	.
+NC_000913.3	250	.	G	C	.	.	.
