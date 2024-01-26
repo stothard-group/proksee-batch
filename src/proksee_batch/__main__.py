@@ -221,12 +221,42 @@ def main(
             basic_json_file_with_gff_features, template_path, merged_json_file
         )
 
+        # Add GC content and GC skew tracks to the merged JSON.
+        merged_json_file_with_gc_tracks = os.path.join(
+            temp_output, genome_code_name + ".merged_with_gc_tracks.json"
+        )
+        with open(merged_json_file) as merged_json_fh, open(
+            merged_json_file_with_gc_tracks, "w"
+        ) as merged_json_file_with_gc_tracks_fh:
+            merged_json = json.load(merged_json_fh)
+            merged_json["cgview"]["tracks"].extend(
+                [
+                    {
+                        "name": "CG Content",
+                        "thicknessRatio": 2,
+                        "position": "inside",
+                        "dataType": "plot",
+                        "dataMethod": "sequence",
+                        "dataKeys": "gc-content",
+                    },
+                    {
+                        "name": "CG Skew",
+                        "thicknessRatio": 2,
+                        "position": "inside",
+                        "dataType": "plot",
+                        "dataMethod": "sequence",
+                        "dataKeys": "gc-skew",
+                    },
+                ]
+            )
+            json.dump(merged_json, merged_json_file_with_gc_tracks_fh)
+
         # Convert the merged JSON file to .js file by wrapping it in a variable assignment.
         js_file = os.path.join(output_path, "data", genome_code_name + ".js")
         with open(js_file, "w") as file:
             # Get the JSON data from the merged JSON file as a string.
             json_data = None
-            with open(merged_json_file) as json_file:
+            with open(merged_json_file_with_gc_tracks) as json_file:
                 json_data = json_file.read()
             # Write the variable assignment.
             file.write(f"json = {json_data};")
