@@ -127,6 +127,11 @@ def generate_report_html(output_dir: str, genome_info: Dict[str, Any]) -> None:
         cursor: pointer;
       }
 
+      .btn-toggle-legend,
+      #btn-toggle-legend {
+        content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Ccircle cx='5' cy='7' r='2' fill='black'/%3E%3Cpath d='M10 7 h15' stroke='black' stroke-width='2'/%3E%3Ccircle cx='5' cy='15' r='2' fill='black'/%3E%3Cpath d='M10 15 h15' stroke='black' stroke-width='2'/%3E%3Ccircle cx='5' cy='23' r='2' fill='black'/%3E%3Cpath d='M10 23 h15' stroke='black' stroke-width='2'/%3E%3C/svg%3E");
+      }
+
     </style>
   </head>
 <body>
@@ -196,6 +201,7 @@ def generate_report_html(output_dir: str, genome_info: Dict[str, Any]) -> None:
             <div class='cgv-btn' id='btn-invert-colors' title='Invert Map Colors'></div>
             <div class='cgv-btn' id='btn-download' title='Download Map PNG'></div>
             <div class='cgv-btn' id='btn-toggle-labels' title='Toggle Labels'></div>
+            <div class='cgv-btn' id='btn-toggle-legend' title='Toggle Legend'></div>
             </div>
         </div>
         """
@@ -394,6 +400,12 @@ def generate_report_html(output_dir: str, genome_info: Dict[str, Any]) -> None:
         window.onload = function() {
             adjustTableHeight();
         };
+
+        // Toggle Labels (not included in the controls.js file)
+        onClick('btn-toggle-legend', () => {
+        cgv.legend.update({visible: !cgv.legend.visible});
+        cgv.draw();
+        });
 
     </script>
 </body>
