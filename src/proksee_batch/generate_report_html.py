@@ -141,10 +141,9 @@ def generate_report_html(output_dir: str, genome_info: Dict[str, Any]) -> None:
             <table id="sortable-table">
                 <tr>
                     <th onclick="sortTable(0)">Sample ID</th>
-                    <th onclick="sortTable(1)">Description</th>
-                    <th onclick="sortTable(2)">Total size (bp)</th>
-                    <th onclick="sortTable(3)">Contigs</th>
-                    <th onclick="sortTable(4)">GC content</th>
+                    <th onclick="sortTable(1)">Total size (bp)</th>
+                    <th onclick="sortTable(2)">Contigs</th>
+                    <th onclick="sortTable(3)">GC content</th>
                     <th>Action</th>
                 </tr>
         """
@@ -153,7 +152,7 @@ def generate_report_html(output_dir: str, genome_info: Dict[str, Any]) -> None:
         # Create table rows based on the js and svg files
         for genome_code_name, info in genome_info.items():
             genome_name = info["Name"]
-            description = info["Description"]
+            # description = info["Description"]
             total_size = str(info["Total size"])
             number_of_contigs = str(info["Number of contigs"])
             gc_content = str(info["GC content"])
@@ -162,7 +161,6 @@ def generate_report_html(output_dir: str, genome_info: Dict[str, Any]) -> None:
                 f"""
                     <tr id='data/{genome_code_name}.js'>
                         <td>{genome_name}</td>
-                        <td>{description}</td>
                         <td>{total_size}</td>
                         <td>{number_of_contigs}</td>
                         <td>{gc_content}</td>

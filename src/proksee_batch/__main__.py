@@ -36,7 +36,7 @@ from .validate_input_data import validate_input_directory_contents
 
 
 @click.command()
-@click.version_option(version=version("proksee-batch"), prog_name="Proksee Batch")
+@click.version_option()
 @click.option(
     "--input",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
