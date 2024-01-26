@@ -332,3 +332,158 @@ def add_bed_features_and_tracks(
     # Write the cgview map JSON data structure to a new file.
     with open(output_file, "w") as f:
         json.dump(json_data, f, indent=4)
+
+
+def parse_vcf_files(
+    vcf_files: List[str],
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    """
+    Parses VCF files.
+
+    Parameters:
+    vcf_files (list): A list of paths to VCF files.
+
+    Returns:
+    tuple: A tuple containing a list of parsed VCF features and a list of parsed VCF tracks.
+    """
+    vcf_features = []
+    vcf_tracks = []
+    for i, vcf_file in enumerate(vcf_files):
+        num = i + 1
+
+        # Define the VCF track.
+        vcf_track = {
+            "name": os.path.basename(vcf_file),
+            "separateFeaturesBy": "none",
+            "position": "both",
+            "thicknessRatio": 1,
+            "dataType": "feature",
+            "dataMethod": "source",
+            "dataKeys": f"vcf_{num}",
+            "drawOrder": "score",
+        }
+        # Add the VCF track to the list of VCF tracks.
+        vcf_tracks.append(vcf_track)
+
+        # Parse the VCF file.
+        with open(vcf_file) as f:
+            vcf_results = f.readlines()
+        # Parse the VCF file.
+        for vcf_result_line in vcf_results:
+            # Parse the VCF result line.
+            vcf_result = vcf_result_line.strip().split()
+
+            # Skip the header line(s), if present.
+            if vcf_result[0].startswith("#") or vcf_result[0].startswith("\n"):
+                continue
+
+            assert (
+                len(vcf_result) >= 5
+            ), f"VCF file {vcf_file} is not in the correct format."
+
+            name = ""
+            if len(vcf_result) >= 8:
+                name = vcf_result[7][20:]
+
+            # Define the VCF feature.
+            vcf_feature = {
+                "name": name,
+                "type": "vcf",
+                "start": int(vcf_result[1]),
+                "stop": int(vcf_result[1])
+                + len(vcf_result[3])
+                - 1,  # Assumes that the genome being mapped is the reference genome.
+                "strand": 1,
+                "source": f"vcf_{num}",
+                "contig": vcf_result[0],
+                "legend": os.path.basename(vcf_file),
+                "tags": [],
+                "meta": {
+                    "ref": vcf_result[3],
+                    "alt": vcf_result[4],
+                },
+            }
+
+            # Add the VCF feature to the list of VCF features.
+            vcf_features.append(vcf_feature)
+
+    # Remove VCF features that are completely covered by another VCF feature
+    # with an equal or higher score.
+    vcf_features = [
+        vcf_feature
+        for vcf_feature, is_not_covered in zip(
+            vcf_features,
+            remove_covered_features(
+                get_feature_locations_and_scores_from_vcf_features(vcf_features)
+            ),
+        )
+        if is_not_covered
+    ]
+
+    assert (
+        len(vcf_features) > 0 and len(vcf_tracks) > 0
+    ), f"No VCF features or tracks were obtained from input file {vcf_file}."
+    return (vcf_features, vcf_tracks)
+
+
+def get_feature_locations_and_scores_from_vcf_features(
+    vcf_features: List[Dict[str, Any]]
+) -> List[Tuple[int, int, int]]:
+    """
+    Gets feature locations and scores from VCF features.
+
+    Parameters:
+    vcf_features (list): A list of parsed VCF features.
+
+    Returns:
+    list: A list of tuples containing feature locations and scores.
+    """
+    feature_locations_and_scores = []
+    for vcf_feature in vcf_features:
+        feature_locations_and_scores.append(
+            (
+                vcf_feature["start"],
+                vcf_feature["stop"],
+                1,
+            )
+        )
+    return feature_locations_and_scores
+
+
+def add_vcf_features_and_tracks(
+    vcf_files: List[str], json_file: str, output_file: str
+) -> None:
+    """
+    Parses VCF files, adds the parsed VCF features and tracks to the cgview map JSON data structure, and writes the cgview map JSON data structure to a new file.
+
+    Parameters:
+    vcf_files (list): A list of paths to VCF files.
+    json_file (str): The path to a cgview map JSON file.
+    output_file (str): The path to the output file.
+
+    Returns:
+    None
+    """
+    # Parse the VCF file.
+    vcf_features, vcf_tracks = parse_vcf_files(vcf_files)
+    # Read the cgview map JSON file.
+    with open(json_file) as f:
+        json_data = json.load(f)
+
+    # Get list of contigs from JSON data.
+    contigs = [contig["name"] for contig in json_data["cgview"]["sequence"]["contigs"]]
+
+    # Check that all the vcf features are assigned to contigs that are in the JSON data.
+    for vcf_feature in vcf_features:
+        assert (
+            vcf_feature["contig"] in contigs
+        ), "The contig {} listed in the VCF file {} is not among the contigs in the genome being mapped.".format(
+            vcf_feature["contig"], vcf_feature["legend"]
+        )
+
+    # Add the parsed VCF features and tracks to the cgview map JSON data structure.
+    json_data["cgview"]["features"] += vcf_features
+    json_data["cgview"]["tracks"] += vcf_tracks
+    # Write the cgview map JSON data structure to a new file.
+    with open(output_file, "w") as f:
+        json.dump(json_data, f, indent=4)

@@ -205,7 +205,10 @@ def validate_input_directory_contents(input: str) -> None:
                                             )
                                         try:
                                             int(line_split[1])
-                                            float(line_split[5])
+                                            try:
+                                                float(line_split[5])
+                                            except:
+                                                assert line_split[5] == "."
                                         except ValueError:
                                             handle_error_exit(
                                                 f"The VCF file {file} does not have the correct format. Please check that the file is in VCF format."
