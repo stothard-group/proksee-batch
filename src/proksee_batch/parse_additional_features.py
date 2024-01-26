@@ -5,7 +5,7 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 
-import gffutils
+import gffutils  # type: ignore
 
 from .remove_covered_features import remove_covered_features
 

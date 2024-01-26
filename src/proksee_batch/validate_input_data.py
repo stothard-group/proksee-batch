@@ -375,7 +375,7 @@ def check_vcf_seq_ids(vcf_file_path: str, genbank_file_path: str) -> bool:
             if not line.startswith("#") and line.strip() != "":
                 vcf_seq_ids.append(line.split("\t")[0])
     genbank_seq_ids = []
-    for record in SeqIO.parse(genbank_file_path, "genbank"):
+    for record in SeqIO.parse(genbank_file_path, "genbank"):  # type: ignore
         genbank_seq_ids.append(record.id)
     return all(seq_id in genbank_seq_ids for seq_id in vcf_seq_ids)
 
@@ -396,12 +396,12 @@ def check_vcf_ref_vs_alt_genotypes(
     if genome_file_type == "genbank":
         genome_sequences = {
             record.id: str(record.seq)
-            for record in SeqIO.parse(genome_file_path, "genbank")
+            for record in SeqIO.parse(genome_file_path, "genbank")  # type: ignore
         }
     elif genome_file_type == "fasta":
         genome_sequences = {
             record.id: str(record.seq)
-            for record in SeqIO.parse(genome_file_path, "fasta")
+            for record in SeqIO.parse(genome_file_path, "fasta")  # type: ignore
         }
     else:
         handle_error_exit(f"Invalid genome file type: {genome_file_type}")
