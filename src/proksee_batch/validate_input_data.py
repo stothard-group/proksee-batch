@@ -70,57 +70,113 @@ def validate_input_directory_contents(input: str) -> None:
     Raises:
         SystemExit: If the input directory does not contain the required subdirectories.
     """
+    # Check that the input directory exists.
+    if not os.path.isdir(input):
+        handle_error_exit(f"The input directory {input} does not exist.")
+
     # Iterate over subdirectories in the input directory (each subdirectory
     # should contain the data for one genome).
     for genome_dir in os.listdir(input):
-        required_subdirectories = ["genbank"]
-        for subdirectory in required_subdirectories:
-            if not os.path.isdir(os.path.join(input, genome_dir, subdirectory)):
-                handle_error_exit(
-                    f"The input directory does not contain the required subdirectory: {subdirectory}"
-                )
+        # Check that the subdirectory contains a genbank subdirectory, a fasta subdirectory, or both.
+        required_subdirectories = ["genbank", "fasta"]
+        if not any(
+            os.path.isdir(os.path.join(input, genome_dir, subdirectory))
+            for subdirectory in required_subdirectories
+        ):
+            handle_error_exit(
+                f"The input directory {input} does not contain any of the required subdirectories: {required_subdirectories}"
+            )
 
-        # Check that there is exactly one GenBank file in the genbank directory.
-        genbank_files = [
-            file
-            for file in os.listdir(os.path.join(input, genome_dir, "genbank"))
-            if file.endswith(".gbk") or file.endswith(".gbff") or file.endswith(".gb")
+        # Check that all subdirectories have valid names.
+        valid_subdirectories = [
+            "genbank",
+            "fasta",
+            "blast",
+            "bed",
+            "json",
+            "vcf",
+            "gff",
         ]
-        if len(genbank_files) == 0:
-            handle_error_exit(
-                "The input directory does not contain a GenBank file in the 'genbank' subdirectory."
-            )
-        elif len(genbank_files) > 1:
-            handle_error_exit(
-                "The input directory contains more than one GenBank file in the 'genbank' subdirectory."
-            )
-
-        # Parse the GenBank file with BioPython to check if the file format is valid.
-        try:
-            SeqIO.parse(
-                os.path.join(input, genome_dir, "genbank", genbank_files[0]), "genbank"
-            ).__next__()  # type: ignore
-        except Exception as e:
-            handle_error_exit(
-                f"Error parsing the GenBank file: {e}. Please check that the file is in GenBank format."
-            )
-
-        # Check that all other subdirectories have valid names.
-        optional_subdirectories = ["fasta", "blast", "bed", "json", "vcf", "gff"]
         for subdirectory in os.listdir(os.path.join(input, genome_dir)):
-            if (
-                subdirectory not in required_subdirectories
-                and subdirectory not in optional_subdirectories
-            ):
+            if subdirectory not in valid_subdirectories:
                 handle_error_exit(
                     f"The input directory contains an invalid subdirectory: {subdirectory}"
                 )
 
-        # Check the contents of the optional subdirectories, if they exist.
-        for subdirectory in optional_subdirectories:
+        # Check the contents of the subdirectories, if they exist.
+        seq_file_path = ""
+        seq_file_format = ""
+        for subdirectory in valid_subdirectories:
             subdirectory_path = os.path.join(input, genome_dir, subdirectory)
             if os.path.isdir(subdirectory_path):
-                if subdirectory == "blast":
+                if subdirectory == "genbank":
+                    genbank_files = []
+                    for file in os.listdir(subdirectory_path):
+                        if (
+                            file.endswith(".gbk")
+                            or file.endswith(".gbff")
+                            or file.endswith(".gb")
+                        ):
+                            genbank_files.append(file)
+                            # Parse the GenBank file with BioPython to check if the file format is valid.
+                            try:
+                                SeqIO.parse(
+                                    os.path.join(subdirectory_path, file), "genbank"
+                                ).__next__()  # type: ignore
+                            except Exception as e:
+                                handle_error_exit(
+                                    f"Error parsing the GenBank file {file}: {e}. Please check that the file is in GenBank format."
+                                )
+                    if len(genbank_files) == 0:
+                        handle_error_exit(
+                            f"The input directory {subdirectory_path} does not contain any GenBank files. Valid file extensions are .gbk, .gbff, and .gb."
+                        )
+                    elif len(genbank_files) > 1:
+                        handle_error_exit(
+                            f"The input directory {subdirectory_path} contains more than one GenBank file. Please ensure that there is exactly one GenBank file in the directory."
+                        )
+                    seq_file_path = os.path.join(subdirectory_path, genbank_files[0])
+                    seq_file_format = "genbank"
+                elif subdirectory == "fasta":
+                    fasta_files = []
+                    for file in os.listdir(subdirectory_path):
+                        if (
+                            file.endswith(".fna")
+                            or file.endswith(".fa")
+                            or file.endswith(".fasta")
+                        ):
+                            fasta_files.append(file)
+                            # Parse the FASTA file with BioPython to check if the file format is valid.
+                            try:
+                                SeqIO.parse(
+                                    os.path.join(subdirectory_path, file), "fasta"
+                                ).__next__()  # type: ignore
+                            except Exception as e:
+                                handle_error_exit(
+                                    f"Error parsing the FASTA file {file}: {e}. Please check that the file is in FASTA format."
+                                )
+                            # Check that the sequences are nucleotide sequences, and not protein sequences.
+                            with open(os.path.join(subdirectory_path, file)) as f:
+                                for line in f:
+                                    if not line.startswith(">") and line.strip() != "":
+                                        if not set(line.strip().upper()).issubset(
+                                            set("ATGCNatgcn")
+                                        ):
+                                            handle_error_exit(
+                                                f"The FASTA file {file} contains one-letter codes that do not represent DNA nucleotide bases. Please check that the file contains nucleotide sequences only."
+                                            )
+                    if len(fasta_files) == 0:
+                        handle_error_exit(
+                            f"The input directory {subdirectory_path} does not contain any FASTA files. Valid file extensions are .fna and .fa."
+                        )
+                    elif len(fasta_files) > 1:
+                        handle_error_exit(
+                            f"The input directory {subdirectory_path} contains more than one FASTA file. Please ensure that there is exactly one FASTA file in the directory."
+                        )
+                    if seq_file_path == "":
+                        seq_file_path = os.path.join(subdirectory_path, fasta_files[0])
+                        seq_file_format = "fasta"
+                elif subdirectory == "blast":
                     blast_result_files = []
                     for file in os.listdir(subdirectory_path):
                         if file.endswith(".txt") or file.endswith(".tsv"):
@@ -223,20 +279,17 @@ def validate_input_directory_contents(input: str) -> None:
                             # Check that all sequence IDs in the VCF file are contigs in the GenBank file.
                             if not check_vcf_seq_ids(
                                 os.path.join(subdirectory_path, file),
-                                os.path.join(
-                                    input, genome_dir, "genbank", genbank_files[0]
-                                ),
+                                seq_file_path,
+                                seq_file_format,
                             ):
                                 handle_error_exit(
-                                    f"The VCF file {file} contains sequence IDs that are not contigs in the GenBank file."
+                                    f"The VCF file {file} contains sequence IDs that are not contigs in the GenBank file {genbank_files[0]}."
                                 )
                             # Check that the genotypes in the genome in the GenBank file match the REF genotypes in the VCF file.
                             if not check_vcf_ref_vs_alt_genotypes(
                                 os.path.join(subdirectory_path, file),
-                                os.path.join(
-                                    input, genome_dir, "genbank", genbank_files[0]
-                                ),
-                                "genbank",
+                                seq_file_path,
+                                seq_file_format,
                             ):
                                 handle_error_exit(
                                     f"The genotypes in the genome in the GenBank file {genbank_files[0]} do not match the REF genotypes in the VCF file {file}."
@@ -301,6 +354,18 @@ def get_data_files(input_subdir: str, data_type: str) -> List[str]:
                 len(genbank_paths) == 1
             ), f"The input directory {data_dir} does not contain exactly one GenBank file. Valid file extensions are .gbk, .gbff, and .gb."
             return genbank_paths
+        elif data_type == "fasta":
+            fasta_paths = [
+                os.path.join(data_dir, file)
+                for file in os.listdir(data_dir)
+                if file.endswith(".fna")
+                or file.endswith(".fa")
+                or file.endswith(".fasta")
+            ]
+            assert (
+                len(fasta_paths) == 1
+            ), f"The input directory {data_dir} does not contain exactly one FASTA file. Valid file extensions are .fna, .fa, and .fasta."
+            return fasta_paths
         elif data_type == "blast":
             return [
                 os.path.join(data_dir, file)
@@ -333,13 +398,6 @@ def get_data_files(input_subdir: str, data_type: str) -> List[str]:
             ]
         else:
             handle_error_exit(f"Invalid data type: {data_type}")
-    else:
-        if data_type == "genbank":
-            handle_error_exit(f"The expected directory {data_dir} does not exist.")
-        else:
-            return []
-
-    # This should never be reached.
     return []
 
 
@@ -358,26 +416,29 @@ def handle_error_exit(error_message: str, exit_code: int = 1) -> None:
     sys.exit(exit_code)
 
 
-def check_vcf_seq_ids(vcf_file_path: str, genbank_file_path: str) -> bool:
+def check_vcf_seq_ids(
+    vcf_file_path: str, seq_file_path: str, seq_file_format: str
+) -> bool:
     """
-    Checks if all the sequence IDs in the first column of the VCF file are contigs in the GenBank file.
+    Checks if all the sequence IDs in the first column of the VCF file are contigs in a GenBank or FASTA file.
 
     Args:
         vcf_file_path (str): The path to the VCF file.
-        genbank_file_path (str): The path to the GenBank file.
+        seq_file_path (str): The path to the GenBank or FASTA file.
 
     Returns:
-        bool: True if all sequence IDs in the VCF file are contigs in the GenBank file, False otherwise.
+        bool: True if all sequence IDs in the VCF file are contigs in the sequence file, False otherwise.
     """
+    assert seq_file_format in ["genbank", "fasta"]
     vcf_seq_ids = []
     with open(vcf_file_path) as vcf_file:
         for line in vcf_file:
             if not line.startswith("#") and line.strip() != "":
                 vcf_seq_ids.append(line.split("\t")[0])
-    genbank_seq_ids = []
-    for record in SeqIO.parse(genbank_file_path, "genbank"):  # type: ignore
-        genbank_seq_ids.append(record.id)
-    return all(seq_id in genbank_seq_ids for seq_id in vcf_seq_ids)
+    seq_ids = []
+    for record in SeqIO.parse(seq_file_path, seq_file_format):  # type: ignore
+        seq_ids.append(record.id)
+    return all(seq_id in seq_ids for seq_id in vcf_seq_ids)
 
 
 def check_vcf_ref_vs_alt_genotypes(

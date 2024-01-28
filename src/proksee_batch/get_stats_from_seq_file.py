@@ -3,21 +3,23 @@ from typing import Tuple
 from Bio import SeqIO
 
 
-def get_stats_from_genbank(genbank_file: str) -> Tuple[str, int, int, float]:
+def get_stats_from_seq_file(seq_file: str, format: str) -> Tuple[str, int, int, float]:
     """
-    Get basic stats from a GenBank file.
+    Get basic stats from a GenBank or FASTA file.
     """
+    assert format in ["genbank", "fasta"]
+
     description = ""
     total_size = 0
     number_of_contigs = 0
     gc_content = 0.0
 
-    for record in SeqIO.parse(genbank_file, "genbank"):  # type: ignore
+    for record in SeqIO.parse(seq_file, format):  # type: ignore
         # Use the description from the first record (contig) in the file.
         description = str(record.description)
         break
 
-    for record in SeqIO.parse(genbank_file, "genbank"):  # type: ignore
+    for record in SeqIO.parse(seq_file, format):  # type: ignore
         # Process each record (contig) in the file
         total_size += len(record.seq)
         number_of_contigs += 1

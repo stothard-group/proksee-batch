@@ -33,7 +33,7 @@ XXXX0000002.1	1	.	A	C
 XXXX0000003.1	1	.	A	C
 """
             )
-        assert check_vcf_seq_ids(vcf_file_path, genbank_file_path) == True
+        assert check_vcf_seq_ids(vcf_file_path, genbank_file_path, "genbank") == True
 
         # Second test: VCF file with incorrect sequence IDs
         vcf_file_path = os.path.join(temp_dir, "test.vcf")
@@ -48,7 +48,7 @@ XXXX0000005.1	1	.	A	C
 XXXX0000006.1	1	.	A	C
 """
             )
-        assert check_vcf_seq_ids(vcf_file_path, genbank_file_path) == False
+        assert check_vcf_seq_ids(vcf_file_path, genbank_file_path, "genbank") == False
 
 
 def test_check_vcf_ref_vs_alt_genotypes() -> None:

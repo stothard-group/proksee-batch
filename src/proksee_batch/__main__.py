@@ -19,16 +19,17 @@ import click
 import toml
 
 from .download_example_input import download_example_input
-from .genbank_to_cgview_json import genbank_to_cgview_json
 
 # from .generate_proksee_link import generate_proksee_link
 from .generate_report_html import generate_report_html
-from .get_stats_from_genbank import get_stats_from_genbank
+from .get_stats_from_seq_file import get_stats_from_seq_file
 from .merge_cgview_json_with_template import merge_cgview_json_with_template
 from .parse_additional_features import add_bed_features_and_tracks
 from .parse_additional_features import add_blast_features_and_tracks
 from .parse_additional_features import add_gff_features_and_tracks
 from .parse_additional_features import add_vcf_features_and_tracks
+from .seq_file_to_cgview_json import fasta_to_cgview_json
+from .seq_file_to_cgview_json import genbank_to_cgview_json
 
 # from .scrape_proksee_image import scrape_proksee_image
 from .validate_input_data import get_data_files
@@ -109,34 +110,67 @@ def main(
         os.mkdir(temp_output)
 
         # Get the data file paths
-        genbank_path = get_data_files(
+        genbank_paths = get_data_files(
             os.path.join(input_dir_path, genome_dir), "genbank"
-        )[0]
+        )
+        fasta_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "fasta")
         json_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "json")
         blast_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "blast")
         bed_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "bed")
         vcf_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "vcf")
         gff_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "gff")
 
-        # Get basic stats from the GenBank file.
-        (
-            genbank_description,
-            genbank_total_size,
-            genbank_number_of_contigs,
-            genbank_gc_content,
-        ) = get_stats_from_genbank(genbank_path)
-
-        genome_info[genome_code_name] = {
-            "Name": genome_dir,
-            "Description": genbank_description,
-            "Total size": genbank_total_size,
-            "Number of contigs": genbank_number_of_contigs,
-            "GC content": genbank_gc_content,
-        }
-
-        # Convert the GenBank file to a basic cgview map in JSON format.
+        # Define path to the basic cgview map in JSON format.
         basic_json_file = os.path.join(temp_output, genome_code_name + ".json")
-        genbank_to_cgview_json(genome_dir, genbank_path, basic_json_file)
+
+        if genbank_paths:
+            genbank_path = genbank_paths[0]
+
+            # Get basic stats from the GenBank file.
+            (
+                genbank_description,
+                genbank_total_size,
+                genbank_number_of_contigs,
+                genbank_gc_content,
+            ) = get_stats_from_seq_file(genbank_path, "genbank")
+
+            genome_info[genome_code_name] = {
+                "Name": genome_dir,
+                "Description": genbank_description,
+                "Total size": genbank_total_size,
+                "Number of contigs": genbank_number_of_contigs,
+                "GC content": genbank_gc_content,
+            }
+
+            # Convert the GenBank file to a basic cgview map in JSON format.
+            genbank_to_cgview_json(genome_dir, genbank_path, basic_json_file)
+
+        elif fasta_paths:
+            fasta_path = fasta_paths[0]
+
+            # Get basic stats from the FASTA file.
+            (
+                fasta_description,
+                fasta_total_size,
+                fasta_number_of_contigs,
+                fasta_gc_content,
+            ) = get_stats_from_seq_file(fasta_path, "fasta")
+
+            genome_info[genome_code_name] = {
+                "Name": genome_dir,
+                "Description": fasta_description,
+                "Total size": fasta_total_size,
+                "Number of contigs": fasta_number_of_contigs,
+                "GC content": fasta_gc_content,
+            }
+
+            # Convert the FASTA file to a basic cgview map in JSON format.
+            fasta_to_cgview_json(genome_dir, fasta_path, basic_json_file)
+
+        else:
+            handle_error_exit(
+                f"Could not find a GenBank or FASTA file in the {genome_dir} directory."
+            )
 
         # Parse the BLAST result files (if any) to create additional features and tracks.
         basic_json_file_with_blast_features = os.path.join(
