@@ -259,7 +259,7 @@ def fasta_to_cgview_json(genome_name: str, fasta_file: str, json_file: str) -> N
         json.dump(json_data, json_fh, indent=4)
 
 
-def seq_to_json_contig(seq_id: str, seq: str) -> dict:
+def seq_to_json_contig(seq_id: str, seq: str) -> Dict[str, Any]:
     """Convert a sequence to a dictionary with the sequence ID, sequence length,
     and sequence. The dictionary will be in the format expected for a sequence
     in a CGView JSON file.
@@ -271,7 +271,7 @@ def seq_to_json_contig(seq_id: str, seq: str) -> dict:
     seq_dict["name"] = seq_id
 
     # Add the sequence length to the dictionary.
-    seq_dict["length"] = len(seq)
+    seq_dict["length"] = str(len(seq))
 
     # Add the sequence to the dictionary.
     seq_dict["seq"] = seq
