@@ -24,7 +24,7 @@ def test_seq_to_json_contig() -> None:
     # Check that the dictionary has the expected contents.
     assert short_seq_dict["name"] == "TESTSEQID"
     assert short_seq_dict["orientation"] == "+"
-    assert short_seq_dict["length"] == 10
+    assert short_seq_dict["length"] == "10"
     assert short_seq_dict["seq"] == "AAAAAAAAAA"
 
 
