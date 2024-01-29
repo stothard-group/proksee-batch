@@ -5,3 +5,115 @@
     :prog: proksee-batch
     :nested: full
 ```
+
+## Input directory structure and file requirements
+
+The top-level directory, referred to as `input_directory`, may contain multiple
+subdirectories. Each subdirectory contains files associated with a particular
+genome assembly. Within each of these genome-specific subdirectories, there are
+several other subdirectories, each dedicated to different types of genomic data.
+These include `genbank`, `fasta`, `blast`, `bed`, `json`, `vcf`, and `gff`.
+
+For example, the following is a minimal yet valid input directory structure
+for two genomes:
+
+```text
+input_directory
+├── genome1
+│   └── genbank
+│       └── genome1.gbk
+└── genome2
+    └── fasta
+        └── genome2.fna
+```
+
+Below is a more complex example of an input directory structure containing two
+genomes, each with annotation files of various types:
+
+```text
+input_directory
+├── genome1
+│   ├── genbank
+│   │   └── genome1.gbk
+│   ├── blast
+│   │   ├── genome1_blast1.txt
+│   │   └── genome1_blast2.txt
+│   ├── bed
+│   │   └── genome1_features.bed
+│   ├── json
+│   │   └── genome1_styling.json
+│   ├── vcf
+│   │   └── genome1_variants.vcf
+│   └── gff
+│       └── genome1_features.gff
+└── genome2
+    ├── fasta
+    │   └── genome2.fasta
+    ├── blast
+    │   └── genome2_blast.txt
+    ├── bed
+    │   └── genome2_features.bed
+    ├── json
+    │   └── genome2_styling.json
+    ├── vcf
+    │   └── genome2_variants.vcf
+    └── gff
+        └── genome2_features.gff
+```
+
+In addition, the command-line option `--download-example-data` can be used to
+generate an example input directory with all valid input file types.
+
+### Specific Subdirectory and File Requirements
+
+#### 1. **Genbank Directory**
+
+- **Purpose**: Contains a GenBank file containing records for each contig in the genome assembly.
+- **File Requirements**: A single GenBank file with extensions `.gbk`,
+  `.gbff`, or `.gb`. This file is mandatory unless a FASTA file is provided.
+
+#### 2. **FASTA Directory**
+
+- **Purpose**: Stores genomic DNA sequences in FASTA format. This is only
+  used if no GenBank file is provided.
+- **File Requirements**: A single FASTA file with extensions `.fna`, `.fa`,
+  or `.fasta`. This directory is considered only if the GenBank directory is
+  absent.
+
+#### 3. **BLAST Directory**
+
+- **Purpose**: Contains the results of BLASTN or TBLASTN searches against the genome assembly.
+- **File Requirements**: Files with `.txt` or `.tsv` extensions in BLAST
+  outfmt6 format. Note: Any search program that outputs search/alignment
+  results in BLAST outfmt6 format can be used.
+
+#### 4. **BED Directory**
+
+- **Purpose**: Contains BED files describing the locations of genomic features.
+- **File Requirements**: Files with the `.bed` extension.
+
+#### 5. **JSON Directory**
+
+- **Purpose**: Contains a custom Proksee project JSON file for visualization templates.
+- **File Requirements**: Files with the `.json` extension.
+- **How to Create a JSON File**: The JSON file can be created using the
+  Proksee web application. To do this, go to [Proksee](www.proksee.ca), create
+  a new project, customize the visualization styling, and then under the
+  "Download" options select "JSON (Reloadable Map Data)" and download the
+  `.json` file. See the [Proksee documentation](https://proksee.ca/help) for
+  more details.
+
+#### 6. **VCF Directory**
+
+- **Purpose**: Contains Variant Call Format (VCF) files for describing
+  genomic variants.
+- **File Requirements**: Files with the `.vcf` extension. All the sequence
+  (chromosome) IDs in the VCF file must match the sequence (contig) IDs in the
+  GenBank or FASTA file, and the REF genotypes in the VCF file must match the
+  genotypes in the genome file.
+
+#### 7. **GFF Directory**
+
+- **Purpose**: Contains General Feature Format (GFF) files, used for
+  describing genes and other features.
+- **File Requirements**: Files with `.gff` or `.gff3` extensions.
