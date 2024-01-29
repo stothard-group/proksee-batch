@@ -58,7 +58,9 @@ def main(
     output: Optional[str],
     download_example_data: Optional[str],
 ) -> None:
-    """Proksee Batch: A tool for visualizing batches of genomes via https://www.proksee.ca."""
+    """
+    Proksee Batch: A tool for visualizing batches of genomes via https://www.proksee.ca.
+    """
 
     # Check if the download example GenBank files option is used
     if download_example_data:

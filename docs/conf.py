@@ -1,4 +1,10 @@
 """Sphinx configuration."""
+import os
+import sys
+
+
+sys.path.insert(0, os.path.abspath("../src"))
+
 project = "Proksee Batch"
 author = "Lael D. Barlow"
 copyright = "2024, Lael D. Barlow"

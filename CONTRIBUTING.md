@@ -9,7 +9,6 @@ Here is a list of important resources for contributors:
 - [Source Code]
 - [Documentation]
 - [Issue Tracker]
-- [Code of Conduct]
 
 [mit license]: https://opensource.org/licenses/MIT
 [source code]: https://github.com/stothard-group/proksee-batch
