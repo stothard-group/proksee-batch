@@ -425,6 +425,7 @@ def check_vcf_seq_ids(
     Args:
         vcf_file_path (str): The path to the VCF file.
         seq_file_path (str): The path to the GenBank or FASTA file.
+        seq_file_format (str): The format of the GenBank or FASTA file. Valid values are "genbank" and "fasta".
 
     Returns:
         bool: True if all sequence IDs in the VCF file are contigs in the sequence file, False otherwise.
