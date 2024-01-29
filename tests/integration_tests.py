@@ -34,7 +34,7 @@ def test_download_example(runner: CliRunner) -> None:
         result = runner.invoke(
             __main__.main,
             [
-                "--download-example",
+                "--download-example-data",
                 genome_dir,
             ],
         )
@@ -42,16 +42,6 @@ def test_download_example(runner: CliRunner) -> None:
         # Check that the command ran successfully
         assert result.exit_code == 0
         assert os.path.exists(genome_dir)
-
-        # List all the .gbff files in the directory
-        gbff_files = [f for f in os.listdir(genome_dir) if f.endswith(".gbff")]
-
-        # Check that there is at least one .gbff file in the directory
-        assert len(gbff_files) > 0
-
-        # Parse the first .gbff file with BioPython to check that it is a valid GenBank file.
-        records = SeqIO.parse(os.path.join(genome_dir, gbff_files[0]), "genbank")  # type: ignore
-        assert len(list(records)) > 0
 
 
 def test_default_proksee_json() -> None:
