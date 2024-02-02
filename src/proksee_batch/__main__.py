@@ -316,6 +316,14 @@ def main(
     with resources.path("proksee_batch.data", "cgview-js_code") as cgview_js_path:
         shutil.copytree(cgview_js_path, os.path.join(output_path, "cgview-js_code"))
 
+    # Copy the directory with supporting CSS and JavaScript code for the HTML report from the package data to the output directory.
+    with resources.path(
+        "proksee_batch.data", "html_report_code"
+    ) as report_support_files_path:
+        shutil.copytree(
+            report_support_files_path, os.path.join(output_path, "html_report_code")
+        )
+
     # Generate the HTML report file.
     generate_report_html(output_path, genome_info)
 

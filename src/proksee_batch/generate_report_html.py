@@ -7,6 +7,8 @@ The output directory will be structured as in the following example:
     output_directory/
         cgview-js_code/
             ...
+        html_report_code/
+            style.css
         data/
             genome_name_1.js
             genome_name_2.js
@@ -46,93 +48,10 @@ def generate_report_html(output_dir: str, genome_info: Dict[str, Any]) -> None:
     <script src='./cgview-js_code/docs/dist/cgview.min.js'></script>
     <link rel="stylesheet" href="./cgview-js_code/docs/dist/cgview.css" />
     <link rel="stylesheet" href="./cgview-js_code/docs/styles/controls.css" />
+    <link rel="stylesheet" href="./html_report_code/style.css">
 
     <title>Proksee Batch</title>
 
-    <style>
-      header {
-        background-color: #f8f9fa;
-        padding: 10px;
-        text-align: left;
-      }
-
-      header h1 {
-        margin: 0;
-        color: #333;
-      }
-
-      body, html {
-        font-family: 'Helvetica', 'Arial', sans-serif;
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      .container {
-        display: flex;
-        margin: 0;
-        width: 100%;
-      }
-
-      .side-table {
-        margin: 0;
-        flex-shrink: 0;
-        width: 60%;
-        max-width: none;
-      }
-
-      .scrollable-table {
-        height: 90%;
-        overflow-y: auto;
-        margin-top: 10px;
-      }
-
-      table tr:nth-child(even) {
-        background-color: #f2f2f2;
-      }
-
-      #sortable-table tr td:last-child {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-      }
-
-      .viewer-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        width: 40%;
-      }
-
-      #my-viewer {
-        width: 100%;
-      }
-
-      .cgv-controls {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-      }
-
-      .generate-link {
-          color: blue;
-          text-decoration: underline;
-          cursor: pointer;
-      }
-
-      .generated-link {
-        color: blue;
-        text-decoration: underline;
-        cursor: pointer;
-      }
-
-      .btn-toggle-legend,
-      #btn-toggle-legend {
-        content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Ccircle cx='5' cy='7' r='2' fill='black'/%3E%3Cpath d='M10 7 h15' stroke='black' stroke-width='2'/%3E%3Ccircle cx='5' cy='15' r='2' fill='black'/%3E%3Cpath d='M10 15 h15' stroke='black' stroke-width='2'/%3E%3Ccircle cx='5' cy='23' r='2' fill='black'/%3E%3Cpath d='M10 23 h15' stroke='black' stroke-width='2'/%3E%3C/svg%3E");
-      }
-
-    </style>
   </head>
 <body>
     <header>
