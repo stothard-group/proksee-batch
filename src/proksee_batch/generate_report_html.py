@@ -9,6 +9,7 @@ The output directory will be structured as in the following example:
             ...
         html_report_code/
             style.css
+            ...
         data/
             genome_name_1.js
             genome_name_2.js
@@ -126,207 +127,17 @@ def generate_report_html(output_dir: str, genome_info: Dict[str, Any]) -> None:
         """
         )
 
-        # Close the main content.
+        # Load more scripts and close the main content.
         file.write(
             """
+        <script src="./cgview-js_code/docs/scripts/bootstrap.min.js"></script>
+        <script src="./cgview-js_code/docs/scripts/controls.js"></script>
+        <script src='./html_report_code/table-functions.js'></script>
+        <script src='./html_report_code/viewer-functions.js'></script>
+        <script src='./html_report_code/utilities.js'></script>
+
     </div>
   </main>
-        """
-        )
-
-        # Add script content.
-        file.write(
-            """
-    <script src="./cgview-js_code/docs/scripts/bootstrap.min.js"></script>
-    <script src="./cgview-js_code/docs/scripts/controls.js"></script>
-    <script>
-        function autoResizeMyViewer() {
-            const mainPadding = 5;
-            function myResize() {
-                const myViewer = document.querySelector('#my-viewer');
-                const main = document.getElementsByTagName('main')[0];
-                const mainWidth = main.clientWidth * 0.50 - mainPadding;
-
-                const mainHeight = main.clientHeight - 50;
-
-                const minHeight = 500; // Set a minimum height if necessary
-                const height = Math.max(mainHeight, minHeight);
-
-                cgv.resize(mainWidth, height);
-            }
-
-            window.onresize = myResize;
-            window.onload = function () {
-                setTimeout( () => {
-                    myResize();
-                }, 100);
-            }
-        }
-
-        function createViewer() {
-            // Create Viewer in default div: #my-viewer
-            const cgv = new CGV.Viewer('#my-viewer', {height: 500});
-            autoResizeMyViewer();
-            window.cgv = cgv;
-        }
-
-        function loadDataFile(filePath) {
-            var script = document.createElement('script');
-            script.src = filePath;
-            script.onload = function() {
-            cgv.io.loadJSON(window.json);
-            cgv.draw();
-            };
-            document.head.appendChild(script);
-        }
-
-        document.addEventListener('DOMContentLoaded', (event) => {
-            createViewer();
-
-            // Add click event listener to each table row
-            const rows = document.querySelectorAll('.side-table table tr');
-            rows.forEach(row => {
-            row.addEventListener('click', () => {
-                const filePath = row.id;
-                loadDataFile(filePath);
-            });
-            });
-
-            // Check if there is at least one row and load the first genome by default
-            if (rows.length > 0) {
-            const firstRowFilePath = rows[1].id;
-            loadDataFile(firstRowFilePath);
-            }
-        });
-
-        function sortTable(column) {
-            var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-            table = document.getElementById("sortable-table");
-            switching = true;
-            // Set the sorting direction to ascending:
-            dir = "asc";
-            // Make a loop that will continue until no switching has been done:
-            while (switching) {
-            // Start by saying: no switching is done:
-            switching = false;
-            rows = table.rows;
-            // Loop through all table rows (except the first, which contains table headers):
-            for (i = 1; i < (rows.length - 1); i++) {
-                // Start by saying there should be no switching:
-                shouldSwitch = false;
-                // Get the two elements you want to compare, one from current row and one from the next:
-                x = rows[i].getElementsByTagName("TD")[column];
-                y = rows[i + 1].getElementsByTagName("TD")[column];
-                // Check if the two rows should switch place, based on the direction, asc or desc:
-                if (dir == "asc") {
-                if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                    // If so, mark as a switch and break the loop:
-                    shouldSwitch= true;
-                    break;
-                }
-                } else if (dir == "desc") {
-                if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                    // If so, mark as a switch and break the loop:
-                    shouldSwitch = true;
-                    break;
-                }
-                }
-            }
-            if (shouldSwitch) {
-                // If a switch has been marked, make the switch and mark that a switch has been done:
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-                // Each time a switch is done, increase this count by 1:
-                switchcount ++;
-            } else {
-                // If no switching has been done AND the direction is "asc", set the direction to "desc" and run the while loop again.
-                if (switchcount == 0 && dir == "asc") {
-                dir = "desc";
-                switching = true;
-                }
-            }
-            }
-        }
-
-        // Code for generating Proksee projects.
-
-        function loadScript(scriptUrl, callback) {
-            const existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
-            if (existingScript) {
-                existingScript.remove();
-            }
-            const script = document.createElement('script');
-            script.src = scriptUrl;
-            script.type = 'text/javascript';
-            document.body.appendChild(script);
-            script.onload = function() {
-                console.log(`Script loaded: ${scriptUrl}`);
-                if (typeof callback === "function") {
-                    callback();
-                }
-            };
-            script.onerror = function() {
-                console.error(`Error loading script: ${scriptUrl}`);
-                alert(`Failed to load data for script: ${scriptUrl}`);
-            };
-        }
-
-        function generateProkseeLink(element, sampleId) {
-            loadScript(`${sampleId}.js`, function() {
-                if (typeof window.json === 'undefined') {
-                    console.error('No data found for sample ID:', sampleId);
-                    alert('Failed to generate Proksee project: No data available for this sample.');
-                    return;
-                }
-
-                const data = { origin: 'proksee-batch', data: JSON.stringify(window.json) };
-                const url = 'https://proksee.ca/api/v1/projects.json';
-                fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data?.status === 'success' && data?.url) {
-                        const link = document.createElement('a');
-                        link.textContent = 'Go to Proksee Project';
-                        link.href = data.url;
-                        link.className = 'generated-link';
-                        link.target = '_blank';
-                        element.parentNode.replaceChild(link, element);
-                    } else {
-                        console.error(`Failed to create Proksee project: ${data?.error}`);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                });
-            });
-        }
-
-        function adjustTableHeight() {
-            const headerHeight = document.querySelector('header').offsetHeight;
-            const availableHeight = window.innerHeight - headerHeight;
-            const scrollableTable = document.querySelector('.scrollable-table');
-            scrollableTable.style.height = (availableHeight * 0.9) + 'px';
-        }
-
-        // Event listener for window resize
-        window.addEventListener('resize', adjustTableHeight);
-
-        // Initial adjustment on page load
-        window.onload = function() {
-            adjustTableHeight();
-        };
-
-        // Toggle Labels (not included in the controls.js file)
-        onClick('btn-toggle-legend', () => {
-        cgv.legend.update({visible: !cgv.legend.visible});
-        cgv.draw();
-        });
-
-    </script>
-</body>
+  </body>
 </html>"""
         )
