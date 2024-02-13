@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Load styling copied from cgview-js -->
+    <link href="./cgview-js_code/docs/styles/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="./cgview-js_code/docs/dist/cgview.css" />
+    <link rel="stylesheet" href="./cgview-js_code/docs/styles/controls.css" />
+
+    <!-- Load custom styling -->
+    <link rel="stylesheet" href="./html_report_code/style.css">
+
+    <!-- Load scripts copied from cgview-js -->
+    <script src='./cgview-js_code/docs/scripts/marked.min.js'></script>
+    <script src="./cgview-js_code/docs/scripts/d3.min.js"></script>
+    <script src='./cgview-js_code/docs/scripts/general.js'></script>
+    <script src='./cgview-js_code/docs/dist/cgview.min.js'></script>
+
+
+    <title>Proksee Batch</title>
+</head>
+<body>
+
+<header>
+    <h1>Proksee Batch</h1>
+</header>
+
+<!-- Table Container -->
+<div id="tableContainer"></div>
+
+<!-- Genome Viewer and Controls Container -->
+<div class="viewer-container">
+<!-- Genome Viewer -->
+<div id='my-viewer'></div>
+<!-- Controls -->
+<div class='cgv-controls'>
+<div class='cgv-btn' id='btn-reset' title='Reset Map'></div>
+<div class='cgv-btn' id='btn-zoom-in' title='Zoom In'></div>
+<div class='cgv-btn' id='btn-zoom-out' title='Zoom Out'></div>
+<div class='cgv-btn' id='btn-move-left' title='Move Left/Counterclockwise'></div>
+<div class='cgv-btn' id='btn-move-right' title='Move Right/Clockwise'></div>
+<div class='cgv-btn' id='btn-toggle-format' title='Toggle Linear/Circular Format'></div>
+<div class='cgv-btn' id='btn-invert-colors' title='Invert Map Colors'></div>
+<div class='cgv-btn' id='btn-download' title='Download Map PNG'></div>
+<div class='cgv-btn' id='btn-toggle-labels' title='Toggle Labels'></div>
+<div class='cgv-btn' id='btn-toggle-legend' title='Toggle Legend'></div>
+</div>
+</div>
+
+<!-- Load the table from JSON data in an external .js file -->
+<script src='./data/table_data.js'></script>
+
+<!-- Load code for the viewer buttons --> 
+<!-- Note: These have to be loaded here in order for the viewer buttons to work -->
+<script src="./cgview-js_code/docs/scripts/bootstrap.min.js"></script>
+<script src="./cgview-js_code/docs/scripts/controls.js"></script>
+
+<!-- Note: The viewer stops working if this script code is moved to an external .js file -->
+<script>
+    /////////////////////////////////////////////
+    // Code for generating and sorting the table
+
+    let currentSort = { column: null, isDescending: false };
+
+    function generateTable(data) {
+        const container = document.getElementById('tableContainer');
+        container.innerHTML = '';
+        const table = document.createElement('table');
+        table.innerHTML = `
+            <tr>
+                ${['Name', 'Description', 'Total size', 'Number of contigs', 'GC content'].map(column => 
+                    `<th onclick="sortTable('${column}')">${column} ${getSortIndicator(column)}</th>`).join('')
+                }
+                <th>Actions</th> <!-- Add an Actions header -->
+            </tr>
+        `;
+
+        const items = Array.isArray(data) ? data : Object.entries(data);
+        items.forEach(([key, item], index) => {
+            const row = table.insertRow();
+            row.innerHTML = `
+                <td>${item.Name}</td>
+                <td>${item.Description}</td>
+                <td>${item["Total size"].toLocaleString()} bp</td>
+                <td>${item["Number of contigs"]}</td>
+                <td>${(item["GC content"] * 100).toFixed(2)}%</td>
+                <td><button onclick="generateProkseeLink(this, 'data/${key}')">Generate Proksee Project</button></td> <!-- Add button in Actions column -->
+            `;
+        });
+
+        container.appendChild(table);
+    }
+
+    function getSortIndicator(column) {
+        return currentSort.column === column ? currentSort.isDescending ? '↓' : '↑' : '';
+    }
+
+    function sortTable(column) {
+        let dataArray = Object.values(tableData);
+        const isNumeric = ['Total size', 'Number of contigs', 'GC content'].includes(column);
+        const modifier = currentSort.isDescending ? -1 : 1;
+
+        if (currentSort.column !== column) currentSort.isDescending = false;
+        else currentSort.isDescending = !currentSort.isDescending;
+
+        dataArray.sort((a, b) => {
+            const valueA = isNumeric ? a[column] : a[column].toUpperCase();
+            const valueB = isNumeric ? b[column] : b[column].toUpperCase();
+            return (valueA < valueB ? -1 : valueA > valueB ? 1 : 0) * modifier;
+        });
+
+        currentSort.column = column;
+
+        // Convert the sorted array back to an object
+        let sortedData = {};
+        dataArray.forEach(item => {
+            sortedData[item.Name] = item;
+        });
+
+        generateTable(sortedData);
+    }
+
+
+    generateTable(tableData); // Initial call to generate table with object data
+
+
+    /////////////////////////////////////////////
+    // Code for generating Proksee project links
+
+    function loadScript(scriptUrl, callback) {
+        const existingScript = document.querySelector(`script[src="${scriptUrl}"]`);
+        if (existingScript) {
+            existingScript.remove();
+        }
+        const script = document.createElement('script');
+        script.src = scriptUrl;
+        script.type = 'text/javascript';
+        document.body.appendChild(script);
+        script.onload = function() {
+            console.log(`Script loaded: ${scriptUrl}`);
+            if (typeof callback === "function") {
+                callback();
+            }
+        };
+        script.onerror = function() {
+            console.error(`Error loading script: ${scriptUrl}`);
+            alert(`Failed to load data for script: ${scriptUrl}`);
+        };
+    }
+
+    function generateProkseeLink(element, sampleId) {
+        loadScript(`${sampleId}.js`, function() {
+            if (typeof window.json === 'undefined') {
+                console.error('No data found for sample ID:', sampleId);
+                alert('Failed to generate Proksee project: No data available for this sample.');
+                return;
+            }
+
+            const data = { origin: 'proksee-batch', data: JSON.stringify(window.json) };
+            const url = 'https://proksee.ca/api/v1/projects.json';
+            fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data?.status === 'success' && data?.url) {
+                    const link = document.createElement('a');
+                    link.textContent = 'Go to Proksee Project';
+                    link.href = data.url;
+                    link.className = 'generated-link';
+                    link.target = '_blank';
+                    element.parentNode.replaceChild(link, element);
+                } else {
+                    console.error(`Failed to create Proksee project: ${data?.error}`);
+                }
+            })
+            .catch(error => {
+                    console.error('Error:', error);
+            });
+        });
+    }
+
+
+    /////////////////////////////////////////////
+    // Code for loading CGView map from relevant .js files when table rows are clicked.
+
+    // Toggle Labels (not included in the controls.js file)
+    onClick('btn-toggle-legend', () => {
+        cgv.legend.update({visible: !cgv.legend.visible});
+        cgv.draw();
+    });
+
+    function createViewer() {
+        // Create Viewer in default div: #my-viewer
+        const cgv = new CGV.Viewer('#my-viewer', {height: 500});
+        autoResizeMyViewer();
+        window.cgv = cgv;
+    }
+
+
+    function loadDataFile(filePath) {
+        var script = document.createElement('script');
+        script.src = filePath;
+        script.onload = function() {
+        cgv.io.loadJSON(window.json);
+        cgv.draw();
+        };
+        document.head.appendChild(script);
+    }
+
+    // Load relevant .js file and create viewer when table row is clicked
+    document.getElementById('tableContainer').addEventListener('click', function(event) {
+        const target = event.target;
+        // Get the relevant dict key from the tableData dict, based on the value in the Name column.
+        const key = Object.keys(tableData).find(key => tableData[key].Name === target.parentNode.cells[0].innerText);
+        if (key) {
+            loadDataFile(`data/${key}.js`);
+            createViewer();
+        }
+    });
+
+
+</script>
+
+</body>
+</html>

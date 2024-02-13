@@ -297,6 +297,9 @@ def main(
             # Write the variable assignment.
             file.write(f"json = {json_data};")
 
+        # Generate a .js file with the contents of the genome_info dictionary.
+        generate_js_data(output_path, genome_info)
+
         ## Generate a Proksee link using the merged JSON file.
         # proksee_project_link_file = os.path.join(
         #    temp_output, genome_code_name + ".proksee_link.txt"
@@ -324,8 +327,27 @@ def main(
             report_support_files_path, os.path.join(output_path, "html_report_code")
         )
 
-    # Generate the HTML report file.
-    generate_report_html(output_path, genome_info)
+    ## Generate the HTML report file.
+    # generate_report_html(output_path, genome_info)
+
+    # Copy the HTML file with the report from the package data to the output directory.
+    with resources.path("proksee_batch.data", "report.html") as report_html_path:
+        shutil.copy(report_html_path, os.path.join(output_path, "report.html"))
+
+
+def generate_js_data(output_dir: str, genome_info: Dict[str, Any]) -> None:
+    """
+    Generates a JavaScript file with genome information wrapped in a variable assignment.
+    """
+    assert os.path.isdir(output_dir), f"Output directory does not exist: {output_dir}"
+    output_file = os.path.join(output_dir, "data", "table_data.js")
+
+    # Prepare the data to be wrapped in a JavaScript variable
+    js_content = "const tableData = " + json.dumps(genome_info, indent=4) + ";"
+
+    # Save the data to a .js file
+    with open(output_file, "w") as file:
+        file.write(js_content)
 
 
 def handle_error_exit(error_message: str, exit_code: int = 1) -> None:

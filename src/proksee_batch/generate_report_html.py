@@ -9,7 +9,9 @@ The output directory will be structured as in the following example:
             ...
         html_report_code/
             style.css
-            ...
+            table-functions.js
+            viewer-functions.js
+            utilities.js
         data/
             genome_name_1.js
             genome_name_2.js
