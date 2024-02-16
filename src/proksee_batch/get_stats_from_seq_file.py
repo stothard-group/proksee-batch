@@ -26,6 +26,6 @@ def get_stats_from_seq_file(seq_file: str, format: str) -> Tuple[str, int, int, 
         gc_content += record.seq.count("G")
         gc_content += record.seq.count("C")
 
-    gc_content = round(gc_content / total_size, 2)
+    gc_content = round(gc_content / total_size, 4)
 
     return (description, total_size, number_of_contigs, gc_content)

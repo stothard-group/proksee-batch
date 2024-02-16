@@ -4,6 +4,7 @@ This file defines the proksee-batch command-line interface and implements the
 high-level logic of the tool.
 
 """
+import datetime
 import json
 import os
 import shutil
@@ -61,6 +62,8 @@ def main(
     """
     Proksee Batch: A tool for visualizing batches of genomes via https://www.proksee.ca.
     """
+    # Get current date and time.
+    run_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Check if the download example GenBank files option is used
     if download_example_data:
@@ -122,6 +125,22 @@ def main(
         vcf_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "vcf")
         gff_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "gff")
 
+        # Generate a dict with file types as keys and lists of file paths as values.
+        file_names_dict = {
+            "genbank": [os.path.basename(x) for x in genbank_paths],
+            "fasta": [os.path.basename(x) for x in fasta_paths],
+            "json": [os.path.basename(x) for x in json_paths],
+            "blast": [os.path.basename(x) for x in blast_paths],
+            "bed": [os.path.basename(x) for x in bed_paths],
+            "vcf": [os.path.basename(x) for x in vcf_paths],
+            "gff": [os.path.basename(x) for x in gff_paths],
+        }
+
+        # If the genome directory contains one or more GenBank files, remove the
+        # list of FASTA files from the dict (because they won't be used).
+        if genbank_paths:
+            del file_names_dict["fasta"]
+
         # Define path to the basic cgview map in JSON format.
         basic_json_file = os.path.join(temp_output, genome_code_name + ".json")
 
@@ -142,6 +161,7 @@ def main(
                 "Total size": genbank_total_size,
                 "Number of contigs": genbank_number_of_contigs,
                 "GC content": genbank_gc_content,
+                "Files": file_names_dict,
             }
 
             # Convert the GenBank file to a basic cgview map in JSON format.
@@ -164,6 +184,7 @@ def main(
                 "Total size": fasta_total_size,
                 "Number of contigs": fasta_number_of_contigs,
                 "GC content": fasta_gc_content,
+                "Files": file_names_dict,
             }
 
             # Convert the FASTA file to a basic cgview map in JSON format.
@@ -298,7 +319,7 @@ def main(
             file.write(f"json = {json_data};")
 
         # Generate a .js file with the contents of the genome_info dictionary.
-        generate_js_data(output_path, genome_info)
+        generate_js_data(output_path, genome_info, run_date, input_dir_path)
 
         ## Generate a Proksee link using the merged JSON file.
         # proksee_project_link_file = os.path.join(
@@ -335,15 +356,24 @@ def main(
         shutil.copy(report_html_path, os.path.join(output_path, "report.html"))
 
 
-def generate_js_data(output_dir: str, genome_info: Dict[str, Any]) -> None:
+def generate_js_data(
+    output_dir: str, genome_info: Dict[str, Any], run_date: str, input_dir: str
+) -> None:
     """
     Generates a JavaScript file with genome information wrapped in a variable assignment.
     """
     assert os.path.isdir(output_dir), f"Output directory does not exist: {output_dir}"
     output_file = os.path.join(output_dir, "data", "table_data.js")
 
+    # Construct a dict to contain all the info.
+    all_info = {
+        "run_date": run_date,
+        "input_dir": input_dir,
+        "genomes": genome_info,
+    }
+
     # Prepare the data to be wrapped in a JavaScript variable
-    js_content = "const tableData = " + json.dumps(genome_info, indent=4) + ";"
+    js_content = "const tableData = " + json.dumps(all_info, indent=4) + ";"
 
     # Save the data to a .js file
     with open(output_file, "w") as file:

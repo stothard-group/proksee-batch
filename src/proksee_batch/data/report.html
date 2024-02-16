@@ -123,8 +123,12 @@
     }
 
 
-    generateTable(tableData); // Initial call to generate table with object data
+    generateTable(tableData['genomes']); // Initial call to generate table with object data
 
+    // TEMPORARY: Print additional info from the tableData object.
+    console.log('tableData run_date: ', tableData['run_date']); // This is for displaying in the report header.
+    console.log('tableData input_dir: ', tableData['input_dir']); // This is for displaying in the report header.
+    console.log('tableData example files: ', tableData['genomes']['genome_1']['Files']); // This is for displaying in the table (indicates which file types were used for annotation).
 
     /////////////////////////////////////////////
     // Code for generating Proksee project links
