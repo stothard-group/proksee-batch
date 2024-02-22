@@ -85,6 +85,8 @@ please [file an issue] along with a detailed description.
 
 ## Credits
 
+Authors: Lael Barlow and Jason Grant
+
 This project was initially generated using [@cjolowicz]'s [Hypermodern Python Cookiecutter] template.
 
 [@cjolowicz]: https://github.com/cjolowicz
