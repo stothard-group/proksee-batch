@@ -70,3 +70,10 @@ onClick('btn-toggle-labels', () => {
 //   cgv.isAnimating ? cgv.stopAnimate() : cgv.animate();
 // });
 
+
+// Toggle Labels (not included in the controls.js file)
+onClick('btn-toggle-legend', () => {
+    cgv.legend.update({visible: !cgv.legend.visible});
+    cgv.draw();
+});
+
