@@ -62,8 +62,12 @@ def main(
     """
     Proksee Batch: A tool for visualizing batches of genomes via https://www.proksee.ca.
     """
-    # Get current date and time.
-    run_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Get current date and time in GMT.
+    run_date = (
+        datetime.datetime.now()
+        .astimezone(datetime.timezone.utc)
+        .strftime("%Y-%m-%d %H:%M:%S %Z")
+    )
 
     # Check if the download example GenBank files option is used
     if download_example_data:
@@ -98,7 +102,7 @@ def main(
         # os.mkdir(os.path.join(output_path, "images"))
 
     # Initiate a dictionary to store file paths for each genome.
-    genome_info: Dict[str, Dict[str, Any]] = {}
+    genome_info: Dict[str, List[Any]] = {}
 
     # Iterate over subdirectories in the input directory.
     genome_num = 0
@@ -155,14 +159,17 @@ def main(
                 genbank_gc_content,
             ) = get_stats_from_seq_file(genbank_path, "genbank")
 
-            genome_info[genome_code_name] = {
-                "Name": genome_dir,
-                "Description": genbank_description,
-                "Total size": genbank_total_size,
-                "Number of contigs": genbank_number_of_contigs,
-                "GC content": genbank_gc_content,
-                "Files": file_names_dict,
-            }
+            genome_info.append(
+                {
+                    "code_name": genome_code_name,
+                    "name": genome_dir,
+                    "description": genbank_description,
+                    "total_size": genbank_total_size,
+                    "num_contigs": genbank_number_of_contigs,
+                    "gc_content": genbank_gc_content,
+                    "files": file_names_dict,
+                }
+            )
 
             # Convert the GenBank file to a basic cgview map in JSON format.
             genbank_to_cgview_json(genome_dir, genbank_path, basic_json_file)
@@ -178,14 +185,17 @@ def main(
                 fasta_gc_content,
             ) = get_stats_from_seq_file(fasta_path, "fasta")
 
-            genome_info[genome_code_name] = {
-                "Name": genome_dir,
-                "Description": fasta_description,
-                "Total size": fasta_total_size,
-                "Number of contigs": fasta_number_of_contigs,
-                "GC content": fasta_gc_content,
-                "Files": file_names_dict,
-            }
+            genome_info.append(
+                {
+                    "code_name": genome_code_name,
+                    "name": genome_dir,
+                    "description": fasta_description,
+                    "total_size": fasta_total_size,
+                    "num_contigs": fasta_number_of_contigs,
+                    "gc_content": fasta_gc_content,
+                    "files": file_names_dict,
+                }
+            )
 
             # Convert the FASTA file to a basic cgview map in JSON format.
             fasta_to_cgview_json(genome_dir, fasta_path, basic_json_file)
@@ -367,6 +377,7 @@ def generate_js_data(
 
     # Construct a dict to contain all the info.
     all_info = {
+        "proksee-batch_version": version("proksee-batch"),
         "run_date": run_date,
         "input_dir": input_dir,
         "genomes": genome_info,
