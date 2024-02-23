@@ -102,7 +102,7 @@ def main(
         # os.mkdir(os.path.join(output_path, "images"))
 
     # Initiate a dictionary to store file paths for each genome.
-    genome_info: Dict[str, List[Any]] = {}
+    genome_info = []
 
     # Iterate over subdirectories in the input directory.
     genome_num = 0
@@ -153,6 +153,7 @@ def main(
 
             # Get basic stats from the GenBank file.
             (
+                genbank_accession,
                 genbank_description,
                 genbank_total_size,
                 genbank_number_of_contigs,
@@ -163,6 +164,7 @@ def main(
                 {
                     "code_name": genome_code_name,
                     "name": genome_dir,
+                    "accession": genbank_accession,
                     "description": genbank_description,
                     "total_size": genbank_total_size,
                     "num_contigs": genbank_number_of_contigs,
@@ -179,6 +181,7 @@ def main(
 
             # Get basic stats from the FASTA file.
             (
+                fasta_accession,
                 fasta_description,
                 fasta_total_size,
                 fasta_number_of_contigs,
@@ -189,6 +192,7 @@ def main(
                 {
                     "code_name": genome_code_name,
                     "name": genome_dir,
+                    "accession": fasta_accession,
                     "description": fasta_description,
                     "total_size": fasta_total_size,
                     "num_contigs": fasta_number_of_contigs,
