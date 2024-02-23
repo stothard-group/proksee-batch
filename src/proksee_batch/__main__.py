@@ -99,7 +99,7 @@ def main(
             shutil.rmtree(output_path)
         os.mkdir(output_path)
         os.mkdir(os.path.join(output_path, "data"))
-        # os.mkdir(os.path.join(output_path, "images"))
+        os.mkdir(os.path.join(output_path, "data", "genome_maps"))
 
     # Initiate a dictionary to store file paths for each genome.
     genome_info = []
@@ -323,7 +323,9 @@ def main(
             json.dump(merged_json, merged_json_file_with_gc_tracks_fh)
 
         # Convert the merged JSON file to .js file by wrapping it in a variable assignment.
-        js_file = os.path.join(output_path, "data", genome_code_name + ".js")
+        js_file = os.path.join(
+            output_path, "data", "genome_maps", genome_code_name + ".js"
+        )
         with open(js_file, "w") as file:
             # Get the JSON data from the merged JSON file as a string.
             json_data = None
