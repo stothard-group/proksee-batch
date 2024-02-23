@@ -373,7 +373,7 @@ def main(
 
 
 def generate_js_data(
-    output_dir: str, genome_info: Dict[str, Any], run_date: str, input_dir: str
+    output_dir: str, genome_info: List[Dict[str, Any]], run_date: str, input_dir: str
 ) -> None:
     """
     Generates a JavaScript file with genome information wrapped in a variable assignment.
