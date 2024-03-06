@@ -21,6 +21,7 @@ let searchTerms = [];
 // Create viewer
 const cgv = new CGV.Viewer('#my-viewer', {height: 500});
 window.cgv = cgv;
+cgvSetup(cgv);
 
 // Reset map and search
 autoResizeMyViewer();
@@ -29,6 +30,9 @@ updateSearchCount();
 
 // Initial call to generate table
 generateGenomeList();
+
+// Holds currently selected genome key
+let selectedKey;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Main function to generate the genome list
@@ -50,15 +54,20 @@ function generateGenomeList() {
         const fileTags = getFileTags(item);
         genomeList.innerHTML += `
             <div class='genome-item ${selected}' data-key='${key}'>
-                <div class='genome-left'>
-                    <div class='genome-name'>${genomeName}</div>
-                    <div class='genome-description'>${genomeDescription}</div>
-                    <div class='genome-tags'>${fileTags}</div>
+                <div class='genome-row'>
+                    <div class='genome-left'>
+                        <div class='genome-name'>${genomeName}</div>
+                        <div class='genome-description'>${genomeDescription}</div>
+                        <div class='genome-tags'>${fileTags}</div>
+                    </div>
+                    <div class='genome-right'>
+                        <div class='genome-size'>${item["Total size"].toLocaleString()} bp</div>
+                        <div class='genome-count'><span class='genome-count-number'>${contigCount}</span> ${(contigCount > 1) ? 'contigs' : 'contig'}</div>
+                        <div class='genome-gc'>${(item["GC content"] * 100).toFixed(2)}% GC</div>
+                    </div>
                 </div>
-                <div class='genome-right'>
-                    <div class='genome-size'>${item["Total size"].toLocaleString()} bp</div>
-                    <div class='genome-count'><span class='genome-count-number'>${contigCount}</span> ${(contigCount > 1) ? 'contigs' : 'contig'}</div>
-                    <div class='genome-gc'>${(item["GC content"] * 100).toFixed(2)}% GC</div>
+                <div class='genome-track-listing hidden'>
+                    <table><thead><tr><th>Lane</th><th>Track</th><th>Slots</th><th>Features</th></tr></thead><tbody></tbody></table>
                 </div>
             </div>
         `;
@@ -71,7 +80,6 @@ function generateGenomeList() {
             // Could also use event.target.dataset.key
             const key = event.currentTarget.getAttribute('data-key');
             if (key) {
-                console.log('Clicked on genome:', key);
                 loadDataForKey(key);
             }
         });
@@ -173,8 +181,36 @@ function sortData(data) {
 // Code for generating Proksee project links
 ////////////////////////////////////////////////////////////////////////////////
 
+onClick('btn-open-in-proksee', function() {
+    const btn = document.getElementById('btn-open-in-proksee');
+    if (selectedKey) {
+        if (genomeData[selectedKey].prokseeUrl) {
+            window.open(genomeData[selectedKey].prokseeUrl, '_blank');
+        } else {
+            generateProkseeLink(btn, selectedKey)
+        }
+    }
+})
+
+function updateProkseeButton() {
+    const btn = document.getElementById('btn-open-in-proksee');
+    if (selectedKey) {
+        btn.classList.remove('disabled');
+        if (genomeData[selectedKey].prokseeUrl) {
+            btn.textContent = 'Open Proksee Project';
+            btn.classList.add('link-exists');
+        } else {
+            btn.textContent = 'Create Proksee Project';
+            btn.classList.remove('link-exists');
+        }
+    } else {
+        btn.classList.add('disabled');
+    }
+
+}
+
 function generateProkseeLink(element, sampleId) {
-    loadScript(`${sampleId}.js`, function() {
+    loadScript(`data/${sampleId}.js`, function() {
         if (typeof window.json === 'undefined') {
             console.error('No data found for sample ID:', sampleId);
             alert('Failed to generate Proksee project: No data available for this sample.');
@@ -191,14 +227,20 @@ function generateProkseeLink(element, sampleId) {
         .then(response => response.json())
         .then(data => {
             if (data?.status === 'success' && data?.url) {
-                const link = document.createElement('a');
-                link.textContent = 'Go to Proksee Project';
-                link.href = data.url;
-                link.className = 'generated-link';
-                link.target = '_blank';
-                element.parentNode.replaceChild(link, element);
+                console.log(data)
+                // const link = document.createElement('a');
+                // link.textContent = 'Go to Proksee Project';
+                // link.href = data.url;
+                // link.className = 'generated-link';
+                // link.target = '_blank';
+                // element.parentNode.replaceChild(link, element);
+
+                genomeData[sampleId].prokseeUrl = data.url;
+                updateProkseeButton();
+                // window.open(data.url, '_blank');
             } else {
                 console.error(`Failed to create Proksee project: ${data?.error}`);
+                alert(`Failed to create Proksee project: ${data?.error}`);
             }
         })
         .catch(error => {
@@ -234,11 +276,15 @@ function loadScript(scriptUrl, callback) {
 ////////////////////////////////////////////////////////////////////////////////
 
 function loadDataForKey(key) {
+    console.log('Clicked on genome:', key);
+    selectedKey = key;
     const myViewer = document.querySelector('#my-viewer');
     const mapName = document.querySelector('.map-genome-name');
     showMessage('<div class="spinner-container"><div class="spinner"></div>Loading...</div>');
     mapName.textContent = genomeData[key].Name;
     highlightSelectedGenome(key);
+    hideTrackListing();
+    updateProkseeButton();
     var script = document.createElement('script');
     const dataPath = `data/${key}.js`;
     script.src = dataPath;
@@ -248,6 +294,7 @@ function loadDataForKey(key) {
             myViewer.dataset.key = key;
             cgv.io.loadJSON(window.json);
             // NOTE: resizing fixes an issue where the previous legend is not removed
+            addTrackListing(cgv);
             cgv.resize();
             cgv.draw();
             hideMessage();
@@ -426,7 +473,122 @@ function updateRunInfo() {
     });
 }
 
+////////////////////////////////////////////////////////////////////////////////
+// Track Listing
+////////////////////////////////////////////////////////////////////////////////
 
+function hideTrackListing() {
+    document.querySelectorAll('.genome-track-listing').forEach(item => {
+        item.classList.add('hidden');
+    });
+}
+
+function addTrackListing(cgv) {
+    const trackListing = document.querySelector(`[data-key='${selectedKey}'] .genome-track-listing`);
+    if (trackListing) {
+        trackListing.classList.remove('hidden');
+        const trackTable = trackListing.querySelector('table tbody');
+        // trackTable.innerHTML = getListing();
+        trackTable.innerHTML = "<tr><td>1</td><td>Backbone (Contigs)</td><td></td><td>1</td></tr>";
+    }
+}
+
+// Slots is an array of strings that decribes specific slots
+// Returns a empty string or a string cotainin each slot
+function displaySlots(slots) {
+  let displayText = '';
+  if(slots === undefined) return displayText;
+  slots = (Array.isArray(slots)) ? slots : [slots];
+  if (slots.length > 0 && slots[0] !== undefined) {
+    displayText += ` (${slots.join(',')})`;
+  }
+  return displayText;
+}
+
+function getListing() {
+  // let text = '';
+  const startOutside = this.state.options.start_outside;
+  const separator = this.getSeparator();
+  const isLinear = this.isLinear();
+  const label = isLinear ? 'lane' : 'ring'; 
+  const direction = isLinear ? (startOutside ? 'top' : 'bottom') : (startOutside ? 'outermost' : 'innermost');
+  let text = `Starting from the ${direction} ${label}:`;
+  text += (separator === '\n') ? "\n" : " ";
+  const tracks = cgv.tracks().filter( (t) => t.visible );
+  // Array of objects with track and slot properties
+  // slot is one of: undefined, +, -, -3, -2, -1, +1, +2, +3
+  // Tracks (by default) will start from the outside
+  const listing = [{track: {name: 'Backbone (Contigs)', backbone: true}}];
+  for (const track of tracks) {
+    // position: 'both', 'inside', 'outside'
+    // separateFeaturesBy: 'readingFrame', 'strand', 'none'
+    if (track.separateFeaturesBy === 'none' || track.type === 'plot') {
+      if (track.position === 'inside') {
+        listing.push({track})
+      } else {
+        listing.unshift({track});
+      }
+    } else if (track.separateFeaturesBy === 'strand') {
+      if (track.position === 'inside') {
+        ['+', '-'].forEach( (s) => { listing.push({track, slot: s}) });
+      } else if (track.position === 'outside') {
+        ['-', '+'].forEach( (s) => { listing.unshift({track, slot: s}) });
+      } else {
+        listing.unshift({track, slot: '+'});
+        listing.push({track, slot: '-'})
+      }
+    } else if (track.separateFeaturesBy === 'readingFrame') {
+      if (track.position === 'inside') {
+        ['+3', '+2', '+1', '-1', '-2', '-3'].forEach( (s) => { listing.push({track, slot: s}) });
+      } else if (track.position === 'outside') {
+        ['-3', '-2', '-1', '+1', '+2', '+3'].forEach( (s) => { listing.unshift({track, slot: s}) });
+      } else {
+        ['+1', '+2', '+3'].forEach( (s) => { listing.unshift({track, slot: s}) });
+        ['-1', '-2', '-3'].forEach( (s) => { listing.push({track, slot: s}) });
+      }
+    }
+  }
+  if (!startOutside) {
+    listing.reverse();
+  }
+  let entries = [];
+  let slots = [];
+  if (this.state.options.collapse_tracks) {
+    for (let i=0, len=listing.length; i < len; i++) {
+      const track = listing[i].track;
+      const s = listing[i].slot;
+      const next = listing[i+1];
+      slots.push(s);
+      if (next && next.track === track) {
+        continue;
+      }
+      entries.push(`${this.displayLabel(i, slots, track.backbone)}${track.name}${this.displaySlots(slots)}`);
+      slots = [];
+    }
+  } else {
+    entries = listing.map( (t, i) => `${this.displayLabel(i, slots, t.track.backbone)}${t.track.name}${this.displaySlots(t.slot)}` );
+  }
+  return text + entries.join(`${separator}`);
+}
+function isLinear() {
+  const {options} = this.state;
+  const format = options.map_format || this.cgv.format;
+  return (format === 'linear');
+}
+function displayLabel(index, slots=[], backbone=false) {
+  if (backbone) return '';
+  slots = (Array.isArray(slots)) ? slots : [slots];
+  let label = this.isLinear() ? 'Lane' : 'Ring';
+  if (slots.length > 1) { label += 's'; }
+  let numbers = '';
+  if (slots.length <= 1) {
+    return `${label} ${index+1}: `;
+  } else if (slots.length === 2) {
+    return `${label} ${index},${index+1}: `;
+  } else {
+    return `${label} ${index+2 - slots.length}-${index+1}: `;
+  }
+}
 ////////////////////////////////////////////////////////////////////////////////
 // Helpers: show/hide messages, clear map
 ////////////////////////////////////////////////////////////////////////////////
@@ -449,4 +611,21 @@ function hideMessage() {
     setTimeout(() => {
         messageContainer.style.display = 'none';
     }, 1000); // This should match the transition duration in the CSS (or be a little bigger)
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// CGView Setup
+////////////////////////////////////////////////////////////////////////////////
+
+function cgvSetup(cgv) {
+    cgv.on('mousemove.batch', (e) => {
+        // const elements = ['caption', 'legendItem'];
+        // if (elements.includes(e.elementType)) {
+        //   e.element.highlight();
+        // }
+        if (e.elementType === 'label') {
+            const label = e.element;
+            label.feature.highlight();
+        }
+    });
 }

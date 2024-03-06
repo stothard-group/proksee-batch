@@ -94,6 +94,8 @@ html, body {
   width: 50%;
   background-color: var(--bg-color-main);
   overflow-y: auto; 
+  display: flex;
+  flex-direction: column;
 }
 
 .section-map {
@@ -261,7 +263,9 @@ html, body {
 }
 .genome-item {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  /* justify-content: space-between; */
+
   padding: 5px 0;
   /* margin: 0 -5px;
   padding: 5px; */
@@ -282,6 +286,11 @@ html, body {
   margin: 0 -5px;
   padding: 5px;
   border: 2px solid blue;
+}
+.genome-row {
+  /* width: 100%; */
+  display: flex;
+  justify-content: space-between;
 }
 .genome-left {
   display: flex;
@@ -331,6 +340,28 @@ html, body {
   color: var(--text-color-link);
   text-decoration: underline;
   cursor: pointer;
+}
+
+.genome-track-listing.hidden {
+  display: none;
+}
+.genome-track-listing table {
+  border: var(--border-primary);
+  margin: auto;
+  font-size: 12px;
+}
+.genome-track-listing table th {
+  font-weight: bold;
+  border-bottom: var(--border-primary);
+  /* font-size: 12px; */
+  padding: 0 5px;
+  text-align: left;
+}
+.genome-track-listing table td {
+  /* border-bottom: var(--border-primary); */
+  /* font-size: 12px; */
+  padding: 0 5px;
+  text-align: left;
 }
 
 /********************************/
