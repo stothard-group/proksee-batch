@@ -62,8 +62,12 @@ def main(
     """
     Proksee Batch: A tool for visualizing batches of genomes via https://www.proksee.ca.
     """
-    # Get current date and time.
-    run_date = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Get current date and time in GMT.
+    run_date = (
+        datetime.datetime.now()
+        .astimezone(datetime.timezone.utc)
+        .strftime("%Y-%m-%d %H:%M:%S %Z")
+    )
 
     # Check if the download example GenBank files option is used
     if download_example_data:
@@ -95,10 +99,10 @@ def main(
             shutil.rmtree(output_path)
         os.mkdir(output_path)
         os.mkdir(os.path.join(output_path, "data"))
-        # os.mkdir(os.path.join(output_path, "images"))
+        os.mkdir(os.path.join(output_path, "data", "genome_maps"))
 
     # Initiate a dictionary to store file paths for each genome.
-    genome_info: Dict[str, Dict[str, Any]] = {}
+    genome_info = []
 
     # Iterate over subdirectories in the input directory.
     genome_num = 0
@@ -149,20 +153,25 @@ def main(
 
             # Get basic stats from the GenBank file.
             (
+                genbank_accession,
                 genbank_description,
                 genbank_total_size,
                 genbank_number_of_contigs,
                 genbank_gc_content,
             ) = get_stats_from_seq_file(genbank_path, "genbank")
 
-            genome_info[genome_code_name] = {
-                "Name": genome_dir,
-                "Description": genbank_description,
-                "Total size": genbank_total_size,
-                "Number of contigs": genbank_number_of_contigs,
-                "GC content": genbank_gc_content,
-                "Files": file_names_dict,
-            }
+            genome_info.append(
+                {
+                    "code_name": genome_code_name,
+                    "name": genome_dir,
+                    "accession": genbank_accession,
+                    "description": genbank_description,
+                    "total_size": genbank_total_size,
+                    "num_contigs": genbank_number_of_contigs,
+                    "gc_content": genbank_gc_content,
+                    "files": file_names_dict,
+                }
+            )
 
             # Convert the GenBank file to a basic cgview map in JSON format.
             genbank_to_cgview_json(genome_dir, genbank_path, basic_json_file)
@@ -172,20 +181,25 @@ def main(
 
             # Get basic stats from the FASTA file.
             (
+                fasta_accession,
                 fasta_description,
                 fasta_total_size,
                 fasta_number_of_contigs,
                 fasta_gc_content,
             ) = get_stats_from_seq_file(fasta_path, "fasta")
 
-            genome_info[genome_code_name] = {
-                "Name": genome_dir,
-                "Description": fasta_description,
-                "Total size": fasta_total_size,
-                "Number of contigs": fasta_number_of_contigs,
-                "GC content": fasta_gc_content,
-                "Files": file_names_dict,
-            }
+            genome_info.append(
+                {
+                    "code_name": genome_code_name,
+                    "name": genome_dir,
+                    "accession": fasta_accession,
+                    "description": fasta_description,
+                    "total_size": fasta_total_size,
+                    "num_contigs": fasta_number_of_contigs,
+                    "gc_content": fasta_gc_content,
+                    "files": file_names_dict,
+                }
+            )
 
             # Convert the FASTA file to a basic cgview map in JSON format.
             fasta_to_cgview_json(genome_dir, fasta_path, basic_json_file)
@@ -309,7 +323,9 @@ def main(
             json.dump(merged_json, merged_json_file_with_gc_tracks_fh)
 
         # Convert the merged JSON file to .js file by wrapping it in a variable assignment.
-        js_file = os.path.join(output_path, "data", genome_code_name + ".js")
+        js_file = os.path.join(
+            output_path, "data", "genome_maps", genome_code_name + ".js"
+        )
         with open(js_file, "w") as file:
             # Get the JSON data from the merged JSON file as a string.
             json_data = None
@@ -357,7 +373,7 @@ def main(
 
 
 def generate_js_data(
-    output_dir: str, genome_info: Dict[str, Any], run_date: str, input_dir: str
+    output_dir: str, genome_info: List[Dict[str, Any]], run_date: str, input_dir: str
 ) -> None:
     """
     Generates a JavaScript file with genome information wrapped in a variable assignment.
@@ -367,6 +383,7 @@ def generate_js_data(
 
     # Construct a dict to contain all the info.
     all_info = {
+        "proksee-batch_version": version("proksee-batch"),
         "run_date": run_date,
         "input_dir": input_dir,
         "genomes": genome_info,

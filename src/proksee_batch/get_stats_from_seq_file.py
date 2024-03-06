@@ -3,12 +3,15 @@ from typing import Tuple
 from Bio import SeqIO
 
 
-def get_stats_from_seq_file(seq_file: str, format: str) -> Tuple[str, int, int, float]:
+def get_stats_from_seq_file(
+    seq_file: str, format: str
+) -> Tuple[str, str, int, int, float]:
     """
     Get basic stats from a GenBank or FASTA file.
     """
     assert format in ["genbank", "fasta"]
 
+    accession = ""
     description = ""
     total_size = 0
     number_of_contigs = 0
@@ -19,7 +22,9 @@ def get_stats_from_seq_file(seq_file: str, format: str) -> Tuple[str, int, int, 
         description = str(record.description)
         break
 
-    for record in SeqIO.parse(seq_file, format):  # type: ignore
+    for i, record in enumerate(SeqIO.parse(seq_file, format)):  # type: ignore
+        if i == 0:
+            accession = record.id
         # Process each record (contig) in the file
         total_size += len(record.seq)
         number_of_contigs += 1
@@ -28,4 +33,4 @@ def get_stats_from_seq_file(seq_file: str, format: str) -> Tuple[str, int, int, 
 
     gc_content = round(gc_content / total_size, 4)
 
-    return (description, total_size, number_of_contigs, gc_content)
+    return (accession, description, total_size, number_of_contigs, gc_content)
