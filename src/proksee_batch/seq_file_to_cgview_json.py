@@ -101,9 +101,11 @@ def genbank_to_cgview_json(genome_name: str, genbank_file: str, json_file: str) 
             locations = (
                 feature.location.parts
                 if isinstance(feature.location, CompoundLocation)
-                else [feature.location]
-                if isinstance(feature.location, FeatureLocation)
-                else None
+                else (
+                    [feature.location]
+                    if isinstance(feature.location, FeatureLocation)
+                    else None
+                )
             )
 
             # Determine strand.

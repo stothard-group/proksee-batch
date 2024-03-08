@@ -1,4 +1,5 @@
 """Downloads GenBank files from NCBI FTP site."""
+
 import gzip
 import os
 import shutil
