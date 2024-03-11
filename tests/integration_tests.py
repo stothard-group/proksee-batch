@@ -1,5 +1,6 @@
 """Test functionality involving access to external resources including the
 Proksee server."""
+
 import json
 import os
 import tempfile

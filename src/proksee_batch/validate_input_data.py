@@ -51,6 +51,7 @@ vcf, and gff directories are optional. They contain files with additional
 genomic features.  The json directory is also optional. It contains a custom
 Proksee project JSON file that will be used as a template for the visualization.
 """
+
 import json
 import os
 import sys
