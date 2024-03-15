@@ -97,7 +97,9 @@ def main(
     else:
         output_path = os.path.abspath(output)
         if os.path.exists(output_path):
-            shutil.rmtree(output_path)
+            handle_error_exit(
+                f"The output directory already exists: {output_path}. Please remove it or provide a different directory path."
+            )
         os.mkdir(output_path)
         os.mkdir(os.path.join(output_path, "data"))
         os.mkdir(os.path.join(output_path, "data", "genome_maps"))
@@ -338,35 +340,13 @@ def main(
         # Generate a .js file with the contents of the genome_info dictionary.
         generate_js_data(output_path, genome_info, run_date, input_dir_path)
 
-        ## Generate a Proksee link using the merged JSON file.
-        # proksee_project_link_file = os.path.join(
-        #    temp_output, genome_code_name + ".proksee_link.txt"
-        # )
-        # generate_proksee_link(merged_json_file, proksee_project_link_file)
-
-        ## Scrape proksee image.
-        # proksee_image_file = os.path.join(
-        #    os.path.join(output_path, "images", genome_code_name) + ".svg"
-        # )
-        # scrape_proksee_image(proksee_project_link_file, proksee_image_file)
-
         # Delete the temporary output directory.
         shutil.rmtree(temp_output)
 
-    # Copy the directory with CGView.js code from the package data to the output directory.
-    with resources.path("proksee_batch.data", "cgview-js_code") as cgview_js_path:
-        shutil.copytree(cgview_js_path, os.path.join(output_path, "cgview-js_code"))
-
-    # Copy the directory with supporting CSS and JavaScript code for the HTML report from the package data to the output directory.
-    with resources.path(
-        "proksee_batch.data", "html_report_code"
-    ) as report_support_files_path:
-        shutil.copytree(
-            report_support_files_path, os.path.join(output_path, "html_report_code")
-        )
-
-    ## Generate the HTML report file.
-    # generate_report_html(output_path, genome_info)
+    # Copy the directory with CGView.js code, CSS code, and JavaScript code for
+    # the HTML report from the package data to the output directory.
+    with resources.path("proksee_batch.data", "assets") as assets:
+        shutil.copytree(assets, os.path.join(output_path, "assets"))
 
     # Copy the HTML file with the report from the package data to the output directory.
     with resources.path("proksee_batch.data", "report.html") as report_html_path:
