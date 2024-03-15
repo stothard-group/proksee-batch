@@ -36,11 +36,20 @@ Request features on the [Issue Tracker].
 
 ## How to set up your development environment
 
-You need Python 3.7+ and the following tools:
+If you just want to update the HTML report, then you can copy the
+`src/proksee-batch/data/data.example` directory to
+`src/proksee-batch/data/data`, and then work with the
+`src/proksee-batch/data/report.html` file directly in the source code.
+
+For modifying the main Python package code, you will need Python 3.7+ and the
+following tools:
 
 - [Poetry]
 - [Nox]
 - [nox-poetry]
+
+Poetry is the project/package manager, and Nox is the automation tool for
+testing.
 
 Install the package with development requirements:
 
@@ -59,18 +68,6 @@ $ poetry run proksee-batch
 [poetry]: https://python-poetry.org/
 [nox]: https://nox.thea.codes/
 [nox-poetry]: https://nox-poetry.readthedocs.io/
-
-## How to update code included from CGView.js
-
-Code from the [CGView.js] project is included in this repository in the
-`src/proksee_batch/data/cgview-js_code` directory. To update this code from the
-GitHub repository, use the provided script as follows:
-
-[CGView.js]: https://js.cgview.ca
-
-```console
-$ poetry run python3 scripts/update_cgview-js_code.py
-```
 
 ## How to test the project
 
@@ -133,6 +130,14 @@ This will allow a chance to talk it over with the owners and validate your appro
 
 [pull request]: https://github.com/stothard-group/proksee-batch/pulls
 
-<!-- github-only -->
+## How to update the version on the Python Package Index (PyPI)
 
-[code of conduct]: CODE_OF_CONDUCT.md
+When the package version is updated in the `pyproject.toml` file and pushed to
+GitHub, the GitHub Actions workflow will automatically publish the new version
+to PyPI. To update the version, use the `poetry version` command with `major`,
+`minor`, or `patch` as the argument. For example, to update the version to a new
+patch release, run the following command:
+
+```console
+$ poetry version patch
+```
