@@ -1,0 +1,576 @@
+/********************************/
+/* Variables                    */
+/********************************/
+:root {
+  --text-color-primary: #333;
+  --text-color-link: blue;
+  /* --color-banner: #add8e6; Light blue */
+  --color-banner: #292b2c; /* Light blue */
+  --bg-color-main: white;
+  /* --bg-color-selected: lightblue; */
+  --bg-color-selected: rgb(220, 240, 255);
+  --border-primary: 1px solid #ddd;
+  --highlight-color: rgb(220, 240, 255);
+}
+
+
+/********************************/
+/* Main Layout                  */
+/********************************/
+html, body {
+  font-family: 'Helvetica', 'Arial', sans-serif;
+  /* font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif; */
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.banner {
+  background-color: var(--color-banner);
+  text-align: center;
+  padding: 20px;
+  /* color: var(--text-color-primary); */
+  color: white;
+  padding: 0 10px;
+  height: 40px;
+  width: 100%;
+  font-size: 22px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.banner .logo {
+  font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.banner .banner-links {
+  display: flex;
+  /* font-size: 14px; */
+  font-family: "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  margin-left: 30px;
+}
+.banner .banner-links a {
+  text-decoration: none;
+  display: block;
+  color: rgba(255,255,255,0.5);
+  padding: 0.5rem 1rem;
+  transition: color 0.3s;
+}
+.banner .banner-links a:hover {
+  /* "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Geneva, Verdana, sans-serif; */
+  color: rgba(255,255,255,0.75);
+}
+.banner a img {
+  display: flex;
+  align-items: center;
+  margin-right: 10px;
+  width: 20px;
+  height: 20px;
+  /* margin-top: -5px;
+  margin-bottom: -1px; */
+}
+
+
+.content-container {
+  display: flex;
+  height: calc(100% - 40px); /* Adjust height based on the banner's height */
+  overflow: hidden;
+}
+
+.section-table,
+.section-map {
+  padding: 5px;
+}
+
+.section-table {
+  /* flex: 1; */
+  width: 50%;
+  background-color: var(--bg-color-main);
+  overflow-y: auto; 
+  display: flex;
+  flex-direction: column;
+}
+
+.section-map {
+  /* flex: 1; */
+  width: 50%;
+  position: relative;
+  padding-left: 25px;
+  /* background-color: #ffb6c1; */
+  background-color: var(--bg-color-main)
+}
+
+
+/********************************/
+/* Sorting                      */
+/********************************/
+.sort-bar {
+  display: flex;
+  font-size: 10px;
+  font-weight: bold;
+  justify-content: flex-end;
+  align-items: center;
+  margin-top: 5px;
+}
+.sort-bar .sort-label {
+  margin-right: 5px;
+}
+.sort-bar .sort-btn {
+  width: 50px;
+  text-align: center;
+  padding: 1px 5px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  margin-left: -1px;
+  transition: background-color 0.3s;
+  cursor: pointer;
+}
+.sort-bar .sort-btn:first-of-type {
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+.sort-bar .sort-btn:last-of-type {
+  border-top-right-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.sort-bar .sort-btn:hover {
+  background-color: #f0f0f0;
+}
+.sort-bar .sort-btn:selected {
+  background-color: var(--highlight-color)
+}
+.sort-bar .sort-btn#sort-off {
+  width: 20px;
+}
+.sort-btn.sort-asc,
+.sort-btn.sort-desc {
+  background-color: var(--highlight-color);
+}
+.sort-btn.sort-asc::before {
+  content: '▲';
+}
+.sort-btn.sort-desc::before {
+  content: '▼';
+}
+
+
+/********************************/
+/* Summary/Details              */
+/********************************/
+
+.run-summary {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  align-items: center;
+  color: var(--text-color-primary);
+  padding: 5px;
+  /* background-color: lightsalmon; */
+  /* background-color: #AFAED3; */
+  background-color: #D1D1E6;
+  border-radius: 3px;
+  /* margin-bottom: 3px; */
+  cursor: pointer;
+  transition: background-color 0.3s, border-radius 0.3s;
+}
+.run-summary.active {
+  /* background-color: goldenrod; */
+  /* background-color: #8D89C0; */
+  background-color: #AFAED3;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.run-summary:hover {
+  /* background-color: salmon; */
+  /* background-color: goldenrod; */
+  /* background-color: #8D89C0; */
+  background-color: #AFAED3;
+  opacity: 1.0;
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+.batch-run {
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+}
+.run-summary .run-name {
+  margin-left: 5px;
+}
+.run-summary .run-date {
+  font-family: monospace;
+  margin-left: 10px;
+  font-size: 11px;
+  font-weight: bold;
+  color: var(--text-color-primary);
+  /* Add elipsis to long names */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.run-details {
+  height: 0;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+  transition: height 0.3s;
+  overflow: hidden;
+}
+.run-details.active {
+  height: 80px;
+  padding: 5px;
+  background-color: #f0f0f0;
+  border: var(--border-primary);
+  border-top: none;
+  overflow: auto;
+}
+
+.run-details table {
+  font-size: 12px;
+  white-space: nowrap;
+}
+.run-details table td:first-child {
+  font-weight: bold;
+  padding-right: 5px;
+  /* white-space: nowrap; */
+  text-align: right;
+}
+.run-details table .batch-run-date {
+  font-family: monospace;
+}
+
+
+/********************************/
+/* Genome List                  */
+/********************************/
+
+#genome-list-container {
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+  background-color: (--bg-color-main);
+  overflow-y: auto;
+  overflow-x: hidden;
+  border: var(--border-primary);
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
+}
+.genome-item {
+  display: flex;
+  flex-direction: column;
+  /* justify-content: space-between; */
+
+  padding: 5px 0;
+  /* margin: 0 -5px;
+  padding: 5px; */
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+}
+.genome-item:hover {
+  background-color: var(--highlight-color);
+  transition: background-color 0.3s;
+  margin: 0 -5px;
+  padding: 5px;
+}
+.genome-item:last-child {
+  border-bottom: none;
+}
+.genome-item.selected {
+  background-color: var(--bg-color-selected);
+  margin: 0 -5px;
+  padding: 5px;
+  border: 2px solid blue;
+}
+.genome-row {
+  /* width: 100%; */
+  display: flex;
+  justify-content: space-between;
+}
+.genome-left {
+  display: flex;
+  flex-direction: column;
+}
+.genome-left .genome-name {
+  color: var(--text-color-primary);
+  font-weight: bold;
+  font-size: 14px;
+  word-break: break-word;
+}
+.genome-left .genome-description {
+  color: var(--text-color-primary);
+  font-size: 14px;
+}
+.genome-right {
+  flex-basis: 100px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  padding-top: 2px;
+  color: var(--text-color-primary);
+}
+.genome-right .genome-size {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: bold;
+}
+.genome-right .genome-count {
+  font-size: 13px;
+}
+.genome-right .genome-count-number {
+  font-size: 12px;
+  font-family: monospace;
+  font-weight: bold;
+}
+.genome-right .genome-gc {
+  font-size: 10px;
+  font-family: monospace;
+  margin-top: 2px;
+  color: rgb(100, 100, 100);
+}
+/* Links */
+.generate-link,
+.generated-link {
+  color: var(--text-color-link);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.genome-track-listing {
+  /* add pre styling */
+  margin-top: 10px;
+  white-space: pre;
+  font-size: 12px;
+}
+.genome-track-listing.hidden {
+  display: none;
+}
+/* .genome-track-listing table {
+  border: var(--border-primary);
+  margin: auto;
+  font-size: 12px;
+}
+.genome-track-listing table th {
+  font-weight: bold;
+  border-bottom: var(--border-primary);
+  padding: 0 5px;
+  text-align: left;
+}
+.genome-track-listing table td {
+  padding: 0 5px;
+  text-align: left;
+} */
+
+/********************************/
+/* Resize Bar                   */
+/********************************/
+
+#resize-bar {
+  width: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* background-color: goldenrod; */
+  position:absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  cursor: col-resize;
+  z-index: 100;
+  color: darkgray;
+  padding: 20px 0;
+  /* writing-mode: vertical-rl; */
+  /* background-image: linear-gradient(90deg, #ccc 50%, transparent 50%);
+  background-size: 20px 20px; */
+  transition: background-color 0.3s, color 0.3s;
+  background-color: rgb(225, 200, 200, 0.8);
+  text-align: center;
+}
+#resize-bar:hover {
+  /* background-color: rgba(0,0,0,0.1); Slight darkening on hover */
+  background-color: rgb(225, 200, 200, 1);
+  color: var(--text-color-primary);
+}
+
+
+/********************************/
+/* Map Viewer Area              */
+/********************************/
+
+.map-genome-name {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  background-color: #eee;
+  border: var(--border-primary);
+  border-bottom: none;
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text-color-primary);
+  padding: 2px;
+  /* background-color: lightcoral; */
+  width: calc(100% - 4px);
+  text-align: center;
+  /* Add elipsis to long names */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#viewer-or-message {
+  position: relative;
+  width: 100%;
+  max-height: calc(100vh - 110px);
+  aspect-ratio: 1 / 1;
+  border: var(--border-primary)
+}
+
+#my-viewer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+/* Override CGView.js default style */
+#my-viewer  .cgv-wrapper {
+  border: none;
+}
+#my-viewer-message {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  display: none;
+  z-index: 100;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--bg-color-main);
+  opacity: 0;
+  transition: opacity 1s;
+  overflow: hidden;
+}
+#my-viewer-message #message {
+  font-size: 16px;
+  color: var(--text-color-primary);
+  font-weight: bold;
+}
+
+.cgv-controls {
+  margin-top: 5px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+/********************************/
+/* tags                         */
+/********************************/
+
+.tag {
+  background-color: #d0d0d0;
+  padding: 1px 5px;
+  margin-right: 5px;
+  border-radius: 3px;
+  display: inline-block;
+  font-size: 10px;
+  color: var(--text-color-primary);
+  opacity: 0.8;
+  /* font-weight: bold; */
+}
+.tag:hover {
+  /* font-weight: bold; */
+  opacity: 1;
+  transition: opacity 0.3s;
+}
+.tag-gff {
+  background-color: #add8e6;
+}
+.tag-vcf {
+  background-color: #ffb6c1;
+}
+.tag-genbank {
+  background-color: rgb(248, 195, 62);
+}
+.tag-blast {
+  background-color: #f0d0d0;
+}
+
+
+/********************************/
+/* Search                       */
+/********************************/
+
+.search-bar {
+  width: 100%;
+  position: relative;
+  margin-top: 5px;
+}
+.search-bar input {
+  width: calc(100% - 12px);
+  padding: 3px 5px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  /* border-top-left-radius: 3px;
+  border-top-right-radius: 3px; */
+  /* margin-bottom: 5px; */
+}
+input:focus-visible {
+  outline-width: 2px;
+}
+.search-bar #search-cancel {
+  position: absolute;
+  right: 5px;
+  top: 4px;
+  background-color: red;
+  border: none;
+  border-radius: 5px;;
+  color: white;
+  display: none;
+  cursor: pointer;
+}
+#genome-count {
+  font-size: 12px;
+  font-weight: bold;
+  padding: 3px 5px;
+  /* width: calc(100% - 10px); */
+  background-color: #eee;
+  border: var(--border-primary);
+  /* border-top: none;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px; */
+  margin-top: 5px;
+  border-bottom: none;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+
+/********************************/
+/* Spinner for the loading      */
+/********************************/
+
+.spinner-container {
+  display: flex;
+  align-items: center;
+}
+.spinner {
+  border: 3px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #000;
+  border-radius: 50%;
+  width: 8px;
+  height: 8px;
+  margin-right: 8px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

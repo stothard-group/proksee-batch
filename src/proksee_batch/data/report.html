@@ -6,17 +6,17 @@
 
         <!-- Load styling copied from cgview-js -->
         <!-- <link href="./cgview-js_code/docs/styles/bootstrap.min.css" rel="stylesheet"> -->
-        <link rel="stylesheet" href="./cgview-js_code/docs/dist/cgview.css" />
-        <link rel="stylesheet" href="./cgview-js_code/docs/styles/controls.css" />
+        <link rel="stylesheet" href="./assets/styles/cgview.css" />
+        <link rel="stylesheet" href="./assets/styles/controls.css" />
 
         <!-- Load custom styling -->
-        <link rel="stylesheet" href="./html_report_code/style.css">
+        <link rel="stylesheet" href="./assets/styles/style.css">
 
         <!-- Load scripts copied from cgview-js -->
         <!-- <script src='./cgview-js_code/docs/scripts/marked.min.js'></script> -->
-        <script src="./cgview-js_code/docs/scripts/d3.min.js"></script>
+        <script src="./assets/scripts/d3.min.js"></script>
         <!-- <script src='./cgview-js_code/docs/scripts/general.js'></script> -->
-        <script src='./cgview-js_code/docs/dist/cgview.min.js'></script>
+        <script src='./assets/scripts/cgview.min.js'></script>
 
         <title>Proksee Batch</title>
     </head>
@@ -26,7 +26,7 @@
             <div class='banner-links'>
                 <a href='https://proksee-batch.readthedocs.io' target="_blank">Docs</a>
                 <a href='https://proksee.ca' target="_blank">Proksee</a>
-                <a href='https://github.com/stothard-group/proksee-batch' target="_blank"><img src='cgview-js_code/docs/images/GitHub-Mark-Light-64px.png' /></a>
+                <a href='https://github.com/stothard-group/proksee-batch' target="_blank"><img src='./assets/images/GitHub-Mark-Light-64px.png' /></a>
             </div>
         </div>
         <div class="content-container">
@@ -37,9 +37,9 @@
                     <div class='run-date'></div>
                 </div>
                 <div class='run-details'><table><tbody>
-                    <tr><td>Version:</td><td class='batch-version'></td></tr>
                     <tr><td>Run Date:</td><td class='batch-run-date'></td></tr>
                     <tr><td>Input Dir:</td><td class='batch-input-dir'></td></tr>
+                    <tr><td>Version:</td><td class='batch-version'></td></tr>
                 </tbody></table></div>
                 <div class="sort-bar">
                     <span class="sort-label">Sort:</span>
@@ -78,6 +78,7 @@
                         <div class='cgv-btn' id='btn-download' title='Download Map PNG'></div>
                         <div class='cgv-btn' id='btn-toggle-labels' title='Toggle Labels'></div>
                         <div class='cgv-btn' id='btn-toggle-legend' title='Toggle Legend'></div>
+                        <div class='cgv-btn disabled btn-proksee' id='btn-open-in-proksee' title='Create Proksee Project'>Create Proksee Project</div>
                     </div>
                 </div>
             </div>
@@ -88,7 +89,7 @@
 
         <!-- Load code for the viewer buttons --> 
         <!-- Note: These have to be loaded here in order for the viewer buttons to work -->
-        <script src="./cgview-js_code/docs/scripts/controls.js"></script>
-        <script src="./html_report_code/batch.js"></script>
+        <script src="./assets/scripts/controls.js"></script>
+        <script src="./assets/scripts/batch.js"></script>
     </body>
 </html>
