@@ -109,6 +109,12 @@ $ poetry run pytest tests/integration_tests.py
 
 ## How to submit changes
 
+To make a git commit with the appropriate pre-commit hooks activated, you can use poetry as follows:
+
+```console
+$ poetry run git commit -am"Your commit message"
+```
+
 Open a [pull request] to submit changes to this project.
 
 Your pull request needs to meet the following guidelines for acceptance:
@@ -141,3 +147,11 @@ patch release, run the following command:
 ```console
 $ poetry version patch
 ```
+
+## Misc. notes
+
+- If you modify anything that affects the content of the output genome map files
+  or table data file (.js files) or their format, remember to update the example
+  data in the `src/proksee-batch/data/data.example` directory. This will
+  facilitate easier front-end development of the HTML report, without the need to
+  prepare example input data.
