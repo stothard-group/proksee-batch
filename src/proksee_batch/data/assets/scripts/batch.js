@@ -2,26 +2,16 @@
 // Initial setup
 ////////////////////////////////////////////////////////////////////////////////
 
-//TODO
-// - genomeData chagned from hash to array with "code_name" as a key
-
 // NOTE: tableData (global variable) is the main data object that contains all the genome data
-// Adjust table data to include keys
-// const genomeData = tableData.genomes;
-// const genomeData = {}
+// Internally we use 'key' instead of 'code_name' to refer to the genome
 const genomeData = [...tableData.genomes];
 genomeData.forEach( g => g.key = g.code_name );
-// tableData.genomes.forEach(genome=> {
-//     genome.key = genome.code_name;
-//     genomeData[genome.code_name] = genome;
-// });
 
 updateRunInfo();
 
 // Current Sort Settings
 let currentSort = { column: null, isDescending: false };
 // This will hold a filtered version of the table data when a search is performed
-// let filteredData = {};
 let filteredData = [];
 // Current search terms
 let searchTerms = [];
@@ -81,7 +71,6 @@ function generateGenomeList() {
             </div>
         `;
     });
-                    //<table><thead><tr><th>Lane</th><th>Track</th><th>Slots</th><th>Features</th></tr></thead><tbody></tbody></table>
 
     // Add event listeners to each genome item
     const genomeItems = document.querySelectorAll('.genome-item');
@@ -138,10 +127,6 @@ sortButtons.forEach(btn => {
     });
 });
 
-// function getSortIndicator(column) {
-//     return (currentSort.column === column) ? (currentSort.isDescending ? '↓' : '↑') : '';
-// }
-
 function adjustSortIndicators(target) {
     sortButtons.forEach(btn => {
         btn.classList.remove('sort-asc');
@@ -169,9 +154,7 @@ function sortData(data) {
     const column = currentSort.column;
     const modifier = currentSort.isDescending ? -1 : 1;
 
-    // const isNumeric = ['Total size', 'Number of contigs', 'GC content'].includes(column);
     const isNumeric = ['total_size', 'num_contigs', 'gc_content'].includes(column);
-    // let dataArray = Object.values(data);
     let dataArray = [...data];
     dataArray.sort((a, b) => {
         const valueA = isNumeric ? a[column] : a[column].toUpperCase();
@@ -180,11 +163,6 @@ function sortData(data) {
     });
 
     const sortedData = [...dataArray];
-    // Convert the sorted array back to an object
-    // let sortedData = {};
-    // dataArray.forEach(item => {
-    //     sortedData[item.key] = item;
-    // });
 
     return sortedData;
 }
@@ -198,9 +176,7 @@ onClick('btn-open-in-proksee', function() {
     const btn = document.getElementById('btn-open-in-proksee');
     if (selectedKey) {
         const genome = genomeData.find(g => g.key == selectedKey);
-        // if (genomeData[selectedKey].prokseeUrl) {
         if (genome.prokseeUrl) {
-            // window.open(genomeData[selectedKey].prokseeUrl, '_blank');
             window.open(genome.prokseeUrl, '_blank');
         } else {
             generateProkseeLink(btn, selectedKey)
@@ -212,7 +188,6 @@ function updateProkseeButton(genome) {
     const btn = document.getElementById('btn-open-in-proksee');
     if (selectedKey) {
         btn.classList.remove('disabled');
-        // if (genomeData[selectedKey].prokseeUrl) {
         if (genome.prokseeUrl) {
             btn.textContent = 'Open Proksee Project';
             btn.classList.add('link-exists');
@@ -245,18 +220,9 @@ function generateProkseeLink(element, sampleId) {
         .then(data => {
             if (data?.status === 'success' && data?.url) {
                 console.log(data)
-                // const link = document.createElement('a');
-                // link.textContent = 'Go to Proksee Project';
-                // link.href = data.url;
-                // link.className = 'generated-link';
-                // link.target = '_blank';
-                // element.parentNode.replaceChild(link, element);
-
                 const genome = genomeData.find(g => g.key == sampleId);
-                // genomeData[sampleId].prokseeUrl = data.url;
                 genome.prokseeUrl = data.url;
                 updateProkseeButton(genome);
-                // window.open(data.url, '_blank');
             } else {
                 console.error(`Failed to create Proksee project: ${data?.error}`);
                 alert(`Failed to create Proksee project: ${data?.error}`);
@@ -300,8 +266,6 @@ function loadDataForKey(key) {
     const myViewer = document.querySelector('#my-viewer');
     const mapName = document.querySelector('.map-genome-name');
     showMessage('<div class="spinner-container"><div class="spinner"></div>Loading...</div>');
-    // mapName.textContent = genomeData[key].name;
-    // mapName.textContent = genomeData.find(g => g.key == name);
     const genome = genomeData.find(g => g.key == key);
     mapName.textContent = genome?.name
     highlightSelectedGenome(key);
@@ -361,11 +325,6 @@ searchCancel.addEventListener('click', function() {
 
 function searchGenomes(searchString = '') {
     searchTerms = searchString.trim().toLowerCase().split(/\s+/);
-    // const dataArray = Object.keys(genomeData).map(key => {
-    //     const item = genomeData[key];
-    //     item.key = key;
-    //     return item;
-    // });
     const dataArray = genomeData;
     console.log('Search terms:', searchTerms);
     if (searchTerms.length > 0) {
@@ -374,23 +333,16 @@ function searchGenomes(searchString = '') {
             return searchTerms.every(term => itemSearchSpace.toLowerCase().includes(term));
         });
         filteredData = filteredArray;
-        // filteredData = {};
-        // filteredArray.forEach(item => {
-        //     filteredData[item.key] = item;
-        // });
     } else {
         filteredData = genomeData;
     }
-    // generateGenomeList(filteredData, searchTerms);
     generateGenomeList();
 }
 
 function updateSearchCount() {
     const searchInput = document.getElementById('search-input');
     const searchCount = document.getElementById('genome-count');
-    // totalGenomesCount = Object.keys(genomeData).length;
     totalGenomesCount = genomeData.length;
-    // filteredGenomesCount = Object.keys(filteredData).length;
     filteredGenomesCount = filteredData.length;
     console.log('Total genomes:', totalGenomesCount);
     console.log('Search input:', searchInput.value);
@@ -448,13 +400,11 @@ function onMouseDragMove(e) {
     listPanel.style.width = `${newLeftWidth}px`;
     mapPanel.style.width = `calc(100% - ${newLeftWidth}px)`;
     showMessage('Resizing...');
-    // myViewer.style.display = 'none';
     myViewer.style.visibility = 'hidden';
 }
 
 function onMouseDragUp() {
     const myViewer = document.querySelector('#my-viewer');
-    // myViewer.style.display = 'block';
     myViewer.style.visibility = 'visible';
     // Only hide message if the map is visible
     const selectedKey = selectedMapKey();
@@ -478,11 +428,20 @@ function updateRunInfo() {
     const runDate = tableData.run_date;
     const runVersion = tableData["proksee-batch_version"] || 'Unknown';
 
+    // runDate should be in UTC/GMT format
+    // Here we also convert it to local time
+    const properDataString = runDate.replace(' ', 'T').replace(' UTC', 'Z');
+    // Options to include the local timezone in the output
+    let options = {
+        timeZoneName: 'short'
+    };
+    const localRunDate = new Date(properDataString).toLocaleString("en-US", options);
+
     // Summary
     const runNameEl = document.querySelector('.run-name');
     const runDateEl = document.querySelector('.run-date');
     runNameEl.innerHTML = runName;
-    runDateEl.innerHTML = runDate;
+    runDateEl.innerHTML = localRunDate;
     // Details
     const detailVersionEl = document.querySelector('.batch-version');
     const detailDateEl = document.querySelector('.batch-run-date');
@@ -518,10 +477,7 @@ function addTrackListing(cgv) {
     const trackListing = document.querySelector(`[data-key='${selectedKey}'] .genome-track-listing`);
     if (trackListing && cgv) {
         trackListing.classList.remove('hidden');
-        // const trackTable = trackListing.querySelector('table tbody');
         trackListing.innerHTML = getListing();
-        // trackTable.innerHTML = getListing();
-        // trackTable.innerHTML = "<tr><td>1</td><td>Backbone (Contigs)</td><td></td><td>1</td></tr>";
     }
 }
 
