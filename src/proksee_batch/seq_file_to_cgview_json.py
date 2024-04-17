@@ -144,14 +144,14 @@ def genbank_to_cgview_json(genome_name: str, genbank_file: str, json_file: str) 
 
                 # Assign name based on availability of attributes.
                 name = ""
+                product = feature.qualifiers.get("product")
                 locus_tag = feature.qualifiers.get("locus_tag")
                 gene = feature.qualifiers.get("gene")
-                product = feature.qualifiers.get("product")
 
-                if locus_tag is not None and locus_tag:
-                    name = locus_tag[0]
-                elif gene is not None and gene:
+                if gene is not None and gene:
                     name = gene[0]
+                elif locus_tag is not None and locus_tag:
+                    name = locus_tag[0]
                 elif product is not None and product:
                     name = product[0]
 
@@ -197,6 +197,20 @@ def genbank_to_cgview_json(genome_name: str, genbank_file: str, json_file: str) 
                 if feature.type == "CDS":
                     # Define the reading frame in the feature data using the JSON feature "codonStart".
                     feature_data["codonStart"] = codon_start
+
+                # Add metadata.
+                if (
+                    (gene is not None and gene)
+                    or (locus_tag is not None and locus_tag)
+                    or (product is not None and product)
+                ):
+                    feature_data["meta"] = {}
+                if locus_tag is not None and locus_tag:
+                    feature_data["meta"]["locus_tag"] = locus_tag[0]
+                if gene is not None and gene:
+                    feature_data["meta"]["gene"] = gene[0]
+                if product is not None and product:
+                    feature_data["meta"]["product"] = product[0]
 
                 json_data["cgview"]["features"].append(feature_data)
 
