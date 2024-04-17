@@ -78,6 +78,9 @@ def validate_input_directory_contents(input: str) -> None:
     # Iterate over subdirectories in the input directory (each subdirectory
     # should contain the data for one genome).
     for genome_dir in os.listdir(input):
+        # Ignore hidden files and directories.
+        if genome_dir.startswith("."):
+            continue
         # Check that the subdirectory contains a genbank subdirectory, a fasta subdirectory, or both.
         required_subdirectories = ["genbank", "fasta"]
         if not any(
