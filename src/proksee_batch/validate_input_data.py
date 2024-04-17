@@ -85,7 +85,7 @@ def validate_input_directory_contents(input: str) -> None:
             for subdirectory in required_subdirectories
         ):
             handle_error_exit(
-                f"The input directory {input} does not contain any of the required subdirectories: {required_subdirectories}"
+                f"The input directory {os.path.join(input, genome_dir)} is missing one or both of the required subdirectories: {required_subdirectories}"
             )
 
         # Check that all subdirectories have valid names.
