@@ -73,8 +73,10 @@ jobs:
 
       - name: Install Nox
         run: |
-          pipx install --pip-args="--constraint=.github/workflows/constraints.txt" nox
-          pipx inject --pip-args="--constraint=.github/workflows/constraints.txt" nox nox-poetry
+          #pipx install --pip-args="--constraint=.github/workflows/constraints.txt" nox
+          #pipx inject --pip-args="--constraint=.github/workflows/constraints.txt" nox nox-poetry
+          pipx install nox>=2022.11.21
+          pipx inject nox nox-poetry>=1.0.2
           nox --version
 
       - name: Compute pre-commit cache key
@@ -126,16 +128,19 @@ jobs:
 
       - name: Upgrade pip
         run: |
-          pip install "--constraint=.github/workflows/constraints.txt" pip
+          pip install --constraint=.github/workflows/constraints.txt pip
           pip --version
 
       - name: Install Poetry
         run: |
-          pipx install --pip-args="--constraint=.github/workflows/constraints.txt" poetry
+          #pipx install --pip-args="--constraint=.github/workflows/constraints.txt" poetry
+          pipx install poetry>=1.8.0
           poetry --version
 
       - name: Install Nox
         run: |
-          pipx install --pip-args="--constraint=.github/workflows/constraints.txt" nox
-          pipx inject --pip-args="--constraint=.github/workflows/constraints.txt" nox nox-poetry
+          #pipx install --pip-args="--constraint=.github/workflows/constraints.txt" nox
+          #pipx inject --pip-args="--constraint=.github/workflows/constraints.txt" nox nox-poetry
+          pipx install nox>=2022.11.21
+          pipx inject nox nox-poetry>=1.0.2
           nox --version
