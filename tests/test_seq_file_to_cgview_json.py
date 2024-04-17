@@ -140,6 +140,10 @@ def test_genbank_to_cgview_on_origin_in_codon() -> None:
                     "contig": "AB123456",
                     "legend": "CDS",
                     "codonStart": 3,
+                    "meta": {
+                        "locus_tag": "VHWIEOXL_CDS249",
+                        "product": "terminal repeat-encoded protein",
+                    },
                 },
                 {
                     "type": "CDS",
@@ -151,6 +155,10 @@ def test_genbank_to_cgview_on_origin_in_codon() -> None:
                     "contig": "AB123456",
                     "legend": "CDS",
                     "codonStart": 1,
+                    "meta": {
+                        "locus_tag": "VHWIEOXL_CDS249",
+                        "product": "terminal repeat-encoded protein",
+                    },
                 },
             ]
             found_expected_cds_features = []
