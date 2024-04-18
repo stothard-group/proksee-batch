@@ -100,6 +100,7 @@ def validate_input_directory_contents(input: str) -> None:
             "json",
             "vcf",
             "gff",
+            "metadata",
         ]
         for subdirectory in os.listdir(os.path.join(input, genome_dir)):
             if subdirectory not in valid_subdirectories:
@@ -331,6 +332,43 @@ def validate_input_directory_contents(input: str) -> None:
                         handle_error_exit(
                             f"The input directory {subdirectory_path} does not contain any GFF files. Valid file extensions are .gff and .gff3."
                         )
+                elif subdirectory == "metadata":
+                    # Check that there is one and only one metadata file in the metadata directory, with a filename extension .json.
+                    metadata_files = [
+                        file
+                        for file in os.listdir(subdirectory_path)
+                        if file.endswith(".json")
+                    ]
+                    if len(metadata_files) == 0:
+                        handle_error_exit(
+                            f"The input directory {subdirectory_path} does not contain any metadata files. Valid file extension is .json."
+                        )
+                    elif len(metadata_files) > 1:
+                        handle_error_exit(
+                            f"The input directory {subdirectory_path} contains more than one metadata file. Please ensure that there is exactly one metadata file in the directory."
+                        )
+                    # Parse the metadata file with json.load to check if the file format is valid.
+                    with open(os.path.join(subdirectory_path, metadata_files[0])) as f:
+                        try:
+                            metadata = json.load(f)
+                        except Exception as e:
+                            handle_error_exit(
+                                f"Error parsing the metadata file {metadata_files[0]}: {e}. Please check that the file is in JSON format."
+                            )
+                        # Check that the metadata file contains the required keys.
+                        required_keys = {"metadata": ["description"]}
+                        metadata_file = metadata_files[0]
+
+                        for main_key, sub_keys in required_keys.items():
+                            if main_key not in metadata:
+                                handle_error_exit(
+                                    f"{metadata_file} is missing the required key: {main_key}"
+                                )
+                            for sub_key in sub_keys:
+                                if sub_key not in metadata[main_key]:
+                                    handle_error_exit(
+                                        f"{metadata_file} is missing the required sub-key: {main_key}.{sub_key}"
+                                    )
 
 
 def get_data_files(input_subdir: str, data_type: str) -> List[str]:
@@ -399,6 +437,12 @@ def get_data_files(input_subdir: str, data_type: str) -> List[str]:
                 os.path.join(data_dir, file)
                 for file in os.listdir(data_dir)
                 if file.endswith(".gff") or file.endswith(".gff3")
+            ]
+        elif data_type == "metadata":
+            return [
+                os.path.join(data_dir, file)
+                for file in os.listdir(data_dir)
+                if file.endswith(".json")
             ]
         else:
             handle_error_exit(f"Invalid data type: {data_type}")

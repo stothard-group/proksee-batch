@@ -16,6 +16,7 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
+from typing import Tuple
 
 import click
 import toml
@@ -131,6 +132,9 @@ def main(
         bed_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "bed")
         vcf_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "vcf")
         gff_paths = get_data_files(os.path.join(input_dir_path, genome_dir), "gff")
+        metadata_paths = get_data_files(
+            os.path.join(input_dir_path, genome_dir), "metadata"
+        )
 
         # Generate a dict with file types as keys and lists of file paths as values.
         file_names_dict = {
@@ -141,6 +145,7 @@ def main(
             "bed": [os.path.basename(x) for x in bed_paths],
             "vcf": [os.path.basename(x) for x in vcf_paths],
             "gff": [os.path.basename(x) for x in gff_paths],
+            "metadata": [os.path.basename(x) for x in metadata_paths],
         }
 
         # If the genome directory contains one or more GenBank files, remove the
@@ -162,6 +167,12 @@ def main(
                 genbank_number_of_contigs,
                 genbank_gc_content,
             ) = get_stats_from_seq_file(genbank_path, "genbank")
+
+            # If metadata is provided, use it to update the genbank_description
+            # (may be putative species assignment, and evidence, etc., for local
+            # assemblies rather than genbank info)
+            if metadata_paths:
+                genbank_description = get_description_from_metadata(metadata_paths[0])
 
             genome_info.append(
                 {
@@ -376,6 +387,24 @@ def generate_js_data(
     # Save the data to a .js file
     with open(output_file, "w") as file:
         file.write(js_content)
+
+
+def get_description_from_metadata(metadata_path: str) -> str:
+    """
+    Extracts the accession and description from a metadata file.
+
+    Args:
+        metadata_path (str): Path to the metadata file.
+
+    Returns:
+        str: The description extracted from the metadata file.
+    """
+    description = ""
+    with open(metadata_path) as metadata_file:
+        metadata = json.load(metadata_file)
+        if "metadata" in metadata and "description" in metadata["metadata"]:
+            description = metadata["metadata"]["description"]
+    return description
 
 
 def handle_error_exit(error_message: str, exit_code: int = 1) -> None:
