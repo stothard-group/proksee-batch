@@ -356,12 +356,10 @@ def validate_input_directory_contents(input: str) -> None:
                                 f"Error parsing the metadata file {metadata_files[0]}: {e}. Please check that the file is in JSON format."
                             )
                         # Check that the metadata file contains the required keys.
-                        required_keys: Dict[str, List[str]] = {
-                            "metadata": ["description"]
-                        }
+                        required_metadata_keys = {"metadata": {"description": None}}
                         metadata_file = metadata_files[0]
 
-                        for main_key, sub_keys in required_keys.items():
+                        for main_key, sub_keys in required_metadata_keys.items():
                             if main_key not in metadata:
                                 handle_error_exit(
                                     f"{metadata_file} is missing the required key: {main_key}"
