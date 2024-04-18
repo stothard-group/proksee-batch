@@ -44,8 +44,10 @@ input_directory
 │   │   └── genome1_styling.json
 │   ├── vcf
 │   │   └── genome1_variants.vcf
-│   └── gff
-│       └── genome1_features.gff
+│   ├── gff
+│   │   └── genome1_features.gff
+│   └── metadata
+│       └── genome_1_metadata.json
 └── genome2
     ├── fasta
     │   └── genome2.fasta
@@ -57,8 +59,10 @@ input_directory
     │   └── genome2_styling.json
     ├── vcf
     │   └── genome2_variants.vcf
-    └── gff
-        └── genome2_features.gff
+    ├── gff
+    │   └── genome2_features.gff
+    └── metadata
+        └── genome2_metadata.json
 ```
 
 In addition, the command-line option `--download-example-data` can be used to
@@ -117,6 +121,20 @@ generate an example input directory with all valid input file types.
 - **Purpose**: Contains General Feature Format (GFF) files, used for
   describing genes and other features.
 - **File Requirements**: Files with `.gff` or `.gff3` extensions.
+
+#### 8. **Metadata Directory**
+
+- **Purpose**: Contains a metadata file in JSON format, used for assigning
+  custom descriptions to genomes (instead of using descriptions from the first
+  sequence of the input GenBank or FASTA file).
+- **File Requirements**: One file with the `.json` extension. Must define a JSON object of the form:
+  ```json
+  {
+    "metadata": {
+      "description": "Custom description for the genome"
+    }
+  }
+  ```
 
 ## Output
 
