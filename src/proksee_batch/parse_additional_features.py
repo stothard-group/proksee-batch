@@ -533,15 +533,23 @@ def parse_gff_files(
             sort_attribute_values=True,
         )
 
+        # Define feature types to include.
+        feature_types_to_exclude = ["gene", "exon", "region"]
+
         # Parse the GFF file.
         for gff_result in db.all_features():
-            # Skip the header line(s), if present.
-            if gff_result.featuretype == "region":
+            # Skip the header line(s), if present, and feature types to exclude.
+            if gff_result.featuretype in feature_types_to_exclude:
                 continue
+
+            # Define the name based on availability.
+            name = gff_result.id
+            if "gene" in gff_result.attributes:
+                name = gff_result.attributes["gene"][0]
 
             # Define the GFF feature.
             gff_feature = {
-                "name": gff_result.id,
+                "name": name,
                 "type": "gff",
                 "start": gff_result.start,
                 "stop": gff_result.stop,
@@ -551,9 +559,14 @@ def parse_gff_files(
                 "legend": os.path.basename(gff_file),
                 "tags": [],
                 "meta": {
-                    "score": gff_result.score,
+                    "score": "0",
                 },
             }
+
+            # Add any additional metadata, if present.
+            for attribute in gff_result.attributes:
+                gff_feature["meta"][attribute] = gff_result.attributes[attribute][0]
+
             # Add the GFF feature to the list of GFF features.
             gff_features.append(gff_feature)
 
