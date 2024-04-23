@@ -47,7 +47,7 @@ def parse_blast_files(
         # Parse the BLAST result file.
         for blast_result_line in blast_results:
             # Parse the BLAST result line.
-            blast_result = blast_result_line.split("\t")
+            blast_result = blast_result_line.strip().split("\t")
 
             # Skip the header line(s), if present.
             if blast_result[0] == "qseqid" or blast_result[0].startswith("#"):
@@ -76,7 +76,7 @@ def parse_blast_files(
                     "identity": float(blast_result[2]),
                     "mismatches": int(blast_result[4]),
                     "evalue": float(blast_result[10]),
-                    "bit_score": float(blast_result[11].strip()),
+                    "bit_score": float(blast_result[11]),
                 },
             }
             # Add the BLAST feature to the list of BLAST features.
@@ -105,7 +105,7 @@ def parse_blast_files(
 
 def get_feature_locations_and_scores_from_blast_features(
     blast_features: List[Dict[str, Any]]
-) -> List[Tuple[int, int, int]]:
+) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from BLAST features.
 
