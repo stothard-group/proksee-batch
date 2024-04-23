@@ -76,7 +76,7 @@ def parse_blast_files(
                     "identity": float(blast_result[2]),
                     "mismatches": int(blast_result[4]),
                     "evalue": float(blast_result[10]),
-                    "bit_score": int(blast_result[11]),
+                    "bit_score": float(blast_result[11].strip()),
                 },
             }
             # Add the BLAST feature to the list of BLAST features.
