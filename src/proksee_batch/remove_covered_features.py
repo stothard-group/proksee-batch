@@ -2,7 +2,7 @@ from typing import List
 from typing import Tuple
 
 
-def remove_covered_features(features: List[Tuple[int, int, int]]) -> List[bool]:
+def remove_covered_features(features: List[Tuple[int, int, float]]) -> List[bool]:
     """
     Identifies features that are completely covered by another feature with an
     equal or higher score.

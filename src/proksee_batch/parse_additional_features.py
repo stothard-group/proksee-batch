@@ -220,9 +220,9 @@ def parse_bed_files(
             name = ""
             if len(bed_result) >= 4:
                 name = bed_result[3]
-            score = 0
+            score = 0.0
             if len(bed_result) >= 5:
-                score = int(bed_result[4])
+                score = float(bed_result[4])
             strand = 1
             if len(bed_result) >= 6:
                 if bed_result[5] == "+":
@@ -275,7 +275,7 @@ def parse_bed_files(
 
 def get_feature_locations_and_scores_from_bed_features(
     bed_features: List[Dict[str, Any]]
-) -> List[Tuple[int, int, int]]:
+) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from BED features.
 
@@ -430,7 +430,7 @@ def parse_vcf_files(
 
 def get_feature_locations_and_scores_from_vcf_features(
     vcf_features: List[Dict[str, Any]]
-) -> List[Tuple[int, int, int]]:
+) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from VCF features.
 
@@ -446,7 +446,7 @@ def get_feature_locations_and_scores_from_vcf_features(
             (
                 vcf_feature["start"],
                 vcf_feature["stop"],
-                1,
+                1.0,
             )
         )
     return feature_locations_and_scores
@@ -559,7 +559,7 @@ def parse_gff_files(
                 "legend": os.path.basename(gff_file),
                 "tags": [],
                 "meta": {
-                    "score": "0",
+                    "score": 0.0,
                 },
             }
 
@@ -592,7 +592,7 @@ def parse_gff_files(
 
 def get_feature_locations_and_scores_from_gff_features(
     gff_features: List[Dict[str, Any]]
-) -> List[Tuple[int, int, int]]:
+) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from GFF features.
 
