@@ -60,12 +60,15 @@ def parse_blast_files(
                 ],  # Here we assume that the query sequence is a sequence aligned to a contig in the genome/map.
                 "type": "blast",
                 "start": int(
-                    blast_result[8]
+                    # blast_result[8]
+                    min([blast_result[8], blast_result[9]])
                 ),  # Here we assume that the subject sequence is a contig in the genome/map.
                 "stop": int(
-                    blast_result[9]
+                    # blast_result[9]
+                    max([blast_result[8], blast_result[9]])
                 ),  # Here we assume that the subject sequence is a contig in the genome/map.
-                "strand": 1 if blast_result[8] < blast_result[9] else -1,
+                # "strand": 1 if blast_result[8] < blast_result[9] else -1,
+                "strand": ".",
                 "source": f"blast_{num}",
                 "contig": blast_result[
                     1
