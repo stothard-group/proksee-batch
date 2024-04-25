@@ -55,7 +55,9 @@ def parse_blast_files(
 
             # Define the BLAST feature.
             blast_feature = {
-                "name": [blast_result[0] if len(blast_result) <= 20 else "blast_hit"][
+                "name": [
+                    blast_result[0] if len(blast_result[0]) <= 20 else "blast_hit"
+                ][
                     0
                 ],  # "blast_hit" if the name is too long
                 "type": "blast",
