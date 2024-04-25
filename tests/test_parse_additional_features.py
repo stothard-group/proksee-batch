@@ -32,6 +32,10 @@ def test_parse_blast_files() -> None:
                 "legend": "U49845.1.txt",
                 "tags": [],
                 "meta": {
+                    "query": "U49845.1",
+                    "query_start": 1,
+                    "query_stop": 5028,
+                    "alignment_length": 5028,
                     "identity": 100.0,
                     "mismatches": 0,
                     "evalue": 0.0,
@@ -90,6 +94,10 @@ def test_add_blast_features_and_tracks() -> None:
                 "legend": "U49845.1.txt",
                 "tags": [],
                 "meta": {
+                    "query": "U49845.1",
+                    "query_start": 1,
+                    "query_stop": 5028,
+                    "alignment_length": 5028,
                     "identity": 100.0,
                     "mismatches": 0,
                     "evalue": 0.0,
@@ -155,6 +163,10 @@ def test_add_blast_features_and_tracks_multiple_features() -> None:
                 "legend": "U49845.1_v2.txt",
                 "tags": [],
                 "meta": {
+                    "query": "U49845.1",
+                    "query_start": 1,
+                    "query_stop": 5028,
+                    "alignment_length": 5028,
                     "identity": 100.0,
                     "mismatches": 0,
                     "evalue": 0.0,
@@ -173,6 +185,10 @@ def test_add_blast_features_and_tracks_multiple_features() -> None:
                 "legend": "U49845.1_v2.txt",
                 "tags": [],
                 "meta": {
+                    "query": "XXXXXX.1",
+                    "query_start": 1,
+                    "query_stop": 100,
+                    "alignment_length": 100,
                     "identity": 100.0,
                     "mismatches": 0,
                     "evalue": 0.0,
@@ -198,6 +214,14 @@ def test_add_blast_features_and_tracks_multiple_features() -> None:
         with open(output_file) as f:
             json_data = json.load(f)
             for expected_feature in expected_blast_features:
+                print()
+                print()
+                print(expected_feature)
+                print()
+                for feature in json_data["cgview"]["features"]:
+                    print(feature)
+                print()
+                print()
                 assert expected_feature in json_data["cgview"]["features"]
             for expected_track in expected_blast_tracks:
                 assert expected_track in json_data["cgview"]["tracks"]

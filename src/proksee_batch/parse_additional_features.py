@@ -55,9 +55,9 @@ def parse_blast_files(
 
             # Define the BLAST feature.
             blast_feature = {
-                "name": blast_result[
+                "name": [blast_result[0] if len(blast_result) <= 20 else "blast_hit"][
                     0
-                ],  # Here we assume that the query sequence is a sequence aligned to a contig in the genome/map.
+                ],  # "blast_hit" if the name is too long
                 "type": "blast",
                 "start": int(
                     # blast_result[8]
@@ -76,6 +76,10 @@ def parse_blast_files(
                 "legend": os.path.basename(blast_file),
                 "tags": [],
                 "meta": {
+                    "query": blast_result[0],
+                    "query_start": int(blast_result[6]),
+                    "query_stop": int(blast_result[7]),
+                    "alignment_length": int(blast_result[3]),
                     "identity": float(blast_result[2]),
                     "mismatches": int(blast_result[4]),
                     "evalue": float(blast_result[10]),
