@@ -61,11 +61,11 @@ def parse_blast_files(
                 "type": "blast",
                 "start": int(
                     # blast_result[8]
-                    min([blast_result[8], blast_result[9]])
+                    min([int(blast_result[8]), int(blast_result[9])])
                 ),  # Here we assume that the subject sequence is a contig in the genome/map.
                 "stop": int(
                     # blast_result[9]
-                    max([blast_result[8], blast_result[9]])
+                    max([int(blast_result[8]), int(blast_result[9])])
                 ),  # Here we assume that the subject sequence is a contig in the genome/map.
                 # "strand": 1 if blast_result[8] < blast_result[9] else -1,
                 "strand": ".",
