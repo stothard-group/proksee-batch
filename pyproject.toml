@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "proksee-batch"
-version = "0.5.21"
+version = "0.5.22"
 description = "Proksee Batch"
 authors = ["Lael D. Barlow"]
 license = "MIT"
