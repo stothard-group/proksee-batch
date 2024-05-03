@@ -580,18 +580,18 @@ def parse_gff_files(
             # Add the GFF feature to the list of GFF features.
             gff_features.append(gff_feature)
 
-    # Remove GFF features that are completely covered by another GFF feature
-    # with an equal or higher score.
-    gff_features = [
-        gff_feature
-        for gff_feature, is_not_covered in zip(
-            gff_features,
-            remove_covered_features(
-                get_feature_locations_and_scores_from_gff_features(gff_features)
-            ),
-        )
-        if is_not_covered
-    ]
+    ## Remove GFF features that are completely covered by another GFF feature
+    ## with an equal or higher score.
+    # gff_features = [
+    #    gff_feature
+    #    for gff_feature, is_not_covered in zip(
+    #        gff_features,
+    #        remove_covered_features(
+    #            get_feature_locations_and_scores_from_gff_features(gff_features)
+    #        ),
+    #    )
+    #    if is_not_covered
+    # ]
 
     assert (
         len(gff_features) > 0 and len(gff_tracks) > 0
@@ -655,6 +655,8 @@ def add_gff_features_and_tracks(
         )
 
     # Add the parsed GFF features and tracks to the cgview map JSON data structure.
+    for gff_feature in gff_features:
+        assert gff_feature not in json_data["cgview"]["features"]
     json_data["cgview"]["features"] += gff_features
     json_data["cgview"]["tracks"] += gff_tracks
     # Write the cgview map JSON data structure to a new file.
