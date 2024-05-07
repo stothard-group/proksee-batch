@@ -103,6 +103,8 @@ def validate_input_directory_contents(input: str) -> None:
             "metadata",
         ]
         for subdirectory in os.listdir(os.path.join(input, genome_dir)):
+            if subdirectory.startswith("."):
+                continue
             if subdirectory not in valid_subdirectories:
                 handle_error_exit(
                     f"The input directory contains an invalid subdirectory: {subdirectory}"
@@ -188,12 +190,13 @@ def validate_input_directory_contents(input: str) -> None:
                             blast_result_files.append(file)
                             # Validate the BLAST result file. It should be in tabular format (outfmt 6).
                             with open(os.path.join(subdirectory_path, file)) as f:
-                                for line in f:
-                                    if not line.startswith("#"):
+                                # for line in f:
+                                for i, line in enumerate(f):
+                                    if not line.startswith("#") and line.strip() != "":
                                         line_split = line.split("\t")
                                         if len(line_split) != 12:
                                             handle_error_exit(
-                                                f"The BLAST result file {file} does not have the correct number of columns. Please check that the file is in tabular format (outfmt 6)."
+                                                f"The BLAST result file {file} does not have the correct number of columns at line {i+1}. Please check that the file is in tabular format (outfmt 6)."
                                             )
                                         try:
                                             float(line_split[2])

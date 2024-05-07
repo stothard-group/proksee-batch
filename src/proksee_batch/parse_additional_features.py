@@ -49,31 +49,35 @@ def parse_blast_files(
             # Parse the BLAST result line.
             blast_result = blast_result_line.strip().split("\t")
 
-            # Skip the header line(s), if present.
-            if blast_result[0] == "qseqid" or blast_result[0].startswith("#"):
+            # Skip the header line(s), or blank lines, if present.
+            if (
+                blast_result[0] == "qseqid"
+                or blast_result[0].startswith("#")
+                or blast_result[0].startswith("\n")
+            ):
                 continue
 
             # Define the BLAST feature.
             blast_feature = {
                 "name": [
-                    blast_result[0] if len(blast_result[0]) <= 20 else "blast_hit"
+                    blast_result[1] if len(blast_result[1]) <= 20 else "blast_hit"
                 ][
                     0
                 ],  # "blast_hit" if the name is too long
                 "type": "blast",
                 "start": int(
                     # blast_result[8]
-                    min([int(blast_result[8]), int(blast_result[9])])
+                    min([int(blast_result[6]), int(blast_result[7])])
                 ),  # Here we assume that the subject sequence is a contig in the genome/map.
                 "stop": int(
                     # blast_result[9]
-                    max([int(blast_result[8]), int(blast_result[9])])
+                    max([int(blast_result[6]), int(blast_result[7])])
                 ),  # Here we assume that the subject sequence is a contig in the genome/map.
                 # "strand": 1 if blast_result[8] < blast_result[9] else -1,
                 "strand": ".",
                 "source": f"blast_{num}",
                 "contig": blast_result[
-                    1
+                    0
                 ],  # Here we assume that the subject sequence is a contig in the genome/map.
                 "legend": os.path.basename(blast_file),
                 "tags": [],
@@ -81,6 +85,9 @@ def parse_blast_files(
                     "query": blast_result[0],
                     "query_start": int(blast_result[6]),
                     "query_stop": int(blast_result[7]),
+                    "subject": blast_result[1],
+                    "subject_start": int(blast_result[8]),
+                    "subject_stop": int(blast_result[9]),
                     "alignment_length": int(blast_result[3]),
                     "identity": float(blast_result[2]),
                     "mismatches": int(blast_result[4]),
@@ -106,7 +113,7 @@ def parse_blast_files(
 
     assert (
         len(blast_features) > 0 and len(blast_tracks) > 0
-    ), "No BLAST features or tracks were obtained from input file {}.".format(
+    ), "No BLAST features or tracks were obtained from input file {}. Please check that the query sequences are sequences (contigs, chromosomes, etc.) of the genome being mapped.".format(
         blast_file
     )
     return (blast_features, blast_tracks)

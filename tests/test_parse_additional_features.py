@@ -12,7 +12,7 @@ from proksee_batch.parse_additional_features import parse_blast_files
 def test_parse_blast_files() -> None:
     """Test the parse_blast_files function using a simple BLAST result file."""
     # Define path to an example BLAST result file (in oufmt 6 format).
-    with resources.path("tests.data.blast", "U49845.1.txt") as blast_path:
+    with resources.path("tests.data.blast", "U49845.1_subject1.txt") as blast_path:
         blast_file = str(blast_path)
 
         # Use the parse_blast_files function to parse the BLAST result file.
@@ -21,31 +21,34 @@ def test_parse_blast_files() -> None:
         # Assert that the BLAST result file was parsed correctly.
         expected_blast_features = [
             {
-                "name": "U49845.1",
+                "name": "subject_seq_1",
                 "type": "blast",
-                "start": 1,
-                "stop": 5028,
+                "start": 11,
+                "stop": 70,
                 # "strand": 1,
                 "strand": ".",
                 "source": "blast_1",
                 "contig": "U49845.1",
-                "legend": "U49845.1.txt",
+                "legend": "U49845.1_subject1.txt",
                 "tags": [],
                 "meta": {
                     "query": "U49845.1",
-                    "query_start": 1,
-                    "query_stop": 5028,
-                    "alignment_length": 5028,
+                    "query_start": 11,
+                    "query_stop": 70,
+                    "subject": "subject_seq_1",
+                    "subject_start": 1,
+                    "subject_stop": 60,
+                    "alignment_length": 60,
                     "identity": 100.0,
                     "mismatches": 0,
-                    "evalue": 0.0,
-                    "bit_score": 9286,
+                    "evalue": 5.01e-29,
+                    "bit_score": 111.0,
                 },
             }
         ]
         expected_blast_tracks = [
             {
-                "name": "U49845.1.txt",
+                "name": "U49845.1_subject1.txt",
                 "separateFeaturesBy": "none",
                 "position": "both",
                 "thicknessRatio": 1,
@@ -67,7 +70,7 @@ def test_add_blast_features_and_tracks() -> None:
     # file, a cgview map JSON file, and write a new cgview map file in JSON
     # format.
     with resources.path(
-        "tests.data.blast", "U49845.1.txt"
+        "tests.data.blast", "U49845.1_subject1.txt"
     ) as blast_path, resources.path(
         "tests.data.json", "U49845.1.json"
     ) as json_path, tempfile.TemporaryDirectory() as temp_dir:
@@ -80,34 +83,37 @@ def test_add_blast_features_and_tracks() -> None:
         # in JSON format.
         add_blast_features_and_tracks([blast_file], json_file, output_file)
 
-        # Define expected BLAST features and tracks.
+        ## Define expected BLAST features and tracks.
         expected_blast_features = [
             {
-                "name": "U49845.1",
+                "name": "subject_seq_1",
                 "type": "blast",
-                "start": 1,
-                "stop": 5028,
+                "start": 11,
+                "stop": 70,
                 # "strand": 1,
                 "strand": ".",
                 "source": "blast_1",
                 "contig": "U49845.1",
-                "legend": "U49845.1.txt",
+                "legend": "U49845.1_subject1.txt",
                 "tags": [],
                 "meta": {
                     "query": "U49845.1",
-                    "query_start": 1,
-                    "query_stop": 5028,
-                    "alignment_length": 5028,
+                    "query_start": 11,
+                    "query_stop": 70,
+                    "subject": "subject_seq_1",
+                    "subject_start": 1,
+                    "subject_stop": 60,
+                    "alignment_length": 60,
                     "identity": 100.0,
                     "mismatches": 0,
-                    "evalue": 0.0,
-                    "bit_score": 9286,
+                    "evalue": 5.01e-29,
+                    "bit_score": 111.0,
                 },
             }
         ]
         expected_blast_tracks = [
             {
-                "name": "U49845.1.txt",
+                "name": "U49845.1_subject1.txt",
                 "separateFeaturesBy": "none",
                 "position": "both",
                 "thicknessRatio": 1,
@@ -136,7 +142,7 @@ def test_add_blast_features_and_tracks_multiple_features() -> None:
     # file, a cgview map JSON file, and write a new cgview map file in JSON
     # format.
     with resources.path(
-        "tests.data.blast", "U49845.1_v2.txt"
+        "tests.data.blast", "U49845.1_subject2.txt"
     ) as blast_path, resources.path(
         "tests.data.json", "U49845.1.json"
     ) as json_path, tempfile.TemporaryDirectory() as temp_dir:
@@ -149,56 +155,120 @@ def test_add_blast_features_and_tracks_multiple_features() -> None:
         # in JSON format.
         add_blast_features_and_tracks([blast_file], json_file, output_file)
 
-        # Define expected BLAST features and tracks.
+        ## Define expected BLAST features and tracks.
+        # expected_blast_features = [
+        #    {
+        #        "name": "U49845.1",
+        #        "type": "blast",
+        #        "start": 1,
+        #        "stop": 5028,
+        #        # "strand": 1,
+        #        "strand": ".",
+        #        "source": "blast_1",
+        #        "contig": "U49845.1",
+        #        "legend": "U49845.1_v2.txt",
+        #        "tags": [],
+        #        "meta": {
+        #            "query": "U49845.1",
+        #            "query_start": 1,
+        #            "query_stop": 5028,
+        #            "alignment_length": 5028,
+        #            "identity": 100.0,
+        #            "mismatches": 0,
+        #            "evalue": 0.0,
+        #            "bit_score": 9286,
+        #        },
+        #    },
+        #    {
+        #        "name": "XXXXXX.1",
+        #        "type": "blast",
+        #        "start": 1,
+        #        "stop": 100,
+        #        # "strand": 1,
+        #        "strand": ".",
+        #        "source": "blast_1",
+        #        "contig": "U49845.1",
+        #        "legend": "U49845.1_v2.txt",
+        #        "tags": [],
+        #        "meta": {
+        #            "query": "XXXXXX.1",
+        #            "query_start": 1,
+        #            "query_stop": 100,
+        #            "alignment_length": 100,
+        #            "identity": 100.0,
+        #            "mismatches": 0,
+        #            "evalue": 0.0,
+        #            "bit_score": 9287,
+        #        },
+        #    },
+        # ]
+        # expected_blast_tracks = [
+        #    {
+        #        "name": "U49845.1_v2.txt",
+        #        "separateFeaturesBy": "none",
+        #        "position": "both",
+        #        "thicknessRatio": 1,
+        #        "dataType": "feature",
+        #        "dataMethod": "source",
+        #        "dataKeys": "blast_1",
+        #        "drawOrder": "score",
+        #    }
+        # ]
         expected_blast_features = [
             {
-                "name": "U49845.1",
+                "name": "subject_seq_1",
                 "type": "blast",
-                "start": 1,
-                "stop": 5028,
+                "start": 11,
+                "stop": 70,
                 # "strand": 1,
                 "strand": ".",
                 "source": "blast_1",
                 "contig": "U49845.1",
-                "legend": "U49845.1_v2.txt",
+                "legend": "U49845.1_subject2.txt",
                 "tags": [],
                 "meta": {
                     "query": "U49845.1",
-                    "query_start": 1,
-                    "query_stop": 5028,
-                    "alignment_length": 5028,
+                    "query_start": 11,
+                    "query_stop": 70,
+                    "subject": "subject_seq_1",
+                    "subject_start": 1,
+                    "subject_stop": 60,
+                    "alignment_length": 60,
                     "identity": 100.0,
                     "mismatches": 0,
-                    "evalue": 0.0,
-                    "bit_score": 9286,
+                    "evalue": 9.81e-29,
+                    "bit_score": 111.0,
                 },
             },
             {
-                "name": "XXXXXX.1",
+                "name": "subject_seq_2",
                 "type": "blast",
-                "start": 1,
-                "stop": 100,
+                "start": 81,
+                "stop": 140,
                 # "strand": 1,
                 "strand": ".",
                 "source": "blast_1",
                 "contig": "U49845.1",
-                "legend": "U49845.1_v2.txt",
+                "legend": "U49845.1_subject2.txt",
                 "tags": [],
                 "meta": {
-                    "query": "XXXXXX.1",
-                    "query_start": 1,
-                    "query_stop": 100,
-                    "alignment_length": 100,
+                    "query": "U49845.1",
+                    "query_start": 81,
+                    "query_stop": 140,
+                    "subject": "subject_seq_2",
+                    "subject_start": 1,
+                    "subject_stop": 60,
+                    "alignment_length": 60,
                     "identity": 100.0,
                     "mismatches": 0,
-                    "evalue": 0.0,
-                    "bit_score": 9287,
+                    "evalue": 9.81e-29,
+                    "bit_score": 111.0,
                 },
             },
         ]
         expected_blast_tracks = [
             {
-                "name": "U49845.1_v2.txt",
+                "name": "U49845.1_subject2.txt",
                 "separateFeaturesBy": "none",
                 "position": "both",
                 "thicknessRatio": 1,
@@ -216,15 +286,21 @@ def test_add_blast_features_and_tracks_multiple_features() -> None:
             for expected_feature in expected_blast_features:
                 print()
                 print()
+                print("Expected feature:")
                 print(expected_feature)
                 print()
                 for feature in json_data["cgview"]["features"]:
+                    print("Actual feature:")
                     print(feature)
                 print()
                 print()
-                assert expected_feature in json_data["cgview"]["features"]
+                assert (
+                    expected_feature in json_data["cgview"]["features"]
+                ), f"Expected feature not found in actual features"
             for expected_track in expected_blast_tracks:
-                assert expected_track in json_data["cgview"]["tracks"]
+                assert (
+                    expected_track in json_data["cgview"]["tracks"]
+                ), f"Expected track not found in actual tracks"
 
 
 def test_parse_bed_files() -> None:
