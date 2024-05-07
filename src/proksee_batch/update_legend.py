@@ -1,4 +1,8 @@
-def update_legend(cgview_map_json_data: dict) -> dict:
+from typing import Any
+from typing import Dict
+
+
+def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
     """
     Update the legend of the CGView map so that the colors of tracks for
     additional features are consistent among maps of different assemblies (with
@@ -7,7 +11,7 @@ def update_legend(cgview_map_json_data: dict) -> dict:
     relevant_datakey_prefixes = ["gff", "blast", "bed", "vcf"]
 
     # Initialize the dictionary to hold additional feature tracks.
-    additional_feature_tracks_by_type = {}
+    additional_feature_tracks_by_type: Dict[str, Any] = {}
 
     # Iterate over each track and group additional feature tracks by type.
     track_num = 0
