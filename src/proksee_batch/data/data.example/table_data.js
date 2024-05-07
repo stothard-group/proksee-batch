@@ -1,7 +1,7 @@
 const tableData = {
-    "proksee-batch_version": "0.5.1",
-    "run_date": "2024-03-11 20:12:32 UTC",
-    "input_dir": "/path/to/example_data",
+    "proksee-batch_version": "0.0.1a1",
+    "run_date": "2024-05-07 02:57:01 UTC",
+    "input_dir": "/Users/laelbarlow/Documents/Projects_current/Read_searching_projects/231218_proksee-batch/tests/example_input_dir6",
     "genomes": [
         {
             "code_name": "genome_1",
@@ -25,7 +25,8 @@ const tableData = {
                 "vcf": [],
                 "gff": [
                     "GCF_000006925.2_ASM692v2_genomic.gff"
-                ]
+                ],
+                "metadata": []
             }
         },
         {
@@ -52,14 +53,15 @@ const tableData = {
                 ],
                 "gff": [
                     "GCF_000005845.2_ASM584v2_genomic.gff"
-                ]
+                ],
+                "metadata": []
             }
         },
         {
             "code_name": "genome_3",
             "name": "Klebsiella_aerogenes",
             "accession": "NZ_CP041925.1",
-            "description": "Klebsiella aerogenes strain Ka37751 chromosome, complete genome",
+            "description": "Custom description here (not from GenBank file).",
             "total_size": 5249267,
             "num_contigs": 2,
             "gc_content": 0.5491,
@@ -77,6 +79,9 @@ const tableData = {
                 "vcf": [],
                 "gff": [
                     "GCF_007632255.1_ASM763225v1_genomic.gff"
+                ],
+                "metadata": [
+                    "example_metadata.json"
                 ]
             }
         },
@@ -102,7 +107,8 @@ const tableData = {
                 "vcf": [],
                 "gff": [
                     "GCF_000006945.2_ASM694v2_genomic.gff"
-                ]
+                ],
+                "metadata": []
             }
         }
     ]
