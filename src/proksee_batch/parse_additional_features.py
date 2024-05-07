@@ -24,6 +24,7 @@ def parse_blast_files(
     """
     blast_features = []
     blast_tracks = []
+    file_specific_blast_features = []
     for i, blast_file in enumerate(blast_files):
         num = i + 1
 
@@ -96,20 +97,25 @@ def parse_blast_files(
                 },
             }
             # Add the BLAST feature to the list of BLAST features.
-            blast_features.append(blast_feature)
+            file_specific_blast_features.append(blast_feature)
 
-    # Remove BLAST features that are completely covered by another BLAST feature
-    # with an equal or higher score.
-    blast_features = [
-        blast_feature
-        for blast_feature, is_not_covered in zip(
-            blast_features,
-            remove_covered_features(
-                get_feature_locations_and_scores_from_blast_features(blast_features)
-            ),
-        )
-        if is_not_covered
-    ]
+        # Remove BLAST features that are completely covered by another BLAST feature
+        # with an equal or higher score.
+        file_specific_blast_features = [
+            blast_feature
+            for blast_feature, is_not_covered in zip(
+                file_specific_blast_features,
+                remove_covered_features(
+                    get_feature_locations_and_scores_from_blast_features(
+                        file_specific_blast_features
+                    )
+                ),
+            )
+            if is_not_covered
+        ]
+
+        # Add the file-specific BLAST features to the list of BLAST features.
+        blast_features += file_specific_blast_features
 
     assert (
         len(blast_features) > 0 and len(blast_tracks) > 0
@@ -196,6 +202,7 @@ def parse_bed_files(
     """
     bed_features = []
     bed_tracks = []
+    file_specific_bed_features = []
     for i, bed_file in enumerate(bed_files):
         num = i + 1
 
@@ -268,20 +275,25 @@ def parse_bed_files(
                 },
             }
             # Add the BED feature to the list of BED features.
-            bed_features.append(bed_feature)
+            file_specific_bed_features.append(bed_feature)
 
-    # Remove BED features that are completely covered by another BED feature
-    # with an equal or higher score.
-    bed_features = [
-        bed_feature
-        for bed_feature, is_not_covered in zip(
-            bed_features,
-            remove_covered_features(
-                get_feature_locations_and_scores_from_bed_features(bed_features)
-            ),
-        )
-        if is_not_covered
-    ]
+        # Remove BED features that are completely covered by another BED feature
+        # with an equal or higher score.
+        file_specific_bed_features = [
+            bed_feature
+            for bed_feature, is_not_covered in zip(
+                file_specific_bed_features,
+                remove_covered_features(
+                    get_feature_locations_and_scores_from_bed_features(
+                        file_specific_bed_features
+                    )
+                ),
+            )
+            if is_not_covered
+        ]
+
+        # Add the file-specific BED features to the list of BED features.
+        bed_features += file_specific_bed_features
 
     assert (
         len(bed_features) > 0 and len(bed_tracks) > 0
@@ -366,6 +378,7 @@ def parse_vcf_files(
     """
     vcf_features = []
     vcf_tracks = []
+    file_specific_vcf_features = []
     for i, vcf_file in enumerate(vcf_files):
         num = i + 1
 
@@ -423,20 +436,25 @@ def parse_vcf_files(
             }
 
             # Add the VCF feature to the list of VCF features.
-            vcf_features.append(vcf_feature)
+            file_specific_vcf_features.append(vcf_feature)
 
-    # Remove VCF features that are completely covered by another VCF feature
-    # with an equal or higher score.
-    vcf_features = [
-        vcf_feature
-        for vcf_feature, is_not_covered in zip(
-            vcf_features,
-            remove_covered_features(
-                get_feature_locations_and_scores_from_vcf_features(vcf_features)
-            ),
-        )
-        if is_not_covered
-    ]
+        # Remove VCF features that are completely covered by another VCF feature
+        # with an equal or higher score.
+        file_specific_vcf_features = [
+            vcf_feature
+            for vcf_feature, is_not_covered in zip(
+                file_specific_vcf_features,
+                remove_covered_features(
+                    get_feature_locations_and_scores_from_vcf_features(
+                        file_specific_vcf_features
+                    )
+                ),
+            )
+            if is_not_covered
+        ]
+
+        # Add the file-specific VCF features to the list of VCF features.
+        vcf_features += file_specific_vcf_features
 
     assert (
         len(vcf_features) > 0 and len(vcf_tracks) > 0
@@ -522,6 +540,7 @@ def parse_gff_files(
     """
     gff_features = []
     gff_tracks = []
+    file_specific_gff_features = []
     for i, gff_file in enumerate(gff_files):
         num = i + 1
 
@@ -585,20 +604,25 @@ def parse_gff_files(
                     gff_feature["meta"][attribute] = gff_result.attributes[attribute][0]
 
             # Add the GFF feature to the list of GFF features.
-            gff_features.append(gff_feature)
+            file_specific_gff_features.append(gff_feature)
 
-    ## Remove GFF features that are completely covered by another GFF feature
-    ## with an equal or higher score.
-    # gff_features = [
-    #    gff_feature
-    #    for gff_feature, is_not_covered in zip(
-    #        gff_features,
-    #        remove_covered_features(
-    #            get_feature_locations_and_scores_from_gff_features(gff_features)
-    #        ),
-    #    )
-    #    if is_not_covered
-    # ]
+        # Remove GFF features that are completely covered by another GFF feature
+        # with an equal or higher score.
+        file_specific_gff_features = [
+            gff_feature
+            for gff_feature, is_not_covered in zip(
+                file_specific_gff_features,
+                remove_covered_features(
+                    get_feature_locations_and_scores_from_gff_features(
+                        file_specific_gff_features
+                    )
+                ),
+            )
+            if is_not_covered
+        ]
+
+        # Add the file-specific GFF features to the list of GFF features.
+        gff_features += file_specific_gff_features
 
     assert (
         len(gff_features) > 0 and len(gff_tracks) > 0
