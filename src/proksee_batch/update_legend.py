@@ -65,13 +65,17 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
                 )
                 break
 
+    # Get a list of all the additional feature track names (joined values from the dict).
+    all_additional_feature_track_names = set().union(
+        *additional_feature_tracks_by_type.values()
+    )
+
     # The track names for these additional features should be among the legend
     # item names.
-    for track_names in additional_feature_tracks_by_type.values():
-        for track_name in track_names:
-            assert (
-                track_name in all_legend_names
-            ), f"Track name '{track_name}' is not among the legend item names."
+    for track_name in all_additional_feature_track_names:
+        assert (
+            track_name in all_legend_names
+        ), f"Track name '{track_name}' is not among the legend item names."
 
     # The names_of_legend_items_to_leave_unmodified should not be among the
     # legend item names.
@@ -81,9 +85,7 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
         ), f"Name '{name}' is among the legend item names."
 
     # Count the number of legend items that need to be assigned a color.
-    num_legends_to_color = len(all_legend_names) - len(
-        additional_feature_tracks_by_type.values()
-    )
+    num_legends_to_color = len(all_legend_names)
 
     # Set a default number of colors to use in a palette.
     default_num_colors = 12
@@ -92,11 +94,17 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
     # (https://seaborn.pydata.org/tutorial/color_palettes.html).
     palette = sns.color_palette("husl", max(num_legends_to_color, default_num_colors))
 
+    ## Check that none of the legend names contain a comma.
+    # for legend_name in all_legend_names:
+    #    assert (
+    #        "," not in legend_name
+    #    ), f"Legend name '{legend_name}' contains a comma, which is not allowed."
+
     # Sort the legend names for additional feature tracks alphabetically, assign
     # them colors from the palette (starting from the beginning), and add
     # corresponding legend items to the legend.
     # Legend items should be of the form: {"name": "legend name here", "swatchColor": "rgba(0,0,0,1)", "decoration": "arc"}
-    for legend_name in sorted(additional_feature_tracks_by_type.values()):
+    for legend_name in sorted(all_additional_feature_track_names):
         color = palette.pop(0)
         cgview_map_json_data["cgview"]["legend"]["items"].append(
             {
@@ -137,7 +145,7 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
     remaining_legends = list(
         set(all_legend_names)
         - set(common_genbank_legend_names)
-        - set().union(*additional_feature_tracks_by_type.values())
+        - set(all_additional_feature_track_names)
     )
     for legend_name in remaining_legends:
         color = palette.pop(0)
