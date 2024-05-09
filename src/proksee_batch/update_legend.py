@@ -94,11 +94,11 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
     # (https://seaborn.pydata.org/tutorial/color_palettes.html).
     palette = sns.color_palette("husl", max(num_legends_to_color, default_num_colors))
 
-    ## Check that none of the legend names contain a comma.
-    # for legend_name in all_legend_names:
-    #    assert (
-    #        "," not in legend_name
-    #    ), f"Legend name '{legend_name}' contains a comma, which is not allowed."
+    # Rotate the palette so that the color with the most blue is last.
+    index_of_most_blue_color = palette.index(max(palette, key=lambda x: x[2]))
+    part1 = palette[index_of_most_blue_color + 1 :]
+    part2 = palette[: index_of_most_blue_color + 1]
+    palette = part1 + part2
 
     # Sort the legend names for additional feature tracks alphabetically, assign
     # them colors from the palette (starting from the beginning), and add

@@ -568,7 +568,7 @@ def parse_gff_files(
             sort_attribute_values=True,
         )
 
-        # Define feature types to include.
+        # Define feature types to exclude.
         feature_types_to_exclude = ["gene", "exon", "region"]
 
         # Parse the GFF file.
