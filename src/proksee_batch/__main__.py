@@ -33,6 +33,7 @@ from .parse_additional_features import add_gff_features_and_tracks
 from .parse_additional_features import add_vcf_features_and_tracks
 from .seq_file_to_cgview_json import fasta_to_cgview_json
 from .seq_file_to_cgview_json import genbank_to_cgview_json
+from .sort_tracks import sort_tracks
 from .update_legend import update_legend
 
 # from .scrape_proksee_image import scrape_proksee_image
@@ -337,15 +338,22 @@ def main(
             )
             json.dump(merged_json, merged_json_file_with_gc_tracks_fh)
 
-        # Update the legend, if necessary.
+        # Update the legend.
         json_data = json.load(open(merged_json_file_with_gc_tracks))
         json_data_with_updated_legend = update_legend(json_data)
         json_file_with_updated_legend = os.path.join(
             temp_output,
             genome_code_name + ".merged_with_gc_tracks_with_updated_legend.json",
         )
-        with open(json_file_with_updated_legend, "w") as file:
-            json.dump(json_data_with_updated_legend, file)
+
+        # Sort the tracks.
+        json_data_with_sorted_tracks = sort_tracks(json_data_with_updated_legend)
+        json_file_with_sorted_tracks = os.path.join(
+            temp_output,
+            genome_code_name + ".merged_with_updated_legend_and_sorted_tracks.json",
+        )
+        with open(json_file_with_sorted_tracks, "w") as file:
+            json.dump(json_data_with_sorted_tracks, file)
 
         # Convert the merged JSON file to .js file by wrapping it in a variable assignment.
         js_file = os.path.join(
@@ -355,7 +363,7 @@ def main(
             # Get the JSON data from the merged JSON file as a string.
             json_data = None
             # with open(merged_json_file_with_gc_tracks) as json_file:
-            with open(json_file_with_updated_legend) as json_file:
+            with open(json_file_with_sorted_tracks) as json_file:
                 json_data = json_file.read()
             # Write the variable assignment.
             file.write(f"json = {json_data};")

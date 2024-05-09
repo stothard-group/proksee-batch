@@ -85,10 +85,10 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
         ), f"Name '{name}' is among the legend item names."
 
     # Count the number of legend items that need to be assigned a color.
-    num_legends_to_color = len(all_legend_names)
+    num_legends_to_color = len(all_legend_names) - 1  # Because CDS will be gray.
 
     # Set a default number of colors to use in a palette.
-    default_num_colors = 12
+    default_num_colors = 20
 
     # Obtain a color palette of an appropriate length from Seaborn
     # (https://seaborn.pydata.org/tutorial/color_palettes.html).
@@ -128,10 +128,12 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
     # For each common_genbank_features, assign a color from the palette and add
     # corresponding legend items to the legend.
     for legend_name in common_genbank_legend_names:
-        color = palette.pop(0)
-        opacity = 1.0
         if legend_name == "CDS":
+            color = (0, 0, 0)
             opacity = 0.5
+        else:
+            color = palette.pop(0)
+            opacity = 1.0
         cgview_map_json_data["cgview"]["legend"]["items"].append(
             {
                 "name": legend_name,
