@@ -75,7 +75,7 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
     for track_name in all_additional_feature_track_names:
         assert (
             track_name in all_legend_names
-        ), f"Track name '{track_name}' is not among the legend item names."
+        ), f"Track name '{track_name}' is not among the legend item names associated with features in the JSON map: {all_legend_names}"
 
     # The names_of_legend_items_to_leave_unmodified should not be among the
     # legend item names.

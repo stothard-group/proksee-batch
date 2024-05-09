@@ -24,9 +24,10 @@ def parse_blast_files(
     """
     blast_features = []
     blast_tracks = []
-    file_specific_blast_features = []
     for i, blast_file in enumerate(blast_files):
         num = i + 1
+
+        file_specific_blast_features = []
 
         # Define the BLAST track.
         blast_track = {
@@ -202,9 +203,10 @@ def parse_bed_files(
     """
     bed_features = []
     bed_tracks = []
-    file_specific_bed_features = []
     for i, bed_file in enumerate(bed_files):
         num = i + 1
+
+        file_specific_bed_features = []
 
         # Define the BED track.
         bed_track = {
@@ -378,9 +380,10 @@ def parse_vcf_files(
     """
     vcf_features = []
     vcf_tracks = []
-    file_specific_vcf_features = []
     for i, vcf_file in enumerate(vcf_files):
         num = i + 1
+
+        file_specific_vcf_features = []
 
         # Define the VCF track.
         vcf_track = {
@@ -540,9 +543,10 @@ def parse_gff_files(
     """
     gff_features = []
     gff_tracks = []
-    file_specific_gff_features = []
     for i, gff_file in enumerate(gff_files):
         num = i + 1
+
+        file_specific_gff_features = []
 
         # Define the GFF track.
         gff_track = {
@@ -605,6 +609,9 @@ def parse_gff_files(
 
             # Add the GFF feature to the list of GFF features.
             file_specific_gff_features.append(gff_feature)
+
+        # Close the GFF database.
+        db.conn.close()
 
         assert (
             len(file_specific_gff_features) > 0
