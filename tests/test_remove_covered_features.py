@@ -101,3 +101,21 @@ def test_remove_covered_features() -> None:
     ]
     result = remove_covered_features(test_list)
     assert result == expected_result
+
+    # Test case 7: Multiple features with the same locations but different scores
+    # 1-10, 1-10, 1-10
+    # One feature is not covered
+    # Expected result: [False, False, True]
+    test_list = [(1, 10, 1.0), (1, 10, 2.0), (1, 10, 3.0)]
+    expected_result = [False, False, True]
+    result = remove_covered_features(test_list)
+    assert result == expected_result
+
+    # Test case 8: Multiple features with the same locations and scores
+    # 1-10, 1-10, 1-10
+    # One feature is not covered
+    # Expected result: [True, False, False]
+    test_list = [(1, 10, 1.0), (1, 10, 1.0), (1, 10, 1.0)]
+    expected_result = [True, False, False]
+    result = remove_covered_features(test_list)
+    assert result == expected_result

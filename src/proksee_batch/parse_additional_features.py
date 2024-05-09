@@ -606,6 +606,10 @@ def parse_gff_files(
             # Add the GFF feature to the list of GFF features.
             file_specific_gff_features.append(gff_feature)
 
+        assert (
+            len(file_specific_gff_features) > 0
+        ), f"No GFF features or tracks were obtained from input file {gff_file}."
+
         # Remove GFF features that are completely covered by another GFF feature
         # with an equal or higher score.
         file_specific_gff_features = [
@@ -621,12 +625,13 @@ def parse_gff_files(
             if is_not_covered
         ]
 
+        assert (
+            len(file_specific_gff_features) > 0
+        ), f"No GFF features or tracks were obtained from input file {gff_file}."
+
         # Add the file-specific GFF features to the list of GFF features.
         gff_features += file_specific_gff_features
 
-    assert (
-        len(gff_features) > 0 and len(gff_tracks) > 0
-    ), f"No GFF features or tracks were obtained from input file {gff_file}."
     return (gff_features, gff_tracks)
 
 
