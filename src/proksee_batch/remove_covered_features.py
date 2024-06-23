@@ -19,6 +19,15 @@ def remove_covered_features(features: List[Tuple[int, int, float]]) -> List[bool
 
     assert num_features > 0, "The input list of features is empty."
 
+    # Validate input types
+    for start, end, score in features:
+        if not isinstance(start, int) or not isinstance(end, int):
+            raise TypeError(
+                f"Start and end positions must be integers, got {start} and {end}."
+            )
+        if not isinstance(score, float):
+            raise TypeError(f"Score must be a float, got {score}.")
+
     # Initialize an array to keep track of whether each feature is covered
     is_not_covered = [True] * len(features)
 

@@ -603,9 +603,11 @@ def parse_gff_files(
             }
 
             # Add any additional metadata, if present.
-            for attribute in gff_result.attributes:
-                if len(gff_result.attributes[attribute]) > 0:
-                    gff_feature["meta"][attribute] = gff_result.attributes[attribute][0]
+            for attribute, values in gff_result.attributes.items():
+                if values:  # Checks if the list is non-empty
+                    gff_feature["meta"][attribute] = (
+                        float(values[0]) if attribute == "score" else values[0]
+                    )
 
             # Add the GFF feature to the list of GFF features.
             file_specific_gff_features.append(gff_feature)
