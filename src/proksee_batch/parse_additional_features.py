@@ -105,9 +105,9 @@ def parse_blast_files(
         # features from different contigs competing with each other.
 
         # Group features by contig
-        features_by_contig = {}
+        features_by_contig: Dict[str, List[Dict[str, Any]]] = {}
         for feature in file_specific_blast_features:
-            contig = feature["contig"]
+            contig = str(feature["contig"])
             if contig not in features_by_contig:
                 features_by_contig[contig] = []
             features_by_contig[contig].append(feature)
@@ -301,9 +301,9 @@ def parse_bed_files(
         # features from different contigs competing with each other.
 
         # Group features by contig
-        features_by_contig = {}
+        features_by_contig: Dict[str, List[Dict[str, Any]]] = {}
         for feature in file_specific_bed_features:
-            contig = feature["contig"]
+            contig = str(feature["contig"])
             if contig not in features_by_contig:
                 features_by_contig[contig] = []
             features_by_contig[contig].append(feature)
@@ -480,9 +480,9 @@ def parse_vcf_files(
         # features from different contigs competing with each other.
 
         # Group features by contig
-        features_by_contig = {}
+        features_by_contig: Dict[str, List[Dict[str, Any]]] = {}
         for feature in file_specific_vcf_features:
-            contig = feature["contig"]
+            contig = str(feature["contig"])
             if contig not in features_by_contig:
                 features_by_contig[contig] = []
             features_by_contig[contig].append(feature)
@@ -675,9 +675,9 @@ def parse_gff_files(
         # features from different contigs competing with each other.
 
         # Group features by contig
-        features_by_contig = {}
+        features_by_contig: Dict[str, List[Dict[str, Any]]] = {}
         for feature in file_specific_gff_features:
-            contig = feature["contig"]
+            contig = str(feature["contig"])
             if contig not in features_by_contig:
                 features_by_contig[contig] = []
             features_by_contig[contig].append(feature)

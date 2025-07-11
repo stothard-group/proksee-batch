@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "proksee-batch"
-version = "0.6.7"
+version = "0.6.8"
 description = "Proksee Batch"
 authors = ["Lael D. Barlow"]
 license = "MIT"
@@ -42,6 +42,8 @@ flake8-rst-docstrings = ">=0.2.5"
 furo = ">=2021.11.12"
 isort = ">=5.10.1"
 mypy = ">=0.930"
+nox = ">=2022.11.21"
+nox-poetry = ">=1.0.2"
 pep8-naming = ">=0.12.1"
 pre-commit = ">=2.16.0"
 pre-commit-hooks = ">=4.1.0"
