@@ -8,7 +8,6 @@ from importlib import resources
 from pathlib import Path
 
 import pytest
-from Bio import SeqIO
 from click.testing import CliRunner
 
 from proksee_batch import __main__

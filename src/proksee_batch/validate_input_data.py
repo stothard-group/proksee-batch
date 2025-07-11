@@ -55,10 +55,10 @@ Proksee project JSON file that will be used as a template for the visualization.
 import json
 import os
 import sys
-from typing import Dict
 from typing import List
+from typing import Tuple
 
-from Bio import SeqIO
+from Bio import SeqIO  # type: ignore
 
 
 def validate_input_directory_contents(input: str) -> None:
@@ -113,6 +113,7 @@ def validate_input_directory_contents(input: str) -> None:
         # Check the contents of the subdirectories, if they exist.
         seq_file_path = ""
         seq_file_format = ""
+        genbank_files: List[str] = []  # Initialize to avoid unbound variable errors
         for subdirectory in valid_subdirectories:
             subdirectory_path = os.path.join(input, genome_dir, subdirectory)
             if os.path.isdir(subdirectory_path):
@@ -127,9 +128,9 @@ def validate_input_directory_contents(input: str) -> None:
                             genbank_files.append(file)
                             # Parse the GenBank file with BioPython to check if the file format is valid.
                             try:
-                                SeqIO.parse(
+                                SeqIO.parse(  # type: ignore[attr-defined]
                                     os.path.join(subdirectory_path, file), "genbank"
-                                ).__next__()  # type: ignore
+                                ).__next__()
                             except Exception as e:
                                 handle_error_exit(
                                     f"Error parsing the GenBank file {file}: {e}. Please check that the file is in GenBank format."
@@ -145,7 +146,7 @@ def validate_input_directory_contents(input: str) -> None:
                     seq_file_path = os.path.join(subdirectory_path, genbank_files[0])
                     seq_file_format = "genbank"
                 elif subdirectory == "fasta":
-                    fasta_files = []
+                    fasta_files: List[str] = []
                     for file in os.listdir(subdirectory_path):
                         if (
                             file.endswith(".fna")
@@ -155,9 +156,9 @@ def validate_input_directory_contents(input: str) -> None:
                             fasta_files.append(file)
                             # Parse the FASTA file with BioPython to check if the file format is valid.
                             try:
-                                SeqIO.parse(
+                                SeqIO.parse(  # type: ignore[attr-defined]
                                     os.path.join(subdirectory_path, file), "fasta"
-                                ).__next__()  # type: ignore
+                                ).__next__()
                             except Exception as e:
                                 handle_error_exit(
                                     f"Error parsing the FASTA file {file}: {e}. Please check that the file is in FASTA format."
@@ -184,7 +185,7 @@ def validate_input_directory_contents(input: str) -> None:
                         seq_file_path = os.path.join(subdirectory_path, fasta_files[0])
                         seq_file_format = "fasta"
                 elif subdirectory == "blast":
-                    blast_result_files = []
+                    blast_result_files: List[str] = []
                     for file in os.listdir(subdirectory_path):
                         if file.endswith(".txt") or file.endswith(".tsv"):
                             blast_result_files.append(file)
@@ -212,7 +213,7 @@ def validate_input_directory_contents(input: str) -> None:
                             f"The input directory {subdirectory_path} does not contain any BLAST result files. Valid file extensions are .txt and .tsv."
                         )
                 elif subdirectory == "bed":
-                    bed_files = []
+                    bed_files: List[str] = []
                     for file in os.listdir(subdirectory_path):
                         if file.endswith(".bed"):
                             bed_files.append(file)
@@ -236,7 +237,7 @@ def validate_input_directory_contents(input: str) -> None:
                             f"The input directory {subdirectory_path} does not contain any BED files. Valid file extension is .bed."
                         )
                 elif subdirectory == "json":
-                    json_files = []
+                    json_files: List[str] = []
                     for file in os.listdir(subdirectory_path):
                         if file.endswith(".json"):
                             json_files.append(file)
@@ -244,24 +245,24 @@ def validate_input_directory_contents(input: str) -> None:
                             with open(os.path.join(subdirectory_path, file)) as f:
                                 try:
                                     json_dict = json.load(f)
+                                    required_keys = [
+                                        "cgview",
+                                    ]
+                                    for key in required_keys:
+                                        if key not in json_dict:
+                                            handle_error_exit(
+                                                f"The JSON file {file} does not contain the required key: {key}"
+                                            )
                                 except Exception as e:
                                     handle_error_exit(
                                         f"Error parsing the JSON file {file}: {e}. Please check that the file is in JSON format."
                                     )
-                                required_keys = [
-                                    "cgview",
-                                ]
-                                for key in required_keys:
-                                    if key not in json_dict:
-                                        handle_error_exit(
-                                            f"The JSON file {file} does not contain the required key: {key}"
-                                        )
                     if len(json_files) == 0:
                         handle_error_exit(
                             f"The input directory {subdirectory_path} does not contain any JSON files. Valid file extension is .json."
                         )
                 elif subdirectory == "vcf":
-                    vcf_files = []
+                    vcf_files: List[str] = []
                     for file in os.listdir(subdirectory_path):
                         if file.endswith(".vcf"):
                             vcf_files.append(file)
@@ -307,7 +308,7 @@ def validate_input_directory_contents(input: str) -> None:
                             f"The input directory {subdirectory_path} does not contain any VCF files. Valid file extension is .vcf."
                         )
                 elif subdirectory == "gff":
-                    gff_files = []
+                    gff_files: List[str] = []
                     for file in os.listdir(subdirectory_path):
                         if file.endswith(".gff") or file.endswith(".gff3"):
                             gff_files.append(file)
@@ -351,27 +352,28 @@ def validate_input_directory_contents(input: str) -> None:
                             f"The input directory {subdirectory_path} contains more than one metadata file. Please ensure that there is exactly one metadata file in the directory."
                         )
                     # Parse the metadata file with json.load to check if the file format is valid.
-                    with open(os.path.join(subdirectory_path, metadata_files[0])) as f:
+                    metadata_file = metadata_files[0]
+                    with open(os.path.join(subdirectory_path, metadata_file)) as f:
                         try:
                             metadata = json.load(f)
+                            # Check that the metadata file contains the required keys.
+                            required_metadata_keys = {"metadata": ["description"]}
+
+                            for main_key, sub_keys in required_metadata_keys.items():
+                                if main_key not in metadata:
+                                    handle_error_exit(
+                                        f"{metadata_file} is missing the required key: {main_key}"
+                                    )
+                                if sub_keys:
+                                    for sub_key in sub_keys:
+                                        if sub_key not in metadata[main_key]:
+                                            handle_error_exit(
+                                                f"{metadata_file} is missing the required sub-key: {main_key}.{sub_key}"
+                                            )
                         except Exception as e:
                             handle_error_exit(
-                                f"Error parsing the metadata file {metadata_files[0]}: {e}. Please check that the file is in JSON format."
+                                f"Error parsing the metadata file {metadata_file}: {e}. Please check that the file is in JSON format."
                             )
-                        # Check that the metadata file contains the required keys.
-                        required_metadata_keys = {"metadata": {"description": None}}
-                        metadata_file = metadata_files[0]
-
-                        for main_key, sub_keys in required_metadata_keys.items():
-                            if main_key not in metadata:
-                                handle_error_exit(
-                                    f"{metadata_file} is missing the required key: {main_key}"
-                                )
-                            for sub_key in sub_keys:
-                                if sub_key not in metadata[main_key]:
-                                    handle_error_exit(
-                                        f"{metadata_file} is missing the required sub-key: {main_key}.{sub_key}"
-                                    )
 
 
 def get_data_files(input_subdir: str, data_type: str) -> List[str]:
@@ -482,14 +484,14 @@ def check_vcf_seq_ids(
         bool: True if all sequence IDs in the VCF file are contigs in the sequence file, False otherwise.
     """
     assert seq_file_format in ["genbank", "fasta"]
-    vcf_seq_ids = []
+    vcf_seq_ids: List[str] = []
     with open(vcf_file_path) as vcf_file:
         for line in vcf_file:
             if not line.startswith("#") and line.strip() != "":
                 vcf_seq_ids.append(line.split("\t")[0])
-    seq_ids = []
+    seq_ids: List[str] = []
     for record in SeqIO.parse(seq_file_path, seq_file_format):  # type: ignore
-        seq_ids.append(record.id)
+        seq_ids.append(str(record.id))
     return all(seq_id in seq_ids for seq_id in vcf_seq_ids)
 
 
@@ -505,22 +507,24 @@ def check_vcf_ref_vs_alt_genotypes(
         bool: True if the genotypes in the genome in the GenBank file match the REF genotypes in the VCF file, False otherwise.
     """
     # Get the genome sequences from the GenBank file
-    genome_sequences = {}
+    from typing import Dict
+
+    genome_sequences: Dict[str, str] = {}
     if genome_file_type == "genbank":
         genome_sequences = {
-            record.id: str(record.seq)
+            str(record.id): str(record.seq)
             for record in SeqIO.parse(genome_file_path, "genbank")  # type: ignore
         }
     elif genome_file_type == "fasta":
         genome_sequences = {
-            record.id: str(record.seq)
+            str(record.id): str(record.seq)
             for record in SeqIO.parse(genome_file_path, "fasta")  # type: ignore
         }
     else:
         handle_error_exit(f"Invalid genome file type: {genome_file_type}")
 
     # Parse the VCF file content
-    vcf_data = []
+    vcf_data: List[Tuple[str, int, str]] = []
     with open(vcf_file_path) as vcf_file:
         for line in vcf_file:
             if not line.startswith("#") and line.strip():

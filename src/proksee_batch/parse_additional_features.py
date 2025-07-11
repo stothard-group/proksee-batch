@@ -4,15 +4,116 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Tuple
+from typing import TypedDict
+from typing import Union
 
 import gffutils  # type: ignore
 
 from .remove_covered_features import remove_covered_features
 
 
+class FeatureDecorationDict(TypedDict):
+    color: str
+    opacity: float
+
+
+class BlastMetaDict(TypedDict):
+    query: str
+    query_start: int
+    query_stop: int
+    subject: str
+    subject_start: int
+    subject_stop: int
+    alignment_length: int
+    identity: float
+    mismatches: int
+    evalue: float
+    bit_score: float
+
+
+class BlastFeatureDict(TypedDict):
+    contig: str
+    type: str
+    start: int
+    stop: int
+    strand: Union[int, str]  # Can be "." or int
+    source: str
+    name: str
+    legend: str
+    tags: List[str]
+    meta: BlastMetaDict
+
+
+class BedMetaDict(TypedDict):
+    score: float
+
+
+class BedFeatureDict(TypedDict):
+    contig: str
+    type: str
+    start: int
+    stop: int
+    strand: int
+    source: str
+    name: str
+    legend: str
+    tags: List[str]
+    meta: BedMetaDict
+
+
+class VcfMetaDict(TypedDict):
+    ref: str
+    alt: str
+
+
+class VcfFeatureDict(TypedDict):
+    contig: str
+    type: str
+    start: int
+    stop: int
+    strand: int
+    source: str
+    name: str
+    legend: str
+    tags: List[str]
+    meta: VcfMetaDict
+
+
+class GffMetaDict(TypedDict, total=False):
+    score: float
+    gene: str
+    locus_tag: str
+    product: str
+    # Additional dynamic fields from GFF attributes
+
+
+class GffFeatureDict(TypedDict):
+    contig: str
+    type: str
+    start: int
+    stop: int
+    strand: Union[int, str]
+    source: str
+    name: str
+    legend: str
+    tags: List[str]
+    meta: Dict[str, Any]  # GFF has dynamic meta fields
+
+
+class TrackDict(TypedDict):
+    name: str
+    separateFeaturesBy: str
+    position: str
+    thicknessRatio: Union[int, float]
+    dataType: str
+    dataMethod: str
+    dataKeys: str
+    drawOrder: str
+
+
 def parse_blast_files(
     blast_files: List[str],
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+) -> Tuple[List[BlastFeatureDict], List[TrackDict]]:
     """
     Parses BLAST result files.
 
@@ -22,19 +123,20 @@ def parse_blast_files(
     Returns:
     tuple: A tuple containing a list of parsed BLAST features and a list of parsed BLAST tracks.
     """
-    blast_features = []
-    blast_tracks = []
+    blast_features: List[BlastFeatureDict] = []
+    blast_tracks: List[TrackDict] = []
+    blast_file: str = ""  # Initialize to avoid unbound variable
     for i, blast_file in enumerate(blast_files):
         num = i + 1
 
-        file_specific_blast_features = []
+        file_specific_blast_features: List[BlastFeatureDict] = []
 
         # Define the BLAST track.
-        blast_track = {
+        blast_track: TrackDict = {
             "name": os.path.basename(blast_file),
             "separateFeaturesBy": "none",
             "position": "both",
-            "thicknessRatio": 1,
+            "thicknessRatio": 1.0,
             "dataType": "feature",
             "dataMethod": "source",
             "dataKeys": f"blast_{num}",
@@ -60,7 +162,7 @@ def parse_blast_files(
                 continue
 
             # Define the BLAST feature.
-            blast_feature = {
+            blast_feature: BlastFeatureDict = {
                 "name": [
                     blast_result[1] if len(blast_result[1]) <= 20 else "blast_hit"
                 ][
@@ -105,7 +207,7 @@ def parse_blast_files(
         # features from different contigs competing with each other.
 
         # Group features by contig
-        features_by_contig: Dict[str, List[Dict[str, Any]]] = {}
+        features_by_contig: Dict[str, List[BlastFeatureDict]] = {}
         for feature in file_specific_blast_features:
             contig = str(feature["contig"])
             if contig not in features_by_contig:
@@ -113,7 +215,7 @@ def parse_blast_files(
             features_by_contig[contig].append(feature)
 
         # Apply filtering per contig and collect results
-        filtered_features = []
+        filtered_features: List[BlastFeatureDict] = []
         for contig, contig_features in features_by_contig.items():
             # Apply remove_covered_features to features from this contig only
             contig_filtered = [
@@ -137,14 +239,12 @@ def parse_blast_files(
 
     assert (
         len(blast_features) > 0 and len(blast_tracks) > 0
-    ), "No BLAST features or tracks were obtained from input file {}. Please check that the query sequences are sequences (contigs, chromosomes, etc.) of the genome being mapped.".format(
-        blast_file
-    )
+    ), "No BLAST features or tracks were obtained from input files. Please check that the query sequences are sequences (contigs, chromosomes, etc.) of the genome being mapped."
     return (blast_features, blast_tracks)
 
 
 def get_feature_locations_and_scores_from_blast_features(
-    blast_features: List[Dict[str, Any]],
+    blast_features: List[BlastFeatureDict],
 ) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from BLAST features.
@@ -155,7 +255,7 @@ def get_feature_locations_and_scores_from_blast_features(
     Returns:
     list: A list of tuples containing feature locations and scores.
     """
-    feature_locations_and_scores = []
+    feature_locations_and_scores: List[Tuple[int, int, float]] = []
     for blast_feature in blast_features:
         feature_locations_and_scores.append(
             (
@@ -208,7 +308,7 @@ def add_blast_features_and_tracks(
 
 def parse_bed_files(
     bed_files: List[str],
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+) -> Tuple[List[BedFeatureDict], List[TrackDict]]:
     """
     Parses BED files.
 
@@ -218,15 +318,16 @@ def parse_bed_files(
     Returns:
     tuple: A tuple containing a list of parsed BED features and a list of parsed BED tracks.
     """
-    bed_features = []
-    bed_tracks = []
+    bed_features: List[BedFeatureDict] = []
+    bed_tracks: List[TrackDict] = []
+    bed_file: str = ""  # Initialize to avoid unbound variable
     for i, bed_file in enumerate(bed_files):
         num = i + 1
 
-        file_specific_bed_features = []
+        file_specific_bed_features: List[BedFeatureDict] = []
 
         # Define the BED track.
-        bed_track = {
+        bed_track: TrackDict = {
             "name": os.path.basename(bed_file),
             "separateFeaturesBy": "none",
             "position": "both",
@@ -279,7 +380,7 @@ def parse_bed_files(
                     )
 
             # Define the BED feature.
-            bed_feature = {
+            bed_feature: BedFeatureDict = {
                 "name": name,
                 "type": "bed",
                 "start": int(bed_result[1]) + 1,
@@ -301,7 +402,7 @@ def parse_bed_files(
         # features from different contigs competing with each other.
 
         # Group features by contig
-        features_by_contig: Dict[str, List[Dict[str, Any]]] = {}
+        features_by_contig: Dict[str, List[BedFeatureDict]] = {}
         for feature in file_specific_bed_features:
             contig = str(feature["contig"])
             if contig not in features_by_contig:
@@ -309,7 +410,7 @@ def parse_bed_files(
             features_by_contig[contig].append(feature)
 
         # Apply filtering per contig and collect results
-        filtered_features = []
+        filtered_features: List[BedFeatureDict] = []
         for contig, contig_features in features_by_contig.items():
             # Apply remove_covered_features to features from this contig only
             contig_filtered = [
@@ -333,12 +434,12 @@ def parse_bed_files(
 
     assert (
         len(bed_features) > 0 and len(bed_tracks) > 0
-    ), f"No BED features or tracks were obtained from input file {bed_file}."
+    ), "No BED features or tracks were obtained from input files."
     return (bed_features, bed_tracks)
 
 
 def get_feature_locations_and_scores_from_bed_features(
-    bed_features: List[Dict[str, Any]],
+    bed_features: List[BedFeatureDict],
 ) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from BED features.
@@ -349,7 +450,7 @@ def get_feature_locations_and_scores_from_bed_features(
     Returns:
     list: A list of tuples containing feature locations and scores.
     """
-    feature_locations_and_scores = []
+    feature_locations_and_scores: List[Tuple[int, int, float]] = []
     for bed_feature in bed_features:
         feature_locations_and_scores.append(
             (
@@ -402,7 +503,7 @@ def add_bed_features_and_tracks(
 
 def parse_vcf_files(
     vcf_files: List[str],
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+) -> Tuple[List[VcfFeatureDict], List[TrackDict]]:
     """
     Parses VCF files.
 
@@ -412,15 +513,16 @@ def parse_vcf_files(
     Returns:
     tuple: A tuple containing a list of parsed VCF features and a list of parsed VCF tracks.
     """
-    vcf_features = []
-    vcf_tracks = []
+    vcf_features: List[VcfFeatureDict] = []
+    vcf_tracks: List[TrackDict] = []
+    vcf_file: str = ""  # Initialize to avoid unbound variable
     for i, vcf_file in enumerate(vcf_files):
         num = i + 1
 
-        file_specific_vcf_features = []
+        file_specific_vcf_features: List[VcfFeatureDict] = []
 
         # Define the VCF track.
-        vcf_track = {
+        vcf_track: TrackDict = {
             "name": os.path.basename(vcf_file),
             "separateFeaturesBy": "none",
             "position": "both",
@@ -454,7 +556,7 @@ def parse_vcf_files(
                 name = vcf_result[7][20:]
 
             # Define the VCF feature.
-            vcf_feature = {
+            vcf_feature: VcfFeatureDict = {
                 "name": name,
                 "type": "vcf",
                 "start": int(vcf_result[1]),
@@ -480,7 +582,7 @@ def parse_vcf_files(
         # features from different contigs competing with each other.
 
         # Group features by contig
-        features_by_contig: Dict[str, List[Dict[str, Any]]] = {}
+        features_by_contig: Dict[str, List[VcfFeatureDict]] = {}
         for feature in file_specific_vcf_features:
             contig = str(feature["contig"])
             if contig not in features_by_contig:
@@ -488,7 +590,7 @@ def parse_vcf_files(
             features_by_contig[contig].append(feature)
 
         # Apply filtering per contig and collect results
-        filtered_features = []
+        filtered_features: List[VcfFeatureDict] = []
         for contig, contig_features in features_by_contig.items():
             # Apply remove_covered_features to features from this contig only
             contig_filtered = [
@@ -512,12 +614,12 @@ def parse_vcf_files(
 
     assert (
         len(vcf_features) > 0 and len(vcf_tracks) > 0
-    ), f"No VCF features or tracks were obtained from input file {vcf_file}."
+    ), "No VCF features or tracks were obtained from input files."
     return (vcf_features, vcf_tracks)
 
 
 def get_feature_locations_and_scores_from_vcf_features(
-    vcf_features: List[Dict[str, Any]],
+    vcf_features: List[VcfFeatureDict],
 ) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from VCF features.
@@ -528,7 +630,7 @@ def get_feature_locations_and_scores_from_vcf_features(
     Returns:
     list: A list of tuples containing feature locations and scores.
     """
-    feature_locations_and_scores = []
+    feature_locations_and_scores: List[Tuple[int, int, float]] = []
     for vcf_feature in vcf_features:
         feature_locations_and_scores.append(
             (
@@ -582,7 +684,7 @@ def add_vcf_features_and_tracks(
 # Use gffutils to parse GFF files.
 def parse_gff_files(
     gff_files: List[str],
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+) -> Tuple[List[GffFeatureDict], List[TrackDict]]:
     """
     Parses GFF files.
 
@@ -592,15 +694,15 @@ def parse_gff_files(
     Returns:
     tuple: A tuple containing a list of parsed GFF features and a list of parsed GFF tracks.
     """
-    gff_features = []
-    gff_tracks = []
+    gff_features: List[GffFeatureDict] = []
+    gff_tracks: List[TrackDict] = []
     for i, gff_file in enumerate(gff_files):
         num = i + 1
 
-        file_specific_gff_features = []
+        file_specific_gff_features: List[GffFeatureDict] = []
 
         # Define the GFF track.
-        gff_track = {
+        gff_track: TrackDict = {
             "name": os.path.basename(gff_file),
             "separateFeaturesBy": "none",
             "position": "both",
@@ -614,7 +716,7 @@ def parse_gff_files(
         gff_tracks.append(gff_track)
 
         # Parse the GFF file.
-        db = gffutils.create_db(
+        db = gffutils.create_db(  # type: ignore[attr-defined]
             gff_file,
             ":memory:",
             force=True,
@@ -627,25 +729,25 @@ def parse_gff_files(
         feature_types_to_exclude = ["gene", "exon", "region"]
 
         # Parse the GFF file.
-        for gff_result in db.all_features():
+        for gff_result in db.all_features():  # type: ignore[attr-defined]
             # Skip the header line(s), if present, and feature types to exclude.
-            if gff_result.featuretype in feature_types_to_exclude:
+            if gff_result.featuretype in feature_types_to_exclude:  # type: ignore[attr-defined]
                 continue
 
             # Define the name based on availability.
-            name = gff_result.id
-            if "gene" in gff_result.attributes:
-                name = gff_result.attributes["gene"][0]
+            name = gff_result.id  # type: ignore[attr-defined]
+            if "gene" in gff_result.attributes:  # type: ignore[attr-defined]
+                name = gff_result.attributes["gene"][0]  # type: ignore[attr-defined]
 
             # Define the GFF feature.
-            gff_feature = {
+            gff_feature: GffFeatureDict = {
                 "name": name,
                 "type": "gff",
-                "start": gff_result.start,
-                "stop": gff_result.stop,
-                "strand": gff_result.strand,
+                "start": gff_result.start,  # type: ignore[attr-defined]
+                "stop": gff_result.stop,  # type: ignore[attr-defined]
+                "strand": gff_result.strand,  # type: ignore[attr-defined]
                 "source": f"gff_{num}",
-                "contig": gff_result.seqid,
+                "contig": gff_result.seqid,  # type: ignore[attr-defined]
                 "legend": os.path.basename(gff_file),
                 "tags": [],
                 "meta": {
@@ -654,7 +756,7 @@ def parse_gff_files(
             }
 
             # Add any additional metadata, if present.
-            for attribute, values in gff_result.attributes.items():
+            for attribute, values in gff_result.attributes.items():  # type: ignore[attr-defined]
                 if values:  # Checks if the list is non-empty
                     gff_feature["meta"][attribute] = (
                         float(values[0]) if attribute == "score" else values[0]
@@ -664,7 +766,7 @@ def parse_gff_files(
             file_specific_gff_features.append(gff_feature)
 
         # Close the GFF database.
-        db.conn.close()
+        db.conn.close()  # type: ignore[attr-defined]
 
         assert (
             len(file_specific_gff_features) > 0
@@ -675,7 +777,7 @@ def parse_gff_files(
         # features from different contigs competing with each other.
 
         # Group features by contig
-        features_by_contig: Dict[str, List[Dict[str, Any]]] = {}
+        features_by_contig: Dict[str, List[GffFeatureDict]] = {}
         for feature in file_specific_gff_features:
             contig = str(feature["contig"])
             if contig not in features_by_contig:
@@ -683,7 +785,7 @@ def parse_gff_files(
             features_by_contig[contig].append(feature)
 
         # Apply filtering per contig and collect results
-        filtered_features = []
+        filtered_features: List[GffFeatureDict] = []
         for contig, contig_features in features_by_contig.items():
             # Apply remove_covered_features to features from this contig only
             contig_filtered = [
@@ -713,7 +815,7 @@ def parse_gff_files(
 
 
 def get_feature_locations_and_scores_from_gff_features(
-    gff_features: List[Dict[str, Any]],
+    gff_features: List[GffFeatureDict],
 ) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from GFF features.
@@ -724,7 +826,7 @@ def get_feature_locations_and_scores_from_gff_features(
     Returns:
     list: A list of tuples containing feature locations and scores.
     """
-    feature_locations_and_scores = []
+    feature_locations_and_scores: List[Tuple[int, int, float]] = []
     for gff_feature in gff_features:
         feature_locations_and_scores.append(
             (

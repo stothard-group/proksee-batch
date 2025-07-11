@@ -6,10 +6,10 @@ from typing import Any
 from typing import Dict
 from typing import List
 
-from Bio import SeqIO
-from Bio.SeqFeature import CompoundLocation
-from Bio.SeqFeature import FeatureLocation
-from Bio.SeqRecord import SeqRecord
+from Bio import SeqIO  # type: ignore
+from Bio.SeqFeature import CompoundLocation  # type: ignore
+from Bio.SeqFeature import FeatureLocation  # type: ignore
+from Bio.SeqRecord import SeqRecord  # type: ignore
 
 
 # Global variables (which should later be defined in a config file).
@@ -19,7 +19,7 @@ orientation: str = "+"
 
 def genbank_to_cgview_json(genome_name: str, genbank_file: str, json_file: str) -> None:
     """Convert a GenBank file to a CGView JSON file."""
-    genbank_records: List[SeqRecord] = list(SeqIO.parse(genbank_file, "genbank"))  # type: ignore
+    genbank_records: List[SeqRecord] = list(SeqIO.parse(genbank_file, "genbank"))  # type: ignore[arg-type, no-untyped-call]
 
     now: datetime.datetime = datetime.datetime.now()
 
@@ -58,9 +58,9 @@ def genbank_to_cgview_json(genome_name: str, genbank_file: str, json_file: str) 
     for record in genbank_records:
         # Determine contig name based on availability of attributes.
         genbank_contig_name = ""
-        if record.id is not None and record.id:
+        if record.id:
             genbank_contig_name = record.id
-        elif record.name is not None and record.name:
+        elif record.name:
             genbank_contig_name = record.name
 
         assert (
@@ -88,9 +88,9 @@ def genbank_to_cgview_json(genome_name: str, genbank_file: str, json_file: str) 
             # If the feature is a CDS, determine the reading frame.
             feature_codon_start = 1
             if feature.type == "CDS":
-                codon_start_qualifier = feature.qualifiers.get("codon_start")
-                if codon_start_qualifier is not None and codon_start_qualifier:
-                    feature_codon_start = int(codon_start_qualifier[0])
+                codon_start_qualifier = feature.qualifiers.get("codon_start", [])  # type: ignore[attr-defined]
+                if codon_start_qualifier:
+                    feature_codon_start = int(str(codon_start_qualifier[0]))
             assert feature_codon_start in [
                 1,
                 2,
@@ -98,21 +98,17 @@ def genbank_to_cgview_json(genome_name: str, genbank_file: str, json_file: str) 
             ], f"codon_start must be 1, 2, or 3, not {feature_codon_start}"
 
             # Determine the location type, and process accordingly
-            locations = (
-                feature.location.parts
-                if isinstance(feature.location, CompoundLocation)
-                else (
-                    [feature.location]
-                    if isinstance(feature.location, FeatureLocation)
-                    else None
-                )
-            )
+            locations: List[FeatureLocation]
+            if isinstance(feature.location, CompoundLocation):
+                locations = list(feature.location.parts)
+            else:
+                locations = [feature.location]
 
             # Determine strand.
             strand = 0
-            if {-1} == {loc.strand for loc in locations}:
+            if locations and all(loc.strand == -1 for loc in locations):
                 strand = -1
-            elif {1} == {loc.strand for loc in locations}:
+            elif locations and all(loc.strand == 1 for loc in locations):
                 strand = 1
             else:
                 raise ValueError(
@@ -139,20 +135,21 @@ def genbank_to_cgview_json(genome_name: str, genbank_file: str, json_file: str) 
                 loc_num += 1
 
                 # Switch back to 1-based indexing (Biopython converts to 0-based indexing when parsing GenBank format).
-                start = int(loc.start) + 1
-                stop = int(loc.end)
+                # Handle partial features (e.g., "<1" becomes 1)
+                start = int(loc.start) + 1  # type: ignore[arg-type]
+                stop = int(loc.end)  # type: ignore[arg-type]
 
                 # Assign name based on availability of attributes.
                 name = ""
-                product = feature.qualifiers.get("product")
-                locus_tag = feature.qualifiers.get("locus_tag")
-                gene = feature.qualifiers.get("gene")
+                product = feature.qualifiers.get("product", [])  # type: ignore[attr-defined]
+                locus_tag = feature.qualifiers.get("locus_tag", [])  # type: ignore[attr-defined]
+                gene = feature.qualifiers.get("gene", [])  # type: ignore[attr-defined]
 
-                if gene is not None and gene:
+                if gene:
                     name = gene[0]
-                elif locus_tag is not None and locus_tag:
+                elif locus_tag:
                     name = locus_tag[0]
-                elif product is not None and product:
+                elif product:
                     name = product[0]
 
                 codon_start = 1
@@ -183,7 +180,7 @@ def genbank_to_cgview_json(genome_name: str, genbank_file: str, json_file: str) 
                         # Add the length of the current location to the total.
                         cumulative_bp_from_first_codon_start += abs(stop - start) + 1
 
-                feature_data = {
+                feature_data: Dict[str, Any] = {
                     "type": feature.type,
                     "name": name,
                     "start": start,
@@ -223,7 +220,7 @@ def fasta_to_cgview_json(genome_name: str, fasta_file: str, json_file: str) -> N
     same format as generated by the `genbank_to_cgview_json` function. There
     will be no features in the JSON file, only sequences/contigs.
     """
-    fasta_records: List[SeqRecord] = list(SeqIO.parse(fasta_file, "fasta"))  # type: ignore
+    fasta_records: List[SeqRecord] = list(SeqIO.parse(fasta_file, "fasta"))  # type: ignore[arg-type, no-untyped-call]
 
     now: datetime.datetime = datetime.datetime.now()
 
@@ -255,9 +252,9 @@ def fasta_to_cgview_json(genome_name: str, fasta_file: str, json_file: str) -> N
     for record in fasta_records:
         # Determine contig name based on availability of attributes.
         fasta_contig_name = ""
-        if record.id is not None and record.id:
+        if record.id:
             fasta_contig_name = record.id
-        elif record.description is not None and record.description:
+        elif record.description:
             fasta_contig_name = record.description
 
         assert (

@@ -1,5 +1,6 @@
 from typing import Any
 from typing import Dict
+from typing import List
 
 
 def sort_tracks(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -15,7 +16,7 @@ def sort_tracks(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
     assert "tracks" in cgview_map_json_data["cgview"]
 
     # Initialize a list to hold the tracks for additional features.
-    additional_feature_tracks = []
+    additional_feature_tracks: List[Dict[str, Any]] = []
 
     # Iterate over each track and add it to the list if it's name starts with
     # one of the relevant prefixes.
@@ -26,7 +27,7 @@ def sort_tracks(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
                 break
 
     # Sort the additional feature tracks alphabetically by name.
-    additional_feature_tracks.sort(key=lambda x: x["name"])
+    additional_feature_tracks.sort(key=lambda x: str(x["name"]))
 
     # Make the complete list of tracks by concatenating the sorted additional
     # feature tracks with the tracks that are not additional features.

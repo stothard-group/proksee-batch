@@ -1,5 +1,7 @@
 from typing import Any
 from typing import Dict
+from typing import List
+from typing import Set
 
 import seaborn as sns  # type: ignore
 
@@ -48,12 +50,12 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
     # Iterate over all the features, and compile a comprehensive nonredundant
     # list of all legend names referenced by the features.
     assert "features" in cgview_map_json_data["cgview"], "No features found in map."
-    all_legend_names = set()
+    all_legend_names: Set[str] = set()
     for feature in cgview_map_json_data["cgview"]["features"]:
-        all_legend_names.add(feature["legend"])
+        all_legend_names.add(str(feature["legend"]))
 
     # Initialize the dictionary to hold additional feature track/legend names.
-    additional_feature_tracks_by_type: Dict[str, Any] = {}
+    additional_feature_tracks_by_type: Dict[str, List[str]] = {}
 
     # Iterate over each track/legend and group additional feature tracks by type.
     for track in cgview_map_json_data["cgview"]["tracks"]:
@@ -66,9 +68,9 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
                 break
 
     # Get a list of all the additional feature track names (joined values from the dict).
-    all_additional_feature_track_names = set().union(
-        *additional_feature_tracks_by_type.values()
-    )
+    all_additional_feature_track_names: Set[str] = set()
+    for track_list in additional_feature_tracks_by_type.values():
+        all_additional_feature_track_names.update(track_list)
 
     # The track names for these additional features should be among the legend
     # item names.
@@ -119,7 +121,7 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
 
     # Make a list of the common genbank features (legends) that are present in
     # the complete list.
-    common_genbank_legend_names = [
+    common_genbank_legend_names: List[str] = [
         legend_name
         for legend_name in common_genbank_features
         if legend_name in all_legend_names
@@ -144,7 +146,7 @@ def update_legend(cgview_map_json_data: Dict[str, Any]) -> Dict[str, Any]:
 
     # For the remaining legend items, assign a color from the palette and add
     # corresponding legend items to the legend.
-    remaining_legends = list(
+    remaining_legends: List[str] = list(
         set(all_legend_names)
         - set(common_genbank_legend_names)
         - set(all_additional_feature_track_names)

@@ -2,6 +2,9 @@ import json
 import os
 import tempfile
 from importlib import resources
+from typing import Any
+from typing import Dict
+from typing import List
 
 from proksee_batch.parse_additional_features import add_bed_features_and_tracks
 from proksee_batch.parse_additional_features import add_blast_features_and_tracks
@@ -19,7 +22,7 @@ def test_parse_blast_files() -> None:
         blast_features, blast_tracks = parse_blast_files([blast_file])
 
         # Assert that the BLAST result file was parsed correctly.
-        expected_blast_features = [
+        expected_blast_features: List[Dict[str, Any]] = [
             {
                 "name": "subject_seq_1",
                 "type": "blast",

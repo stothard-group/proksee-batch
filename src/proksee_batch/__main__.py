@@ -16,15 +16,12 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Tuple
 
 import click
-import toml
 
 from .download_example_input import download_example_input
 
 # from .generate_proksee_link import generate_proksee_link
-from .generate_report_html import generate_report_html
 from .get_stats_from_seq_file import get_stats_from_seq_file
 from .merge_cgview_json_with_template import merge_cgview_json_with_template
 from .parse_additional_features import add_bed_features_and_tracks
@@ -108,7 +105,7 @@ def main(
         os.mkdir(os.path.join(output_path, "data", "genome_maps"))
 
     # Initiate a dictionary to store file paths for each genome.
-    genome_info = []
+    genome_info: List[Dict[str, Any]] = []
 
     # Iterate over subdirectories in the input directory.
     genome_num = 0
@@ -290,7 +287,7 @@ def main(
             try:
                 with open(json_paths[0]) as template_file:
                     # Load the template file as a JSON object.
-                    configuration = json.load(template_file)
+                    json.load(template_file)  # Validate JSON format
                     template_path = json_paths[0]
             except json.JSONDecodeError as e:
                 print(f"Error reading the template file: {e}", file=sys.stderr)
@@ -341,10 +338,6 @@ def main(
         # Update the legend.
         json_data = json.load(open(merged_json_file_with_gc_tracks))
         json_data_with_updated_legend = update_legend(json_data)
-        json_file_with_updated_legend = os.path.join(
-            temp_output,
-            genome_code_name + ".merged_with_gc_tracks_with_updated_legend.json",
-        )
 
         # Sort the tracks.
         json_data_with_sorted_tracks = sort_tracks(json_data_with_updated_legend)
