@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "proksee-batch"
-version = "0.6.6"
+version = "0.6.7"
 description = "Proksee Batch"
 authors = ["Lael D. Barlow"]
 license = "MIT"
@@ -16,7 +16,7 @@ classifiers = [
 Changelog = "https://github.com/stothard-group/proksee-batch/releases"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "~3.13"
 click = ">=8.0.1"
 biopython = ">=1.83"
 requests = "^2.31.0"
