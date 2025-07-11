@@ -101,19 +101,36 @@ def parse_blast_files(
             file_specific_blast_features.append(blast_feature)
 
         # Remove BLAST features that are completely covered by another BLAST feature
-        # with an equal or higher score.
-        file_specific_blast_features = [
-            blast_feature
-            for blast_feature, is_not_covered in zip(
-                file_specific_blast_features,
-                remove_covered_features(
-                    get_feature_locations_and_scores_from_blast_features(
-                        file_specific_blast_features
-                    )
-                ),
-            )
-            if is_not_covered
-        ]
+        # with an equal or higher score. Apply filtering per contig to avoid
+        # features from different contigs competing with each other.
+
+        # Group features by contig
+        features_by_contig = {}
+        for feature in file_specific_blast_features:
+            contig = feature["contig"]
+            if contig not in features_by_contig:
+                features_by_contig[contig] = []
+            features_by_contig[contig].append(feature)
+
+        # Apply filtering per contig and collect results
+        filtered_features = []
+        for contig, contig_features in features_by_contig.items():
+            # Apply remove_covered_features to features from this contig only
+            contig_filtered = [
+                feature
+                for feature, is_not_covered in zip(
+                    contig_features,
+                    remove_covered_features(
+                        get_feature_locations_and_scores_from_blast_features(
+                            contig_features
+                        )
+                    ),
+                )
+                if is_not_covered
+            ]
+            filtered_features.extend(contig_filtered)
+
+        file_specific_blast_features = filtered_features
 
         # Add the file-specific BLAST features to the list of BLAST features.
         blast_features += file_specific_blast_features
@@ -127,7 +144,7 @@ def parse_blast_files(
 
 
 def get_feature_locations_and_scores_from_blast_features(
-    blast_features: List[Dict[str, Any]]
+    blast_features: List[Dict[str, Any]],
 ) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from BLAST features.
@@ -280,19 +297,36 @@ def parse_bed_files(
             file_specific_bed_features.append(bed_feature)
 
         # Remove BED features that are completely covered by another BED feature
-        # with an equal or higher score.
-        file_specific_bed_features = [
-            bed_feature
-            for bed_feature, is_not_covered in zip(
-                file_specific_bed_features,
-                remove_covered_features(
-                    get_feature_locations_and_scores_from_bed_features(
-                        file_specific_bed_features
-                    )
-                ),
-            )
-            if is_not_covered
-        ]
+        # with an equal or higher score. Apply filtering per contig to avoid
+        # features from different contigs competing with each other.
+
+        # Group features by contig
+        features_by_contig = {}
+        for feature in file_specific_bed_features:
+            contig = feature["contig"]
+            if contig not in features_by_contig:
+                features_by_contig[contig] = []
+            features_by_contig[contig].append(feature)
+
+        # Apply filtering per contig and collect results
+        filtered_features = []
+        for contig, contig_features in features_by_contig.items():
+            # Apply remove_covered_features to features from this contig only
+            contig_filtered = [
+                feature
+                for feature, is_not_covered in zip(
+                    contig_features,
+                    remove_covered_features(
+                        get_feature_locations_and_scores_from_bed_features(
+                            contig_features
+                        )
+                    ),
+                )
+                if is_not_covered
+            ]
+            filtered_features.extend(contig_filtered)
+
+        file_specific_bed_features = filtered_features
 
         # Add the file-specific BED features to the list of BED features.
         bed_features += file_specific_bed_features
@@ -304,7 +338,7 @@ def parse_bed_files(
 
 
 def get_feature_locations_and_scores_from_bed_features(
-    bed_features: List[Dict[str, Any]]
+    bed_features: List[Dict[str, Any]],
 ) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from BED features.
@@ -442,19 +476,36 @@ def parse_vcf_files(
             file_specific_vcf_features.append(vcf_feature)
 
         # Remove VCF features that are completely covered by another VCF feature
-        # with an equal or higher score.
-        file_specific_vcf_features = [
-            vcf_feature
-            for vcf_feature, is_not_covered in zip(
-                file_specific_vcf_features,
-                remove_covered_features(
-                    get_feature_locations_and_scores_from_vcf_features(
-                        file_specific_vcf_features
-                    )
-                ),
-            )
-            if is_not_covered
-        ]
+        # with an equal or higher score. Apply filtering per contig to avoid
+        # features from different contigs competing with each other.
+
+        # Group features by contig
+        features_by_contig = {}
+        for feature in file_specific_vcf_features:
+            contig = feature["contig"]
+            if contig not in features_by_contig:
+                features_by_contig[contig] = []
+            features_by_contig[contig].append(feature)
+
+        # Apply filtering per contig and collect results
+        filtered_features = []
+        for contig, contig_features in features_by_contig.items():
+            # Apply remove_covered_features to features from this contig only
+            contig_filtered = [
+                feature
+                for feature, is_not_covered in zip(
+                    contig_features,
+                    remove_covered_features(
+                        get_feature_locations_and_scores_from_vcf_features(
+                            contig_features
+                        )
+                    ),
+                )
+                if is_not_covered
+            ]
+            filtered_features.extend(contig_filtered)
+
+        file_specific_vcf_features = filtered_features
 
         # Add the file-specific VCF features to the list of VCF features.
         vcf_features += file_specific_vcf_features
@@ -466,7 +517,7 @@ def parse_vcf_files(
 
 
 def get_feature_locations_and_scores_from_vcf_features(
-    vcf_features: List[Dict[str, Any]]
+    vcf_features: List[Dict[str, Any]],
 ) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from VCF features.
@@ -620,19 +671,36 @@ def parse_gff_files(
         ), f"No GFF features or tracks were obtained from input file {gff_file}."
 
         # Remove GFF features that are completely covered by another GFF feature
-        # with an equal or higher score.
-        file_specific_gff_features = [
-            gff_feature
-            for gff_feature, is_not_covered in zip(
-                file_specific_gff_features,
-                remove_covered_features(
-                    get_feature_locations_and_scores_from_gff_features(
-                        file_specific_gff_features
-                    )
-                ),
-            )
-            if is_not_covered
-        ]
+        # with an equal or higher score. Apply filtering per contig to avoid
+        # features from different contigs competing with each other.
+
+        # Group features by contig
+        features_by_contig = {}
+        for feature in file_specific_gff_features:
+            contig = feature["contig"]
+            if contig not in features_by_contig:
+                features_by_contig[contig] = []
+            features_by_contig[contig].append(feature)
+
+        # Apply filtering per contig and collect results
+        filtered_features = []
+        for contig, contig_features in features_by_contig.items():
+            # Apply remove_covered_features to features from this contig only
+            contig_filtered = [
+                feature
+                for feature, is_not_covered in zip(
+                    contig_features,
+                    remove_covered_features(
+                        get_feature_locations_and_scores_from_gff_features(
+                            contig_features
+                        )
+                    ),
+                )
+                if is_not_covered
+            ]
+            filtered_features.extend(contig_filtered)
+
+        file_specific_gff_features = filtered_features
 
         assert (
             len(file_specific_gff_features) > 0
@@ -645,7 +713,7 @@ def parse_gff_files(
 
 
 def get_feature_locations_and_scores_from_gff_features(
-    gff_features: List[Dict[str, Any]]
+    gff_features: List[Dict[str, Any]],
 ) -> List[Tuple[int, int, float]]:
     """
     Gets feature locations and scores from GFF features.
