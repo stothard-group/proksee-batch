@@ -58,7 +58,7 @@ name: proksee-batch
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
+  - python=3.13
   - pip
   - pip:
       - proksee-batch
