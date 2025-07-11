@@ -70,6 +70,7 @@ jobs:
           #pipx install --pip-args="--constraint=.github/workflows/constraints.txt" poetry
           pipx install poetry>=1.8.0
           poetry --version
+          poetry self add poetry-plugin-export
 
       - name: Install Nox
         run: |
@@ -136,6 +137,7 @@ jobs:
           #pipx install --pip-args="--constraint=.github/workflows/constraints.txt" poetry
           pipx install poetry>=1.8.0
           poetry --version
+          poetry self add poetry-plugin-export
 
       - name: Install Nox
         run: |
