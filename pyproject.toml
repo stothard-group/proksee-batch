@@ -30,7 +30,7 @@ types-toml = "^0.10.8.7"
 gffutils = "^0.12"
 seaborn = "^0.13.2"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 Pygments = ">=2.10.0"
 black = ">=21.10b0"
 darglint = ">=1.8.1"
