@@ -41,17 +41,13 @@ If you just want to update the HTML report, then you can copy the
 `src/proksee-batch/data/data`, and then work with the
 `src/proksee-batch/data/report.html` file directly in the source code.
 
-For modifying the main Python package code, you will need Python 3.7+ and the
-following tools:
+For modifying the main Python package code, you will need [Poetry]. Poetry is
+the project/package manager that handles all dependencies. To install Poetry,
+see the [instructions](https://python-poetry.org/docs/) (it is available via
+many different package managers).
 
-- [Poetry]
-- [Nox]
-- [nox-poetry]
-
-Poetry is the project/package manager, and Nox is the automation tool for
-testing.
-
-Install the package with development requirements:
+With Poetry installed, install the proksee-batch package (will install
+development requirements):
 
 ```console
 $ poetry install
@@ -66,28 +62,26 @@ $ poetry run proksee-batch
 ```
 
 [poetry]: https://python-poetry.org/
-[nox]: https://nox.thea.codes/
-[nox-poetry]: https://nox-poetry.readthedocs.io/
 
 ## How to test the project
 
 Run the full test suite:
 
 ```console
-$ nox
+$ poetry run nox
 ```
 
 List the available Nox sessions:
 
 ```console
-$ nox --list-sessions
+$ poetry run nox --list-sessions
 ```
 
 You can also run a specific Nox session.
 For example, invoke the unit test suite like this:
 
 ```console
-$ nox --session=tests
+$ poetry run nox --session=tests
 ```
 
 Unit tests are located in the _tests_ directory,
@@ -128,7 +122,7 @@ Feel free to submit early, though—we can always iterate on this.
 To run linting and code formatting checks before committing your change, you can install pre-commit as a Git hook by running the following command:
 
 ```console
-$ nox --session=pre-commit -- install
+$ poetry run nox --session=pre-commit -- install
 ```
 
 It is recommended to open an issue before starting work on anything.
