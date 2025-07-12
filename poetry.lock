@@ -3463,21 +3463,6 @@ files = [
 ]
 
 [[package]]
-name = "typeguard"
-version = "4.4.4"
-description = "Run-time type checker for Python"
-optional = false
-python-versions = ">=3.9"
-groups = ["dev"]
-files = [
-    {file = "typeguard-4.4.4-py3-none-any.whl", hash = "sha256:b5f562281b6bfa1f5492470464730ef001646128b180769880468bd84b68b09e"},
-    {file = "typeguard-4.4.4.tar.gz", hash = "sha256:3a7fd2dffb705d4d0efaed4306a704c89b9dee850b688f060a8b1615a79e5f74"},
-]
-
-[package.dependencies]
-typing_extensions = ">=4.14.0"
-
-[[package]]
 name = "types-requests"
 version = "2.32.4.20250611"
 description = "Typing stubs for requests"
@@ -4083,4 +4068,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.1"
 python-versions = "~3.13"
-content-hash = "7fb89c3647a38053dd7117a3ab8c13c4adde277c366e77f2f254a8dc931916ed"
+content-hash = "c5de5967b7f500d8905aebf418e6c8781eb98bb4289ef8a074612ebbf426ebc4"
