@@ -9,7 +9,7 @@ from typing import Union
 
 import gffutils  # type: ignore
 
-from .remove_covered_features import remove_covered_features
+from .remove_covered_features import remove_covered_features_optimized
 
 
 class FeatureDecorationDict(TypedDict):
@@ -222,7 +222,7 @@ def parse_blast_files(
                 feature
                 for feature, is_not_covered in zip(
                     contig_features,
-                    remove_covered_features(
+                    remove_covered_features_optimized(
                         get_feature_locations_and_scores_from_blast_features(
                             contig_features
                         )
@@ -417,7 +417,7 @@ def parse_bed_files(
                 feature
                 for feature, is_not_covered in zip(
                     contig_features,
-                    remove_covered_features(
+                    remove_covered_features_optimized(
                         get_feature_locations_and_scores_from_bed_features(
                             contig_features
                         )
@@ -597,7 +597,7 @@ def parse_vcf_files(
                 feature
                 for feature, is_not_covered in zip(
                     contig_features,
-                    remove_covered_features(
+                    remove_covered_features_optimized(
                         get_feature_locations_and_scores_from_vcf_features(
                             contig_features
                         )
@@ -792,7 +792,7 @@ def parse_gff_files(
                 feature
                 for feature, is_not_covered in zip(
                     contig_features,
-                    remove_covered_features(
+                    remove_covered_features_optimized(
                         get_feature_locations_and_scores_from_gff_features(
                             contig_features
                         )
